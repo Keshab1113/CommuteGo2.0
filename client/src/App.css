@@ -1,1 +1,127 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+/* Dark variant */
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------
+   THEME TOKENS (Tailwind v4)
+--------------------------------*/
+@theme inline {
+  /* Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+
+  /* Semantic colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Primary scale (FIXES bg-primary-700 etc) */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+
+  /* Secondary scale */
+  --color-secondary-50: #f0fdf4;
+  --color-secondary-100: #dcfce7;
+  --color-secondary-200: #bbf7d0;
+  --color-secondary-300: #86efac;
+  --color-secondary-400: #4ade80;
+  --color-secondary-500: #22c55e;
+  --color-secondary-600: #16a34a;
+  --color-secondary-700: #15803d;
+  --color-secondary-800: #166534;
+  --color-secondary-900: #14532d;
+
+  /* Shadcn semantic colors */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+}
+
+/* ------------------------------
+   LIGHT MODE
+--------------------------------*/
+:root {
+  --radius: 0.625rem;
+
+  --background: #0 0% 100%;
+  --foreground: #111827;
+
+  --card: #ffffff;
+  --card-foreground: #111827;
+
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+
+  --accent: #f3f4f6;
+  --accent-foreground: #111827;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #3b82f6;
+}
+
+/* ------------------------------
+   DARK MODE
+--------------------------------*/
+.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+
+  --card: #020617;
+  --card-foreground: #f8fafc;
+
+  --popover: #020617;
+  --popover-foreground: #f8fafc;
+
+  --muted: #020617;
+  --muted-foreground: #94a3b8;
+
+  --accent: #020617;
+  --accent-foreground: #f8fafc;
+
+  --destructive: #7f1d1d;
+  --destructive-foreground: #f8fafc;
+
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #93c5fd;
+}
+
+/* ------------------------------
+   BASE STYLES
+--------------------------------*/
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
