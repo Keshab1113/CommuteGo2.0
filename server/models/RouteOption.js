@@ -1,5 +1,5 @@
 // backend/src/models/RouteOption.js
-const db = require('../config/database');
+const { db } = require('../config/database');
 
 class RouteOption {
   static async createBatch(routeId, options) {

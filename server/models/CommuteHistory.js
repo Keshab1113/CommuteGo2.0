@@ -1,5 +1,5 @@
 // backend/src/models/CommuteHistory.js
-const db = require('../config/database');
+const { db } = require('../config/database');
 
 class CommuteHistory {
   static async create({ userId, routeOptionId, travelledOn }) {

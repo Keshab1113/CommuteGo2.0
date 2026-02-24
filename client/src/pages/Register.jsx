@@ -68,7 +68,7 @@ const Register = () => {
     }
     
     setLoading(true);
-    const result = await register(formData.name, formData.email, formData.password);
+    const result = await register(formData.name, formData.email, formData.password, formData.confirmPassword);
     
     if (result.success) {
       navigate('/');

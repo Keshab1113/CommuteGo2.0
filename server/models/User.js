@@ -1,5 +1,5 @@
 // backend/src/models/User.js
-const db = require('../config/database');
+const { db } = require('../config/database');
 
 class User {
   static async create({ name, email, passwordHash, role = 'user' }) {

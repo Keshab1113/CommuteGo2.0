@@ -1,5 +1,5 @@
 // backend/src/services/analyticsService.js
-const db = require('../config/database');
+const { db } = require('../config/database');
 const dayjs = require('dayjs');
 
 class AnalyticsService {
