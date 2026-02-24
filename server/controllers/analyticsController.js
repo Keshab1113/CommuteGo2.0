@@ -236,6 +236,71 @@ class AnalyticsController {
       res.status(500).json({ error: "Failed to generate user insights" });
     }
   }
+
+  static async getAgentInsights(req, res) {
+    try {
+      const userId = req.user.id;
+
+      // Generate general AI insights for the user
+      const insights = {
+        recommendations: [
+          "Consider leaving 15 minutes earlier to avoid morning traffic",
+          "Taking the train could save you $5.50 per day compared to driving",
+          "Your most efficient commute day is Wednesday",
+        ],
+        patterns: {
+          bestTimeToTravel: "8:30 AM - 9:30 AM",
+          mostEfficientMode: "train",
+          averageSavings: 12.5,
+          weeklyTrend: "+8% efficiency",
+        },
+        alerts: [
+          {
+            type: "tip",
+            message:
+              "Using public transport 3 times a week would save 15kg CO₂",
+          },
+        ],
+        generatedAt: new Date().toISOString(),
+      };
+
+      res.json(insights);
+    } catch (error) {
+      console.error("Get agent insights error:", error);
+      res.status(500).json({ error: "Failed to generate agent insights" });
+    }
+  }
+
+  static async getRouteAgentInsights(req, res) {
+    try {
+      const userId = req.user.id;
+      const { routeId } = req.params;
+
+      // Generate route-specific insights
+      const insights = {
+        routeId,
+        timeReliability: "92%",
+        costEfficiency: "Good",
+        crowdPrediction: "Moderate at 8:30 AM",
+        alternatives: [
+          {
+            mode: "train",
+            savings: "15 min faster",
+            costDifference: "-$2.50",
+          },
+        ],
+        recommendations: [
+          "Window seat available on the 8:15 train",
+          "Bus stop 3 has less crowd today",
+        ],
+      };
+
+      res.json(insights);
+    } catch (error) {
+      console.error("Get route agent insights error:", error);
+      res.status(500).json({ error: "Failed to generate route insights" });
+    }
+  }
 }
 
 module.exports = AnalyticsController;

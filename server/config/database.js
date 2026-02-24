@@ -1,39 +1,51 @@
-// backend/src/config/database.js
-const mysql = require('mysql2');
-const dotenv = require('dotenv');
+const mysql = require('mysql2/promise');
+const logger = require('../utils/logger');
 
-dotenv.config();
-
-// Create connection pool
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'commutego',
-  port: process.env.DB_PORT || 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'commutego',
+    waitForConnections: true,
+    connectionLimit: process.env.NODE_ENV === 'production' ? 20 : 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0,
+    timezone: '+00:00',
+    dateStrings: true,
+    namedPlaceholders: true
 });
 
-// Convert pool to use promises
-const promisePool = pool.promise();
-
-// Test database connection
 const testConnection = async () => {
-  try {
-    const connection = await promisePool.getConnection();
-    console.log('✅ MySQL Database Connected Successfully');
-    connection.release();
-  } catch (error) {
-    console.error('❌ Database Connection Failed:', error.message);
-    throw error;
-  }
+    try {
+        const connection = await pool.getConnection();
+        logger.info('✅ Database connection successful');
+        
+        // Test query
+        await connection.query('SELECT 1');
+        
+        connection.release();
+        return true;
+    } catch (error) {
+        logger.error('❌ Database connection failed:', error);
+        throw error;
+    }
 };
 
-// Export the pool for use in models
-const db = promisePool;
+// Monitor pool events
+pool.on('acquire', (connection) => {
+    logger.debug('Connection %d acquired', connection.threadId);
+});
 
-module.exports = { db, testConnection };
+pool.on('release', (connection) => {
+    logger.debug('Connection %d released', connection.threadId);
+});
+
+pool.on('enqueue', () => {
+    logger.debug('Waiting for available connection slot');
+});
+
+module.exports = { 
+    db: pool,
+    testConnection 
+};

@@ -1,24 +1,50 @@
-// backend/server.js
 const app = require("./app");
 const { testConnection } = require("./config/database");
+const logger = require("./utils/logger");
 
 const PORT = process.env.PORT || 5000;
 
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+    logger.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+    logger.error(err.name, err.message, err.stack);
+    process.exit(1);
+});
+
 // Test database connection and start server
 const startServer = async () => {
-  try {
-    await testConnection();
-    console.log("✅ MySQL database connected successfully");
-    
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/health`);
-      console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
-    });
-  } catch (err) {
-    console.error("❌ Database connection failed:", err);
-    process.exit(1);
-  }
+    try {
+        await testConnection();
+        logger.info("✅ MySQL database connected successfully");
+        
+        const server = app.listen(PORT, () => {
+            logger.info(`🚀 Server running on port ${PORT}`);
+            logger.info(`📊 Health check: http://localhost:${PORT}/health`);
+            logger.info(`🔗 API Base URL: http://localhost:${PORT}/api`);
+            logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+        });
+
+        // Handle unhandled rejections
+        process.on('unhandledRejection', (err) => {
+            logger.error('UNHANDLED REJECTION! 💥 Shutting down...');
+            logger.error(err.name, err.message, err.stack);
+            server.close(() => {
+                process.exit(1);
+            });
+        });
+
+        // Graceful shutdown
+        process.on('SIGTERM', () => {
+            logger.info('👋 SIGTERM received. Shutting down gracefully');
+            server.close(() => {
+                logger.info('💤 Process terminated');
+            });
+        });
+
+    } catch (err) {
+        logger.error("❌ Database connection failed:", err);
+        process.exit(1);
+    }
 };
 
 startServer();

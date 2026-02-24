@@ -133,7 +133,7 @@ const Login = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" variant="outline" className="w-full" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -158,17 +158,6 @@ const Login = () => {
                     Or continue with
                   </span>
                 </div>
-              </div>
-
-              <div className="mt-6 space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleDemoLogin}
-                  disabled={loading}
-                >
-                  Try Demo Account
-                </Button>
               </div>
             </div>
 
