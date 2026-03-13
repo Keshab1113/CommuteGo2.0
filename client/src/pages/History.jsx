@@ -33,9 +33,9 @@ import {
   Footprints,
   GitBranch,
   TrendingUp,
-  TrendingDown,
+  ArrowRight,
   Brain,
-  Sparkles,
+  MapPin,
   BarChart3,
   PieChart,
   ArrowUpRight,
@@ -105,10 +105,14 @@ const History = () => {
   const loadHistory = async () => {
     setLoading(true);
     try {
+      console.log('Loading history...');
       const response = await commuteAPI.getHistory(100);
+      console.log('History response:', response);
+      console.log('History data:', response.data);
       setHistory(response.data);
     } catch (error) {
       console.error('Error loading history:', error);
+      console.error('Error response:', error.response);
       toast({
         title: "Error",
         description: "Failed to load commute history",
@@ -122,10 +126,10 @@ const History = () => {
   const calculateStats = () => {
     if (filteredHistory.length === 0) return;
 
-    const totalDistance = filteredHistory.reduce((sum, item) => sum + (item.distance_km || 0), 0);
-    const totalCost = filteredHistory.reduce((sum, item) => sum + (item.total_cost || 0), 0);
-    const totalTime = filteredHistory.reduce((sum, item) => sum + (item.total_time || 0), 0);
-    const totalCarbon = filteredHistory.reduce((sum, item) => sum + (item.carbon_kg || 0), 0);
+    const totalDistance = filteredHistory.reduce((sum, item) => sum + (parseFloat(item.distance_km) || 0), 0);
+    const totalCost = filteredHistory.reduce((sum, item) => sum + (parseFloat(item.total_cost) || 0), 0);
+    const totalTime = filteredHistory.reduce((sum, item) => sum + (parseFloat(item.total_time) || 0), 0);
+    const totalCarbon = filteredHistory.reduce((sum, item) => sum + (parseFloat(item.carbon_kg) || 0), 0);
 
     setStats({
       totalDistance,
@@ -201,12 +205,12 @@ const History = () => {
 
   const getModeIcon = (mode) => {
     const icons = {
-      cab: <Car className="h-4 w-4 text-blue-600" />,
-      bus: <Bus className="h-4 w-4 text-green-600" />,
-      train: <Train className="h-4 w-4 text-purple-600" />,
-      metro: <TramFront className="h-4 w-4 text-pink-600" />,
-      walk: <Footprints className="h-4 w-4 text-yellow-600" />,
-      mixed: <GitBranch className="h-4 w-4 text-indigo-600" />
+      cab: <Car className="h-4 w-4 text-blue-600 dark:text-blue-400" />,
+      bus: <Bus className="h-4 w-4 text-green-600 dark:text-green-400" />,
+      train: <Train className="h-4 w-4 text-purple-600 dark:text-purple-400" />,
+      metro: <TramFront className="h-4 w-4 text-pink-600 dark:text-pink-400" />,
+      walk: <Footprints className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />,
+      mixed: <GitBranch className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
     };
     return icons[mode] || null;
   };
@@ -233,24 +237,36 @@ const History = () => {
   };
 
   const formatTime = (minutes) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+    const num = parseFloat(minutes);
+    if (num === undefined || num === null || isNaN(num)) return '-';
+    const hours = Math.floor(num / 60);
+    const mins = num % 60;
     if (hours > 0) return `${hours}h ${mins}m`;
     if (mins === 0) return '0m';
     return `${mins}m`;
   };
 
   const formatCurrency = (amount) => {
+    const num = parseFloat(amount);
+    if (num === undefined || num === null || isNaN(num)) return '-';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2
-    }).format(amount || 0);
+    }).format(num);
   };
 
   const formatDistance = (km) => {
-    if (km < 1) return `${(km * 1000).toFixed(0)}m`;
-    return `${km.toFixed(1)}km`;
+    const num = parseFloat(km);
+    if (num === undefined || num === null || isNaN(num)) return '-';
+    if (num < 1) return `${(num * 1000).toFixed(0)}m`;
+    return `${num.toFixed(1)}km`;
+  };
+
+  const formatCarbon = (kg) => {
+    const num = parseFloat(kg);
+    if (num === undefined || num === null || isNaN(num)) return '-';
+    return `${num.toFixed(1)} kg`;
   };
 
   // Pagination
@@ -344,7 +360,7 @@ const History = () => {
               </Badge>
             )}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Track, analyze, and optimize your past commutes with AI insights
           </p>
         </div>
@@ -397,7 +413,7 @@ const History = () => {
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     placeholder="Search by location..."
-                    className="pl-10"
+                    className="pl-10 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -456,62 +472,62 @@ const History = () => {
         {/* Stats Cards */}
         {filteredHistory.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Total Distance</p>
-                    <p className="text-2xl font-bold">{formatDistance(stats.totalDistance)}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Avg: {formatDistance(stats.totalDistance / filteredHistory.length)}
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Distance</p>
+                    <p className="text-2xl font-bold dark:text-white">{formatDistance(stats.totalDistance)}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Avg: {formatDistance(filteredHistory.length > 0 ? stats.totalDistance / filteredHistory.length : 0)}
                     </p>
                   </div>
-                  <MapPin className="h-8 w-8 text-gray-400" />
+                  <MapPin className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                 </div>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Total Spent</p>
-                    <p className="text-2xl font-bold">{formatCurrency(stats.totalCost)}</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Spent</p>
+                    <p className="text-2xl font-bold dark:text-white">{formatCurrency(stats.totalCost)}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Avg: {formatCurrency(stats.avgCost)}
                     </p>
                   </div>
-                  <DollarSign className="h-8 w-8 text-gray-400" />
+                  <DollarSign className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                 </div>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Total Time</p>
-                    <p className="text-2xl font-bold">{formatTime(stats.totalTime)}</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Time</p>
+                    <p className="text-2xl font-bold dark:text-white">{formatTime(stats.totalTime)}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Avg: {formatTime(stats.avgTime)}
                     </p>
                   </div>
-                  <Clock className="h-8 w-8 text-gray-400" />
+                  <Clock className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                 </div>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Carbon Footprint</p>
-                    <p className="text-2xl font-bold">{stats.totalCarbon.toFixed(1)} kg</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Avg: {stats.avgCarbon.toFixed(1)} kg
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Carbon Footprint</p>
+                    <p className="text-2xl font-bold dark:text-white">{stats.totalCarbon ? parseFloat(stats.totalCarbon).toFixed(1) : '0.0'} kg</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Avg: {stats.avgCarbon ? parseFloat(stats.avgCarbon).toFixed(1) : '0.0'} kg
                     </p>
                   </div>
-                  <Leaf className="h-8 w-8 text-gray-400" />
+                  <Leaf className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                 </div>
               </CardContent>
             </Card>
@@ -520,12 +536,12 @@ const History = () => {
 
         {/* Table View */}
         <TabsContent value="table">
-          <Card>
-            <CardHeader>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader className="dark:text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Recent Commutes</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="dark:text-white">Recent Commutes</CardTitle>
+                  <CardDescription className="dark:text-gray-400">
                     Showing {currentItems.length} of {filteredHistory.length} commutes
                   </CardDescription>
                 </div>
@@ -545,7 +561,7 @@ const History = () => {
                 </div>
               ) : currentItems.length > 0 ? (
                 <>
-                  <div className="rounded-md border overflow-x-auto">
+                  <div className="rounded-md border dark:border-gray-700 overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -568,57 +584,57 @@ const History = () => {
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
                               transition={{ delay: idx * 0.02 }}
-                              className="border-b hover:bg-gray-50"
+                              className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
                             >
                               <TableCell>
                                 <div className="text-sm font-medium">
                                   {formatDate(item.travelled_on)}
                                 </div>
-                                <div className="text-xs text-gray-500">
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
                                   {new Date(item.travelled_on).toLocaleTimeString()}
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <div className="font-medium flex items-center gap-1">
+                                <div className="font-medium dark:text-white flex items-center gap-1">
                                   <span className="truncate max-w-[100px]">{item.source}</span>
-                                  <ArrowRight className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                                  <ArrowRight className="h-3 w-3 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                                   <span className="truncate max-w-[100px]">{item.destination}</span>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
                                   {getModeIcon(item.mode)}
-                                  <span className="text-sm">{getModeLabel(item.mode)}</span>
+                                  <span className="text-sm dark:text-gray-300">{getModeLabel(item.mode)}</span>
                                   <div className="flex gap-1">
                                     {item.rank_cheapest === 1 && (
-                                      <Badge variant="outline" className="text-[10px] px-1 bg-green-50">
+                                      <Badge variant="outline" className="text-[10px] px-1 bg-green-50 dark:bg-green-900/30">
                                         💰
                                       </Badge>
                                     )}
                                     {item.rank_fastest === 1 && (
-                                      <Badge variant="outline" className="text-[10px] px-1 bg-blue-50">
+                                      <Badge variant="outline" className="text-[10px] px-1 bg-blue-50 dark:bg-blue-900/30">
                                         ⚡
                                       </Badge>
                                     )}
                                     {item.rank_eco === 1 && (
-                                      <Badge variant="outline" className="text-[10px] px-1 bg-emerald-50">
+                                      <Badge variant="outline" className="text-[10px] px-1 bg-emerald-50 dark:bg-emerald-900/30">
                                         🌱
                                       </Badge>
                                     )}
                                   </div>
                                 </div>
                               </TableCell>
-                              <TableCell className="text-sm">
+                              <TableCell className="text-sm dark:text-gray-300">
                                 {formatDistance(item.distance_km)}
                               </TableCell>
-                              <TableCell className="text-sm">
+                              <TableCell className="text-sm dark:text-gray-300">
                                 {formatTime(item.total_time)}
                               </TableCell>
-                              <TableCell className="text-sm font-medium">
+                              <TableCell className="text-sm font-medium dark:text-white">
                                 {formatCurrency(item.total_cost)}
                               </TableCell>
-                              <TableCell className="text-sm">
-                                {item.carbon_kg?.toFixed(1)} kg
+                              <TableCell className="text-sm dark:text-gray-300">
+                                {formatCarbon(item.carbon_kg)}
                               </TableCell>
                               <TableCell className="text-right">
                                 <div className="flex justify-end gap-1">
@@ -628,82 +644,82 @@ const History = () => {
                                         <Eye className="h-4 w-4" />
                                       </Button>
                                     </DialogTrigger>
-                                    <DialogContent className="max-w-2xl">
+                                    <DialogContent className="max-w-2xl dark:bg-gray-800">
                                       <DialogHeader>
-                                        <DialogTitle>Commute Details</DialogTitle>
-                                        <DialogDescription>
+                                        <DialogTitle className="dark:text-white">Commute Details</DialogTitle>
+                                        <DialogDescription className="dark:text-gray-400">
                                           Full details for your commute on {formatDate(item.travelled_on)}
                                         </DialogDescription>
                                       </DialogHeader>
                                       <div className="space-y-6">
                                         <div className="grid grid-cols-2 gap-6">
                                           <div className="space-y-2">
-                                            <p className="text-sm text-gray-500">From</p>
-                                            <p className="font-medium">{item.source}</p>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">From</p>
+                                            <p className="font-medium dark:text-white">{item.source}</p>
                                             {item.source_coords && (
-                                              <p className="text-xs text-gray-400">
+                                              <p className="text-xs text-gray-400 dark:text-gray-500">
                                                 Lat: {item.source_coords.lat}, Lng: {item.source_coords.lng}
                                               </p>
                                             )}
                                           </div>
                                           <div className="space-y-2">
-                                            <p className="text-sm text-gray-500">To</p>
-                                            <p className="font-medium">{item.destination}</p>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">To</p>
+                                            <p className="font-medium dark:text-white">{item.destination}</p>
                                             {item.dest_coords && (
-                                              <p className="text-xs text-gray-400">
+                                              <p className="text-xs text-gray-400 dark:text-gray-500">
                                                 Lat: {item.dest_coords.lat}, Lng: {item.dest_coords.lng}
                                               </p>
                                             )}
                                           </div>
                                         </div>
 
-                                        <Separator />
+                                        <Separator className="dark:border-gray-700" />
 
                                         <div className="grid grid-cols-3 gap-4">
-                                          <div className="text-center p-3 bg-gray-50 rounded-lg">
-                                            <Clock className="h-5 w-5 mx-auto mb-2 text-gray-600" />
-                                            <p className="text-sm text-gray-500">Time</p>
-                                            <p className="font-semibold">{formatTime(item.total_time)}</p>
+                                          <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                            <Clock className="h-5 w-5 mx-auto mb-2 text-gray-600 dark:text-gray-300" />
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">Time</p>
+                                            <p className="font-semibold dark:text-white">{formatTime(item.total_time)}</p>
                                             {item.actual_time && (
-                                              <p className="text-xs text-green-600">
+                                              <p className="text-xs text-green-600 dark:text-green-400">
                                                 Actual: {formatTime(item.actual_time)}
                                               </p>
                                             )}
                                           </div>
-                                          <div className="text-center p-3 bg-gray-50 rounded-lg">
-                                            <DollarSign className="h-5 w-5 mx-auto mb-2 text-gray-600" />
-                                            <p className="text-sm text-gray-500">Cost</p>
-                                            <p className="font-semibold">{formatCurrency(item.total_cost)}</p>
+                                          <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                            <DollarSign className="h-5 w-5 mx-auto mb-2 text-gray-600 dark:text-gray-300" />
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">Cost</p>
+                                            <p className="font-semibold dark:text-white">{formatCurrency(item.total_cost)}</p>
                                             {item.actual_cost && (
-                                              <p className="text-xs text-green-600">
+                                              <p className="text-xs text-green-600 dark:text-green-400">
                                                 Actual: {formatCurrency(item.actual_cost)}
                                               </p>
                                             )}
                                           </div>
-                                          <div className="text-center p-3 bg-gray-50 rounded-lg">
-                                            <Leaf className="h-5 w-5 mx-auto mb-2 text-gray-600" />
-                                            <p className="text-sm text-gray-500">Carbon</p>
-                                            <p className="font-semibold">{item.carbon_kg?.toFixed(1)} kg</p>
+                                          <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                            <Leaf className="h-5 w-5 mx-auto mb-2 text-gray-600 dark:text-gray-300" />
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">Carbon</p>
+                                            <p className="font-semibold dark:text-white">{formatCarbon(item.carbon_kg)}</p>
                                           </div>
                                         </div>
 
                                         {item.steps && item.steps.length > 0 && (
                                           <>
-                                            <Separator />
+                                            <Separator className="dark:border-gray-700" />
                                             <div>
-                                              <h4 className="font-medium mb-3">Route Steps</h4>
+                                              <h4 className="font-medium mb-3 dark:text-white">Route Steps</h4>
                                               <div className="space-y-2">
                                                 {item.steps.map((step, idx) => (
-                                                  <div key={idx} className="flex items-center text-sm p-2 bg-gray-50 rounded">
-                                                    <div className="w-6 h-6 flex items-center justify-center bg-white rounded-full mr-3 text-xs font-medium">
+                                                  <div key={idx} className="flex items-center text-sm p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                                                    <div className="w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-600 rounded-full mr-3 text-xs font-medium dark:text-white">
                                                       {idx + 1}
                                                     </div>
                                                     <div className="flex-1">
-                                                      <span className="font-medium capitalize">{step.mode}</span>
+                                                      <span className="font-medium capitalize dark:text-white">{step.mode}</span>
                                                       <span className="mx-2 text-gray-400">→</span>
-                                                      <span className="text-gray-600">{step.from} to {step.to}</span>
+                                                      <span className="text-gray-600 dark:text-gray-300">{step.from} to {step.to}</span>
                                                     </div>
-                                                    <div className="text-gray-500 text-xs">
+                                                    <div className="text-gray-500 dark:text-gray-400 text-xs">
                                                       {step.duration}m • {step.distance}km
                                                     </div>
                                                   </div>
@@ -714,11 +730,11 @@ const History = () => {
                                         )}
 
                                         {item.feedback_score && (
-                                          <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg">
+                                          <div className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
                                             <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                                            <span className="text-sm">Your feedback: {item.feedback_score}/5</span>
+                                            <span className="text-sm dark:text-white">Your feedback: {item.feedback_score}/5</span>
                                             {item.feedback_comment && (
-                                              <span className="text-sm text-gray-600">"{item.feedback_comment}"</span>
+                                              <span className="text-sm text-gray-600 dark:text-gray-300">"{item.feedback_comment}"</span>
                                             )}
                                           </div>
                                         )}
@@ -909,9 +925,9 @@ const History = () => {
                           <span className="text-sm text-gray-600">Average Time</span>
                           <span className="font-medium">{formatTime(stats.avgTime)}</span>
                         </div>
-                        <Progress value={(stats.avgTime / 120) * 100} className="h-2" />
+                        <Progress value={stats.avgTime ? (parseFloat(stats.avgTime) / 120) * 100 : 0} className="h-2" />
                         <p className="text-xs text-gray-500 mt-1">
-                          {stats.avgTime < 30 ? 'Great!' : stats.avgTime < 45 ? 'Good' : 'Could be better'}
+                          {stats.avgTime && parseFloat(stats.avgTime) < 30 ? 'Great!' : stats.avgTime && parseFloat(stats.avgTime) < 45 ? 'Good' : 'Could be better'}
                         </p>
                       </div>
 
@@ -920,20 +936,20 @@ const History = () => {
                           <span className="text-sm text-gray-600">Average Cost</span>
                           <span className="font-medium">{formatCurrency(stats.avgCost)}</span>
                         </div>
-                        <Progress value={(stats.avgCost / 20) * 100} className="h-2" />
+                        <Progress value={stats.avgCost ? (parseFloat(stats.avgCost) / 20) * 100 : 0} className="h-2" />
                         <p className="text-xs text-gray-500 mt-1">
-                          {stats.avgCost < 10 ? 'Budget-friendly' : stats.avgCost < 15 ? 'Moderate' : 'Premium'}
+                          {stats.avgCost && parseFloat(stats.avgCost) < 10 ? 'Budget-friendly' : stats.avgCost && parseFloat(stats.avgCost) < 15 ? 'Moderate' : 'Premium'}
                         </p>
                       </div>
 
                       <div>
                         <div className="flex justify-between mb-2">
                           <span className="text-sm text-gray-600">Carbon Efficiency</span>
-                          <span className="font-medium">{stats.avgCarbon.toFixed(1)} kg</span>
+                          <span className="font-medium">{stats.avgCarbon ? parseFloat(stats.avgCarbon).toFixed(1) : '0.0'} kg</span>
                         </div>
-                        <Progress value={(stats.avgCarbon / 5) * 100} className="h-2" />
+                        <Progress value={stats.avgCarbon ? (parseFloat(stats.avgCarbon) / 5) * 100 : 0} className="h-2" />
                         <p className="text-xs text-gray-500 mt-1">
-                          {stats.avgCarbon < 1 ? 'Eco-friendly' : stats.avgCarbon < 2.5 ? 'Moderate' : 'High impact'}
+                          {stats.avgCarbon && parseFloat(stats.avgCarbon) < 1 ? 'Eco-friendly' : stats.avgCarbon && parseFloat(stats.avgCarbon) < 2.5 ? 'Moderate' : 'High impact'}
                         </p>
                       </div>
                     </div>

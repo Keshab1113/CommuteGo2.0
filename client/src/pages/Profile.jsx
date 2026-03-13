@@ -141,14 +141,14 @@ const Profile = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
+                    <Label htmlFor="name" className="dark:text-gray-200">Full Name</Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                       <Input
                         id="name"
                         name="name"
                         placeholder="John Doe"
-                        className="pl-10"
+                        className="pl-10 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                         value={formData.name}
                         onChange={handleChange}
                         disabled={!editMode}
@@ -157,15 +157,15 @@ const Profile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
+                    <Label htmlFor="email" className="dark:text-gray-200">Email Address</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                       <Input
                         id="email"
                         name="email"
                         type="email"
                         placeholder="name@example.com"
-                        className="pl-10"
+                        className="pl-10 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                         value={formData.email}
                         onChange={handleChange}
                         disabled={!editMode}
@@ -174,12 +174,12 @@ const Profile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Account Type</Label>
-                    <div className="flex items-center gap-2 p-3 border rounded-lg">
+                    <Label className="dark:text-gray-200">Account Type</Label>
+                    <div className="flex items-center gap-2 p-3 border rounded-lg dark:border-gray-700 dark:bg-gray-800">
                       <Shield className="h-5 w-5 text-primary-600" />
                       <div>
-                        <p className="font-medium capitalize">{user?.role || 'User'}</p>
-                        <p className="text-sm text-gray-500">Account permissions level</p>
+                        <p className="font-medium capitalize dark:text-white">{user?.role || 'User'}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Account permissions level</p>
                       </div>
                       {user?.role === 'admin' && (
                         <Badge className="ml-auto">Administrator</Badge>
@@ -188,14 +188,14 @@ const Profile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Member Since</Label>
-                    <div className="flex items-center gap-2 p-3 border rounded-lg">
-                      <Calendar className="h-5 w-5 text-gray-400" />
+                    <Label className="dark:text-gray-200">Member Since</Label>
+                    <div className="flex items-center gap-2 p-3 border rounded-lg dark:border-gray-700 dark:bg-gray-800">
+                      <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       <div>
-                        <p className="font-medium">
+                        <p className="font-medium dark:text-white">
                           {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
                         </p>
-                        <p className="text-sm text-gray-500">Date you joined CommuteGo</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Date you joined CommuteGo</p>
                       </div>
                     </div>
                   </div>
@@ -204,29 +204,29 @@ const Profile = () => {
             </TabsContent>
 
             <TabsContent value="preferences">
-              <Card>
+              <Card className="dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle>Commute Preferences</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="dark:text-white">Commute Preferences</CardTitle>
+                  <CardDescription className="dark:text-gray-400">
                     Customize your default commute settings
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="font-medium">Default Route Preferences</h3>
+                    <h3 className="font-medium dark:text-white">Default Route Preferences</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>Preferred Mode</Label>
-                        <div className="p-3 border rounded-lg">
-                          <p className="font-medium">Balanced</p>
-                          <p className="text-sm text-gray-500">Cost, time, and eco balance</p>
+                        <Label className="dark:text-gray-200">Preferred Mode</Label>
+                        <div className="p-3 border rounded-lg dark:border-gray-700 dark:bg-gray-800">
+                          <p className="font-medium dark:text-white">Balanced</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Cost, time, and eco balance</p>
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label>Max Daily Budget</Label>
-                        <div className="p-3 border rounded-lg">
-                          <p className="font-medium">$20.00</p>
-                          <p className="text-sm text-gray-500">Maximum daily commute spend</p>
+                        <Label className="dark:text-gray-200">Max Daily Budget</Label>
+                        <div className="p-3 border rounded-lg dark:border-gray-700 dark:bg-gray-800">
+                          <p className="font-medium dark:text-white">$20.00</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Maximum daily commute spend</p>
                         </div>
                       </div>
                     </div>
@@ -235,28 +235,28 @@ const Profile = () => {
                   <Separator />
 
                   <div className="space-y-4">
-                    <h3 className="font-medium">Notification Settings</h3>
+                    <h3 className="font-medium dark:text-white">Notification Settings</h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Route Alerts</p>
-                          <p className="text-sm text-gray-500">Traffic and delay notifications</p>
+                          <p className="font-medium dark:text-white">Route Alerts</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Traffic and delay notifications</p>
                         </div>
                         <div className="h-4 w-9 rounded-full bg-primary-600"></div>
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Weekly Reports</p>
-                          <p className="text-sm text-gray-500">Commute analytics and insights</p>
+                          <p className="font-medium dark:text-white">Weekly Reports</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Commute analytics and insights</p>
                         </div>
                         <div className="h-4 w-9 rounded-full bg-primary-600"></div>
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Promotional Offers</p>
-                          <p className="text-sm text-gray-500">Discounts and special deals</p>
+                          <p className="font-medium dark:text-white">Promotional Offers</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Discounts and special deals</p>
                         </div>
-                        <div className="h-4 w-9 rounded-full bg-gray-300"></div>
+                        <div className="h-4 w-9 rounded-full bg-gray-300 dark:bg-gray-600"></div>
                       </div>
                     </div>
                   </div>
@@ -265,10 +265,10 @@ const Profile = () => {
             </TabsContent>
 
             <TabsContent value="achievements">
-              <Card>
+              <Card className="dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle>Achievements</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="dark:text-white">Achievements</CardTitle>
+                  <CardDescription className="dark:text-gray-400">
                     Your accomplishments and milestones
                   </CardDescription>
                 </CardHeader>
@@ -284,23 +284,23 @@ const Profile = () => {
                     ].map((achievement, index) => (
                       <div
                         key={index}
-                        className={`p-4 rounded-lg border ${achievement.earned ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}
+                        className={`p-4 rounded-lg border ${achievement.earned ? 'bg-green-50 border-green-200 dark:bg-green-900/30 dark:border-green-800' : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700'}`}
                       >
                         <div className="flex items-center gap-3 mb-2">
-                          <div className={`p-2 rounded-lg ${achievement.earned ? 'bg-green-100' : 'bg-gray-100'}`}>
-                            <achievement.icon className={`h-5 w-5 ${achievement.earned ? 'text-green-600' : 'text-gray-400'}`} />
+                          <div className={`p-2 rounded-lg ${achievement.earned ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                            <achievement.icon className={`h-5 w-5 ${achievement.earned ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'}`} />
                           </div>
                           <div>
-                            <p className="font-medium">{achievement.title}</p>
-                            <p className="text-sm text-gray-500">{achievement.desc}</p>
+                            <p className="font-medium dark:text-white">{achievement.title}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{achievement.desc}</p>
                           </div>
                         </div>
                         {achievement.earned ? (
-                          <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                          <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-800">
                             Earned
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="bg-gray-100 text-gray-500 border-gray-200">
+                          <Badge variant="outline" className="bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600">
                             Locked
                           </Badge>
                         )}
@@ -315,17 +315,17 @@ const Profile = () => {
 
         {/* Right Column - Profile Card */}
         <div className="space-y-6">
-          <Card>
+          <Card className="dark:border-gray-700">
             <CardContent className="pt-6">
               <div className="flex flex-col items-center text-center">
                 <Avatar className="h-24 w-24 mb-4">
                   <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`} />
-                  <AvatarFallback className="text-xl">
+                  <AvatarFallback className="text-xl dark:bg-gray-700 dark:text-gray-300">
                     {getInitials(user?.name || 'User')}
                   </AvatarFallback>
                 </Avatar>
-                <h2 className="text-xl font-bold">{user?.name}</h2>
-                <p className="text-gray-500 mb-4">{user?.email}</p>
+                <h2 className="text-xl font-bold dark:text-white">{user?.name}</h2>
+                <p className="text-gray-500 mb-4 dark:text-gray-400">{user?.email}</p>
                 <Badge variant={user?.role === 'admin' ? 'default' : 'outline'} className="mb-6">
                   {user?.role === 'admin' ? 'Administrator' : 'Standard User'}
                 </Badge>
@@ -334,20 +334,20 @@ const Profile = () => {
                 
                 <div className="w-full space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Commutes</span>
-                    <span className="font-medium">47</span>
+                    <span className="text-gray-600 dark:text-gray-400">Commutes</span>
+                    <span className="font-medium dark:text-white">47</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Total Saved</span>
-                    <span className="font-medium text-green-600">$1,240</span>
+                    <span className="text-gray-600 dark:text-gray-400">Total Saved</span>
+                    <span className="font-medium text-green-600 dark:text-green-400">$1,240</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Carbon Saved</span>
-                    <span className="font-medium text-emerald-600">85 kg</span>
+                    <span className="text-gray-600 dark:text-gray-400">Carbon Saved</span>
+                    <span className="font-medium text-emerald-600 dark:text-emerald-400">85 kg</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Member Since</span>
-                    <span className="font-medium">
+                    <span className="text-gray-600 dark:text-gray-400">Member Since</span>
+                    <span className="font-medium dark:text-white">
                       {user?.created_at ? new Date(user.created_at).getFullYear() : 'N/A'}
                     </span>
                   </div>
@@ -356,9 +356,9 @@ const Profile = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="dark:border-gray-700">
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
+              <CardTitle className="dark:text-white">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button variant="outline" className="w-full justify-start" asChild>

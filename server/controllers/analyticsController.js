@@ -63,7 +63,7 @@ class AnalyticsController {
     try {
       const userId = req.user.id;
 
-      const [userStats] = await Promise.all([
+      const userStats = await Promise.all([
         db.execute(
           `
                     SELECT COUNT(*) as total_commutes
@@ -116,16 +116,16 @@ class AnalyticsController {
       ]);
 
       const userAnalytics = {
-        totalCommutes: userStats[0][0][0]?.total_commutes || 0,
-        preferredModes: userStats[1][0] || [],
+        totalCommutes: userStats[0]?.[0]?.[0]?.total_commutes || 0,
+        preferredModes: userStats[1]?.[0] || [],
         savings: {
-          totalSpent: parseFloat(userStats[2][0][0]?.total_spent || 0),
+          totalSpent: parseFloat(userStats[2]?.[0]?.[0]?.total_spent || 0),
           cheapestAlternative: parseFloat(
-            userStats[2][0][0]?.cheapest_alternative || 0,
+            userStats[2]?.[0]?.[0]?.cheapest_alternative || 0,
           ),
-          totalSaved: parseFloat(userStats[2][0][0]?.total_saved || 0),
+          totalSaved: parseFloat(userStats[2]?.[0]?.[0]?.total_saved || 0),
         },
-        weeklyActivity: userStats[3][0] || [],
+        weeklyActivity: userStats[3]?.[0] || [],
         generatedAt: new Date().toISOString(),
       };
 

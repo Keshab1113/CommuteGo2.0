@@ -30,7 +30,7 @@ import {
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-secondary-900 text-white">
         <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:60px_60px]" />
@@ -104,8 +104,8 @@ const Landing = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-4xl font-bold mb-4">Why Choose CommuteGo?</h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4 dark:text-white">Why Choose Commute?</h2>
+            <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
               Powered by advanced AI agents that learn from your preferences and real-time data
             </p>
           </motion.div>
@@ -146,13 +146,13 @@ const Landing = () => {
                 whileHover={{ y: -5 }}
                 className="group"
               >
-                <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-primary-200">
+                <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-primary-200 dark:border-gray-700 dark:hover:border-primary-400">
                   <CardContent className="pt-6">
                     <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} p-4 mb-4 group-hover:scale-110 transition-transform`}>
                       <feature.icon className="w-full h-full text-white" />
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-gray-600">{feature.desc}</p>
+                    <h3 className="text-xl font-semibold mb-2 dark:text-white">{feature.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-300">{feature.desc}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -162,11 +162,11 @@ const Landing = () => {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-gray-600 text-lg">Four intelligent agents working together for you</p>
+            <h2 className="text-4xl font-bold mb-4 dark:text-white">How It Works</h2>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">Four intelligent agents working together for you</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -204,11 +204,11 @@ const Landing = () => {
                 viewport={{ once: true }}
                 className="relative"
               >
-                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="bg-white dark:bg-gray-700 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
                   <div className="text-6xl font-bold text-primary-100 mb-4">{agent.step}</div>
                   <agent.icon className="h-8 w-8 text-primary-600 mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">{agent.title}</h3>
-                  <p className="text-gray-600">{agent.desc}</p>
+                  <h3 className="text-xl font-semibold mb-2 dark:text-white">{agent.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-300">{agent.desc}</p>
                 </div>
                 {idx < 3 && (
                   <div className="hidden lg:block absolute top-1/2 -right-4 text-primary-300">
@@ -230,8 +230,8 @@ const Landing = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <Badge className="mb-4">Smart Features</Badge>
-              <h2 className="text-3xl font-bold mb-6">Everything you need for a smarter commute</h2>
+              <Badge className="mb-4 dark:bg-gray-700 dark:text-gray-200">Smart Features</Badge>
+              <h2 className="text-3xl font-bold mb-6 dark:text-white">Everything you need for a smarter commute</h2>
               
               <div className="space-y-4">
                 {[
@@ -253,8 +253,8 @@ const Landing = () => {
                       <feature.icon className="h-5 w-5 text-primary-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold">{feature.title}</h3>
-                      <p className="text-sm text-gray-600">{feature.desc}</p>
+                    <h3 className="font-semibold dark:text-white">{feature.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{feature.desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -265,42 +265,42 @@ const Landing = () => {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="bg-gradient-to-br from-primary-100 to-secondary-100 rounded-3xl p-8"
+              className="bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 rounded-3xl p-8"
             >
-              <div className="bg-white rounded-2xl p-6 shadow-xl">
+<div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl">
                 <div className="flex items-center gap-3 mb-4">
                   <Brain className="h-6 w-6 text-primary-600" />
-                  <h3 className="font-semibold">AI Agent Dashboard</h3>
+                  <h3 className="font-semibold dark:text-white">AI Agent Dashboard</h3>
                 </div>
                 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="text-sm">Planning Agent</span>
-                    <Badge className="bg-green-100 text-green-700">Active</Badge>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                    <span className="text-sm dark:text-white">Planning Agent</span>
+                    <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Active</Badge>
                   </div>
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="text-sm">Optimization Agent</span>
-                    <Badge className="bg-green-100 text-green-700">Active</Badge>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                    <span className="text-sm dark:text-white">Optimization Agent</span>
+                    <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Active</Badge>
                   </div>
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="text-sm">Analytics Agent</span>
-                    <Badge className="bg-yellow-100 text-yellow-700">Processing</Badge>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                    <span className="text-sm dark:text-white">Analytics Agent</span>
+                    <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">Processing</Badge>
                   </div>
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="text-sm">Notification Agent</span>
-                    <Badge className="bg-blue-100 text-blue-700">Monitoring</Badge>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                    <span className="text-sm dark:text-white">Notification Agent</span>
+                    <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">Monitoring</Badge>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t">
+                <div className="mt-4 pt-4 border-t dark:border-gray-600">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Today's Predictions</span>
-                    <span className="font-semibold">98% accurate</span>
+                    <span className="text-gray-600 dark:text-gray-300">Today's Predictions</span>
+                    <span className="font-semibold dark:text-white">98% accurate</span>
                   </div>
                   <div className="mt-2 space-y-1">
-                    <p className="text-xs text-gray-600">• Best time to leave: 8:30 AM</p>
-                    <p className="text-xs text-gray-600">• Expected traffic: Moderate</p>
-                    <p className="text-xs text-gray-600">• Recommended mode: Train</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">• Best time to leave: 8:30 AM</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">• Expected traffic: Moderate</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">• Recommended mode: Train</p>
                   </div>
                 </div>
               </div>
@@ -310,11 +310,11 @@ const Landing = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Loved by commuters</h2>
-            <p className="text-gray-600 text-lg">Join thousands of happy users saving time and money</p>
+            <h2 className="text-4xl font-bold mb-4 dark:text-white">Loved by commuters</h2>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">Join thousands of happy users saving time and money</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -346,19 +346,19 @@ const Landing = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className="bg-white rounded-2xl p-6 shadow-lg"
+                className="bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg"
               >
                 <div className="flex items-center gap-1 mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <p className="text-gray-700 mb-4">"{testimonial.content}"</p>
+                <p className="text-gray-700 dark:text-gray-200 mb-4">"{testimonial.content}"</p>
                 <div className="flex items-center gap-3">
                   <img src={testimonial.image} alt={testimonial.name} className="w-10 h-10 rounded-full" />
                   <div>
-                    <p className="font-semibold">{testimonial.name}</p>
-                    <p className="text-sm text-gray-500">{testimonial.role}</p>
+                    <p className="font-semibold dark:text-white">{testimonial.name}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</p>
                   </div>
                 </div>
               </motion.div>
@@ -371,8 +371,8 @@ const Landing = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Simple, transparent pricing</h2>
-            <p className="text-gray-600 text-lg">Start saving today with our free plan</p>
+            <h2 className="text-4xl font-bold mb-4 dark:text-white">Simple, transparent pricing</h2>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">Start saving today with our free plan</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -426,7 +426,7 @@ const Landing = () => {
                 className={`relative rounded-2xl p-8 ${
                   plan.popular 
                     ? 'bg-gradient-to-b from-primary-600 to-secondary-600 text-white shadow-xl scale-105' 
-                    : 'bg-white border border-gray-200'
+                    : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                 }`}
               >
                 {plan.popular && (
@@ -439,12 +439,12 @@ const Landing = () => {
                   <span className="text-4xl font-bold">{plan.price}</span>
                   {plan.period && <span className={plan.popular ? 'text-white/80' : 'text-gray-500'}>{plan.period}</span>}
                 </div>
-                <p className={`mb-6 ${plan.popular ? 'text-white/90' : 'text-gray-600'}`}>{plan.description}</p>
+                <p className={`mb-6 ${plan.popular ? 'text-white/90' : 'text-gray-600 dark:text-gray-300'}`}>{plan.description}</p>
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-center gap-2">
                       <CheckCircle className={`h-4 w-4 ${plan.popular ? 'text-white' : 'text-green-500'}`} />
-                      <span className={plan.popular ? 'text-white/90' : 'text-gray-600'}>{feature}</span>
+                      <span className={plan.popular ? 'text-white/90' : 'text-gray-600 dark:text-gray-300'}>{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -488,7 +488,7 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gray-900 dark:bg-black text-white py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
@@ -498,7 +498,7 @@ const Landing = () => {
                 </div>
                 <span className="text-xl font-bold">CommuteGo</span>
               </div>
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-400 dark:text-gray-500 text-sm">
                 Making daily commutes smarter, cheaper, and greener with AI.
               </p>
             </div>
@@ -527,7 +527,7 @@ const Landing = () => {
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+          <div className="border-t border-gray-800 dark:border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
             © 2024 CommuteGo. All rights reserved.
           </div>
         </div>

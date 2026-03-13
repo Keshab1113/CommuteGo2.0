@@ -140,7 +140,7 @@ export const commuteAPI = {
 // Analytics API
 export const analyticsAPI = {
     getDashboardData: () => api.get('/analytics/agent/dashboard'),
-    getUserAnalytics: () => api.get('/analytics/user/agent-insights'),
+    getUserAnalytics: () => api.get('/analytics/user'),
     getRealTimeMetrics: () => api.get('/analytics/admin/real-time'),
     getAgentPerformance: () => api.get('/analytics/admin/agent-performance'),
     getAgentInsights: () => api.get('/analytics/agent/insights'), // ← This matches the new route

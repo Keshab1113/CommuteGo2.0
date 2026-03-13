@@ -1,8 +1,33 @@
 // backend/src/agents/OptimizationAgent.js
+const { createTinyFishAgents } = require('../services/tinyfishService');
+
 class OptimizationAgent {
+    constructor() {
+        this.tinyfishAgents = null;
+        this.mcpClient = null;
+        this.dataSources = [];
+    }
+
+    async initialize() {
+        // Initialize TinyFish agents and MCP client for real-time price comparison
+        try {
+            this.tinyfishAgents = createTinyFishAgents();
+            // MCP client would be initialized here if available
+            // this.mcpClient = new MCPClient();
+            console.log('[OptimizationAgent] TinyFish agents initialized for price comparison');
+        } catch (error) {
+            console.error('[OptimizationAgent] Failed to initialize TinyFish agents:', error.message);
+        }
+    }
+
     async calculateOptions(planningResult, preferences) {
         const modes = planningResult.possibleModes;
         const options = [];
+        
+        // Initialize TinyFish agents if not already done
+        if (!this.tinyfishAgents) {
+            await this.initialize();
+        }
         
         for (const mode of modes) {
             const option = await this.generateOption(mode, planningResult, preferences);
@@ -24,14 +49,35 @@ class OptimizationAgent {
         const costFactor = this.getCostFactor(mode);
         const ecoFactor = this.getEcoFactor(mode);
         
+        // Get real-time prices using TinyFish if available
+        let realTimePrices = null;
+        if (this.tinyfishAgents && planningResult.origin && planningResult.destination) {
+            realTimePrices = await this.getRealTimePrices(
+                planningResult.origin,
+                planningResult.destination,
+                mode
+            );
+        }
+        
         const option = {
             mode,
             totalTime: Math.round(baseTime * timeFactor),
-            totalCost: this.calculateCost(mode, planningResult.distance, baseTime),
+            totalCost: realTimePrices?.bestPrice || this.calculateCost(mode, planningResult.distance, baseTime),
             carbonKg: this.calculateCarbon(mode, planningResult.distance),
             distanceKm: planningResult.distance,
             steps: this.generateSteps(mode, planningResult),
-            confidence: this.calculateConfidence(mode, planningResult)
+            confidence: this.calculateConfidence(mode, planningResult),
+            // Add real-time price data if available
+            ...(realTimePrices && {
+                priceData: {
+                    bestPrice: realTimePrices.bestPrice,
+                    averagePrice: realTimePrices.averagePrice,
+                    priceRange: realTimePrices.priceRange,
+                    provider: realTimePrices.provider,
+                    bookingUrl: realTimePrices.bookingUrl,
+                    lastUpdated: realTimePrices.lastUpdated
+                }
+            })
         };
         
         // Apply user preferences
@@ -40,6 +86,102 @@ class OptimizationAgent {
         }
         
         return option;
+    }
+
+    async getRealTimePrices(origin, destination, mode) {
+        // Map mode to TinyFish transport type
+        const transportMap = {
+            flight: 'flight',
+            bus: 'bus',
+            train: 'train',
+            cab: 'rideshare',
+            mixed: 'flight'
+        };
+        
+        const transportType = transportMap[mode] || 'flight';
+        
+        try {
+            let prices = null;
+            
+            // Use appropriate TinyFish agent based on transport type
+            switch (transportType) {
+                case 'flight':
+                    if (this.tinyfishAgents.flightAgent) {
+                        const results = await this.tinyfishAgents.flightAgent.searchFlights(origin, destination);
+                        prices = this.extractPriceData(results, 'flight');
+                    }
+                    break;
+                case 'bus':
+                    if (this.tinyfishAgents.busAgent) {
+                        const results = await this.tinyfishAgents.busAgent.searchBuses(origin, destination);
+                        prices = this.extractPriceData(results, 'bus');
+                    }
+                    break;
+                case 'train':
+                    if (this.tinyfishAgents.trainAgent) {
+                        const results = await this.tinyfishAgents.trainAgent.searchTrains(origin, destination);
+                        prices = this.extractPriceData(results, 'train');
+                    }
+                    break;
+                case 'rideshare':
+                    if (this.tinyfishAgents.rideShareAgent) {
+                        const results = await this.tinyfishAgents.rideShareAgent.getRideEstimate(origin, destination);
+                        prices = this.extractPriceData(results, 'rideshare');
+                    }
+                    break;
+            }
+            
+            // Track data source
+            if (prices) {
+                this.dataSources.push({
+                    type: transportType,
+                    origin,
+                    destination,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            return prices;
+        } catch (error) {
+            console.error(`[OptimizationAgent] Error fetching real-time prices for ${mode}:`, error.message);
+            return null;
+        }
+    }
+
+    extractPriceData(results, type) {
+        if (!results || !Array.isArray(results) || results.length === 0) {
+            return null;
+        }
+        
+        const prices = results.map(r => r.price || r.cost || r.fare || 0).filter(p => p > 0);
+        
+        if (prices.length === 0) {
+            return null;
+        }
+        
+        const bestPrice = Math.min(...prices);
+        const averagePrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+        const priceRange = { min: Math.min(...prices), max: Math.max(...prices) };
+        
+        // Find the result with best price
+        const bestResult = results.find(r => (r.price || r.cost || r.fare) === bestPrice);
+        
+        return {
+            bestPrice: Math.round(bestPrice * 100) / 100,
+            averagePrice: Math.round(averagePrice * 100) / 100,
+            priceRange,
+            provider: bestResult?.provider || bestResult?.operator || 'Unknown',
+            bookingUrl: bestResult?.bookingUrl || bestResult?.url || bestResult?.link || null,
+            lastUpdated: new Date().toISOString()
+        };
+    }
+
+    getSources() {
+        return this.dataSources;
+    }
+
+    clearSources() {
+        this.dataSources = [];
     }
 
     applyParetoOptimization(options) {

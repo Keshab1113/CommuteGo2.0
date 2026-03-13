@@ -25,7 +25,7 @@ class CommuteController {
             });
 
             // Generate optimized route options
-            const options = OptimizationService.calculateRouteOptions(source, destination);
+            const options = await OptimizationService.calculateRouteOptions(source, destination);
 
             // Save route options
             await RouteOption.createBatch(routeId, options);
@@ -77,8 +77,9 @@ class CommuteController {
                 alerts: agentResult.alerts
             });
         } catch (error) {
-            console.error('Agent plan commute error:', error);
-            res.status(500).json({ error: 'Agent planning failed' });
+            console.error('Agent plan commute error:', error.message);
+            console.error('Error stack:', error.stack);
+            res.status(500).json({ error: 'Agent planning failed', details: error.message });
         }
     }
 
@@ -156,10 +157,19 @@ class CommuteController {
                 return res.status(400).json({ error: 'Route option ID is required' });
             }
 
+            // Convert ISO date string to MySQL-compatible format (YYYY-MM-DD HH:MM:SS)
+            let parsedDate;
+            if (travelledOn) {
+                const date = new Date(travelledOn);
+                parsedDate = date.toISOString().slice(0, 19).replace('T', ' ');
+            } else {
+                parsedDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            }
+
             const historyId = await CommuteHistory.create({
                 userId,
                 routeOptionId,
-                travelledOn: travelledOn || new Date()
+                travelledOn: parsedDate
             });
 
             res.status(201).json({
@@ -175,9 +185,11 @@ class CommuteController {
     static async getCommuteHistory(req, res) {
         try {
             const userId = req.user.id;
+            console.log('getCommuteHistory - userId:', userId);
             const { limit = 20 } = req.query;
             
             const history = await CommuteHistory.getUserHistory(userId, parseInt(limit));
+            console.log('getCommuteHistory - history count:', history.length);
             res.json(history);
         } catch (error) {
             console.error('Get history error:', error);

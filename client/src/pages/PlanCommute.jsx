@@ -37,8 +37,8 @@ const PlanCommute = () => {
   const [currentRoute, setCurrentRoute] = useState(null);
   const [selectedPreference, setSelectedPreference] = useState('balanced');
   const [filters, setFilters] = useState({
-    maxCost: 50,
-    maxTime: 120,
+    maxCost: 20000,
+    maxTime: 500,
     ecoOnly: false,
     avoidTolls: true
   });
@@ -74,7 +74,20 @@ const PlanCommute = () => {
       setCurrentRoute(response.data.route);
       
       // Filter and sort options based on preferences
-      let filteredOptions = response.data.options;
+      // API returns snake_case (total_cost, rank_cheapest), frontend expects camelCase
+      // steps is stored as JSON string in database, needs to be parsed
+      // total_time from backend is in seconds, convert to minutes for display/filtering
+      let filteredOptions = response.data.options.map(opt => ({
+        ...opt,
+        totalCost: parseFloat(opt.total_cost) || 0,
+        totalTime: Math.ceil((opt.total_time || 0) / 60), // Convert seconds to minutes
+        distanceKm: parseFloat(opt.distance_km) || 0,
+        carbonKg: parseFloat(opt.carbon_kg) || 0,
+        rankCheapest: opt.rank_cheapest,
+        rankFastest: opt.rank_fastest,
+        rankEco: opt.rank_eco,
+        steps: typeof opt.steps === 'string' ? JSON.parse(opt.steps || '[]') : (opt.steps || [])
+      }));
       
       if (filters.maxCost) {
         filteredOptions = filteredOptions.filter(opt => opt.totalCost <= filters.maxCost);
@@ -113,27 +126,16 @@ const PlanCommute = () => {
     }
   };
 
-  const handleSaveToHistory = async (option) => {
-    try {
-      await commuteAPI.saveHistory({
-        routeOptionId: option.id,
-        travelledOn: new Date().toISOString()
-      });
-      
-      toast({
-        title: "Commute Saved",
-        description: "Route has been saved to your history",
-      });
-      
-      navigate('/history');
-    } catch (error) {
-      console.error('Error saving commute:', error);
-      toast({
-        title: "Error",
-        description: 'Failed to save commute to history',
-        variant: "destructive",
-      });
-    }
+  const handleSelectRoute = (option) => {
+    // Navigate to RouteDetails page with route option data
+    const state = {
+      option: option,
+      from: formData.source,
+      to: formData.destination,
+      date: formData.travelDate,
+      preference: selectedPreference
+    };
+    navigate('/route-details', { state });
   };
 
   const preferenceOptions = [
@@ -147,8 +149,8 @@ const PlanCommute = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Plan Your Commute</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold mb-2 dark:text-gray-100">Plan Your Commute</h1>
+          <p className="text-gray-600 dark:text-gray-400">
             Enter your journey details and let us find the best routes for you
           </p>
         </div>
@@ -157,9 +159,9 @@ const PlanCommute = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Form & Filters */}
         <div className="lg:col-span-1 space-y-6">
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 dark:text-gray-100">
                 <Navigation className="h-5 w-5" />
                 Route Details
               </CardTitle>
@@ -167,15 +169,15 @@ const PlanCommute = () => {
             <CardContent>
               <form onSubmit={handlePlanCommute} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="source">Starting Point</Label>
+                  <Label htmlFor="source" className="dark:text-gray-200">Starting Point</Label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                     <Input
                       id="source"
                       name="source"
                       type="text"
                       placeholder="Enter starting address"
-                      className="pl-10"
+                      className="pl-10 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                       value={formData.source}
                       onChange={handleInputChange}
                       required
@@ -184,15 +186,15 @@ const PlanCommute = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="destination">Destination</Label>
+                  <Label htmlFor="destination" className="dark:text-gray-200">Destination</Label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                     <Input
                       id="destination"
                       name="destination"
                       type="text"
                       placeholder="Enter destination address"
-                      className="pl-10"
+                      className="pl-10 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                       value={formData.destination}
                       onChange={handleInputChange}
                       required
@@ -233,7 +235,7 @@ const PlanCommute = () => {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" variant="outline" className="w-full" disabled={loading}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -286,7 +288,8 @@ const PlanCommute = () => {
                   <Input
                     type="range"
                     min="0"
-                    max="100"
+                    max="20000"
+                    step="100"
                     value={filters.maxCost}
                     onChange={(e) => setFilters({...filters, maxCost: parseInt(e.target.value)})}
                     className="w-32"
@@ -301,7 +304,7 @@ const PlanCommute = () => {
                   <Input
                     type="range"
                     min="15"
-                    max="240"
+                    max="600"
                     step="15"
                     value={filters.maxTime}
                     onChange={(e) => setFilters({...filters, maxTime: parseInt(e.target.value)})}
@@ -335,23 +338,23 @@ const PlanCommute = () => {
           </Card>
 
           {currentRoute && (
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
-                <CardTitle>Current Route</CardTitle>
+                <CardTitle className="dark:text-gray-100">Current Route</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">From:</span>
-                    <span className="font-medium">{currentRoute.source}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">From:</span>
+                    <span className="font-medium dark:text-gray-100">{currentRoute.source}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">To:</span>
-                    <span className="font-medium">{currentRoute.destination}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">To:</span>
+                    <span className="font-medium dark:text-gray-100">{currentRoute.destination}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Date & Time:</span>
-                    <span className="font-medium">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Date & Time:</span>
+                    <span className="font-medium dark:text-gray-100">
                       {new Date(currentRoute.travel_date).toLocaleString()}
                     </span>
                   </div>
@@ -365,16 +368,16 @@ const PlanCommute = () => {
         <div className="lg:col-span-2">
           {routeOptions ? (
             <div className="space-y-6">
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Optimized Routes</CardTitle>
-                      <CardDescription>
+                      <CardTitle className="dark:text-gray-100">Optimized Routes</CardTitle>
+                      <CardDescription className="dark:text-gray-400">
                         Found {routeOptions.length} routes matching your preferences
                       </CardDescription>
                     </div>
-                    <Badge variant="outline" className="text-sm">
+                    <Badge variant="outline" className="text-sm dark:border-gray-600 dark:text-gray-300">
                       {selectedPreference.charAt(0).toUpperCase() + selectedPreference.slice(1)} First
                     </Badge>
                   </div>
@@ -385,7 +388,7 @@ const PlanCommute = () => {
                       <RouteCard
                         key={`${option.mode}_${index}`}
                         option={option}
-                        onSelect={handleSaveToHistory}
+                        onSelect={handleSelectRoute}
                       />
                     ))}
                   </div>
@@ -401,17 +404,17 @@ const PlanCommute = () => {
               )}
             </div>
           ) : (
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="pt-6">
                 <div className="text-center py-12">
-                  <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <ArrowLeftRight className="text-gray-400 h-12 w-12" />
+                  <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <ArrowLeftRight className="text-gray-400 dark:text-gray-500 h-12 w-12" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-3">No Routes Planned Yet</h3>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  <h3 className="text-xl font-semibold mb-3 dark:text-gray-100">No Routes Planned Yet</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
                     Enter your commute details to see optimized routes based on cost, time, and environmental impact.
                   </p>
-                  <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500">
+                  <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                     {preferenceOptions.map((pref) => {
                       const Icon = pref.icon;
                       return (

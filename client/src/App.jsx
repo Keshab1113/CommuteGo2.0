@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PlanCommute from './pages/PlanCommute';
+import RouteDetails from './pages/RouteDetails';
 import History from './pages/History';
 import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
 import Profile from './pages/Profile';
@@ -19,6 +20,22 @@ import AdminAnalytics from './pages/AdminDashboard/AdminAnalytics';
 import ErrorBoundary from './components/ErrorBoundary';
 import { motion, AnimatePresence } from 'framer-motion';
 import Landing from './pages/Landing';
+import Documentation from './pages/Documentation';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import Cookies from './pages/Cookies';
+import Security from './pages/Security';
+import Community from './pages/Community';
+import AboutUs from './pages/AboutUs';
+import Features from './pages/Features';
+import Pricing from './pages/Pricing';
+import FAQ from './pages/FAQ';
+import Roadmap from './pages/Roadmap';
+import Blog from './pages/Blog';
+import Careers from './pages/Careers';
+import PressKit from './pages/PressKit';
+import SupportCenter from './pages/SupportCenter';
+import { initializeTheme } from './lib/utils';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -51,6 +68,11 @@ const PrivateRoute = ({ children, adminOnly = false }) => {
 };
 
 function App() {
+  // Initialize theme on app load
+  React.useEffect(() => {
+    initializeTheme();
+  }, []);
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -62,6 +84,21 @@ function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/landing" element={<Landing />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/docs" element={<Documentation />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/cookies" element={<Cookies />} />
+                  <Route path="/security" element={<Security />} />
+                  <Route path="/community" element={<Community />} />
+                  <Route path="/about" element={<AboutUs />} />
+                  <Route path="/features" element={<Features />} />
+                  <Route path="/pricing" element={<Pricing />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/roadmap" element={<Roadmap />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/careers" element={<Careers />} />
+                  <Route path="/press" element={<PressKit />} />
+                  <Route path="/support" element={<SupportCenter />} />
                   <Route path="/" element={
                     <PrivateRoute>
                       <Layout>
@@ -73,6 +110,13 @@ function App() {
                     <PrivateRoute>
                       <Layout>
                         <PlanCommute />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/route-details" element={
+                    <PrivateRoute>
+                      <Layout>
+                        <RouteDetails />
                       </Layout>
                     </PrivateRoute>
                   } />

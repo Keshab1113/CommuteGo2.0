@@ -11,27 +11,35 @@ class CommuteHistory {
   }
 
   static async getUserHistory(userId, limit = 20) {
-    const [rows] = await db.execute(
-      `SELECT 
-        ch.*,
-        r.source,
-        r.destination,
-        ro.mode,
-        ro.total_time,
-        ro.total_cost,
-        ro.carbon_kg,
-        ro.rank_cheapest,
-        ro.rank_fastest,
-        ro.rank_eco
-       FROM commute_history ch
-       JOIN route_options ro ON ch.route_option_id = ro.id
-       JOIN routes r ON ro.route_id = r.id
-       WHERE ch.user_id = ?
-       ORDER BY ch.travelled_on DESC
-       LIMIT ?`,
-      [userId, limit]
-    );
-    return rows;
+    console.log('CommuteHistory.getUserHistory - userId:', userId, 'limit:', limit);
+    try {
+      const [rows] = await db.execute(
+        `SELECT 
+          ch.*,
+          r.source,
+          r.destination,
+          ro.mode,
+          ro.total_time,
+          ro.total_cost,
+          ro.carbon_kg,
+          ro.rank_cheapest,
+          ro.rank_fastest,
+          ro.rank_eco
+         FROM commute_history ch
+         JOIN route_options ro ON ch.route_option_id = ro.id
+         JOIN routes r ON ro.route_id = r.id
+         WHERE ch.user_id = ?
+         ORDER BY ch.travelled_on DESC
+         LIMIT ?`,
+        [userId, limit]
+      );
+      console.log('CommuteHistory.getUserHistory - rows returned:', rows.length);
+      return rows;
+    } catch (error) {
+      console.error('CommuteHistory.getUserHistory - ERROR:', error.message);
+      console.error('Error details:', error);
+      throw error;
+    }
   }
 
   static async getTotalCommutes() {

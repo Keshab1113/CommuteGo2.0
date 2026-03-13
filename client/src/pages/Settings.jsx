@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { useToast } from '../hooks/use-toast';
+import { applyTheme, setStoredTheme } from '../lib/utils';
 import {
   Settings,
   Shield,
@@ -431,12 +432,17 @@ const SettingsPage = () => {
                         key={theme.value}
                         className={`p-4 border rounded-lg text-center ${
                           appearanceSettings.theme === theme.value
-                            ? 'border-primary-500 bg-primary-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                         }`}
-                        onClick={() => setAppearanceSettings(prev => ({ ...prev, theme: theme.value }))}
+                        onClick={() => {
+                          const newTheme = theme.value
+                          setAppearanceSettings(prev => ({ ...prev, theme: newTheme }))
+                          setStoredTheme(newTheme)
+                          applyTheme(newTheme)
+                        }}
                       >
-                        <div className="font-medium">{theme.label}</div>
+                        <div className="font-medium dark:text-gray-100">{theme.label}</div>
                       </button>
                     ))}
                   </div>

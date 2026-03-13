@@ -7,6 +7,7 @@ const RedisStore = require("rate-limit-redis");
 const Redis = require("ioredis");
 require("dotenv").config();
 
+const { config } = require("./config/appConfig");
 const authRoutes = require("./routes/auth");
 const commuteRoutes = require("./routes/commute");
 const adminRoutes = require("./routes/admin");
@@ -77,23 +78,23 @@ const createRateLimiter = (options) => {
 
 // Rate limiting configurations
 const authLimiter = createRateLimiter({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // 10 attempts per hour
+  windowMs: config.rateLimit.auth.windowMs,
+  max: config.rateLimit.auth.max,
   message: "Too many login attempts, please try again later.",
   prefix: "auth",
-  skipSuccessfulRequests: true, // Don't count successful logins
+  skipSuccessfulRequests: config.rateLimit.auth.skipSuccessfulRequests,
 });
 
 const generalLimiter = createRateLimiter({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Increased from 100 to 200
+  windowMs: config.rateLimit.general.windowMs,
+  max: config.rateLimit.general.max,
   message: "Too many requests, please slow down.",
   prefix: "general",
 });
 
 const apiLimiter = createRateLimiter({
-  windowMs: 60 * 1000, // 1 minute
-  max: 60, // 60 requests per minute
+  windowMs: config.rateLimit.api.windowMs,
+  max: config.rateLimit.api.max,
   message: "Too many API requests, please slow down.",
   prefix: "api",
 });
@@ -105,8 +106,8 @@ app.use("/api/", generalLimiter);
 app.use("/api/", apiLimiter);
 
 // Body parsing middleware
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(express.json({ limit: config.server.bodyLimit }));
+app.use(express.urlencoded({ extended: true, limit: config.server.bodyLimit }));
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -145,9 +146,9 @@ app.get("/health", async (req, res) => {
       uptime: process.uptime(),
       environment: process.env.NODE_ENV,
       rateLimits: {
-        auth: "10 per hour",
-        general: "200 per 15min",
-        api: "60 per minute",
+        auth: `${config.rateLimit.auth.max} per hour`,
+        general: `${config.rateLimit.general.max} per 15min`,
+        api: `${config.rateLimit.api.max} per minute`,
       },
     });
   } catch (error) {

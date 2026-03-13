@@ -1,5 +1,6 @@
 // backend/src/services/routeService.js
 const { db } = require('../config/database');
+const { config } = require('../config/appConfig');
 
 class RouteService {
   static async calculateBestRoute(options, preference = 'balanced') {
@@ -35,27 +36,19 @@ class RouteService {
   }
   
   static getWeights(preference) {
-    const weights = {
-      cost: 0.33,
-      time: 0.33,
-      carbon: 0.34
-    };
+    // Use config values for route optimization weights
+    const weightsConfig = config.routeOptimization.weights;
+    const weights = { ...weightsConfig.balanced };
     
     switch (preference) {
       case 'cheapest':
-        weights.cost = 0.6;
-        weights.time = 0.2;
-        weights.carbon = 0.2;
+        Object.assign(weights, weightsConfig.cheapest);
         break;
       case 'fastest':
-        weights.cost = 0.2;
-        weights.time = 0.6;
-        weights.carbon = 0.2;
+        Object.assign(weights, weightsConfig.fastest);
         break;
       case 'greenest':
-        weights.cost = 0.2;
-        weights.time = 0.2;
-        weights.carbon = 0.6;
+        Object.assign(weights, weightsConfig.greenest);
         break;
     }
     

@@ -202,7 +202,7 @@ const Alerts = () => {
               </Badge>
             )}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Stay updated with AI-powered commute alerts and insights
           </p>
         </div>
@@ -234,13 +234,13 @@ const Alerts = () => {
         {/* Left Column - Settings & Filters */}
         <div className="lg:col-span-1 space-y-6">
           {/* Notification Settings */}
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 dark:text-white">
                 <Settings className="h-5 w-5" />
                 Notification Preferences
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="dark:text-gray-400">
                 Customize your AI alert settings
               </CardDescription>
             </CardHeader>
@@ -249,14 +249,14 @@ const Alerts = () => {
                 <motion.div
                   key={key}
                   whileHover={{ x: 2 }}
-                  className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50"
+                  className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <div className="space-y-0.5">
-                    <label className="text-sm font-medium capitalize flex items-center gap-2">
+                    <label className="text-sm font-medium capitalize flex items-center gap-2 dark:text-white">
                       {key === 'agentInsights' && <Brain className="h-4 w-4 text-primary-600" />}
                       {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                     </label>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {key === 'trafficAlerts' && 'Real-time traffic updates'}
                       {key === 'weatherAlerts' && 'Weather-related commute alerts'}
                       {key === 'delayAlerts' && 'Public transport delays'}
@@ -277,14 +277,14 @@ const Alerts = () => {
           </Card>
 
           {/* Filter Card */}
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 dark:text-white">
                 <Filter className="h-5 w-5" />
                 Filter Alerts
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="dark:bg-gray-800">
               <div className="space-y-2">
                 {[
                   { value: 'all', label: 'All Alerts', icon: Bell },
@@ -301,8 +301,8 @@ const Alerts = () => {
                       key={filterOption.value}
                       className={`w-full text-left px-3 py-3 rounded-lg transition-all ${
                         filter === filterOption.value
-                          ? 'bg-primary-50 text-primary-700 border border-primary-200 shadow-sm'
-                          : 'hover:bg-gray-50'
+                          ? 'bg-primary-50 text-primary-700 border border-primary-200 shadow-sm dark:bg-primary-900/30 dark:text-primary-300 dark:border-primary-700'
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300'
                       }`}
                       onClick={() => setFilter(filterOption.value)}
                     >
@@ -340,13 +340,13 @@ const Alerts = () => {
           </Card>
 
           {/* AI Summary Card */}
-          <Card className="bg-gradient-to-br from-primary-50 to-secondary-50 border-primary-200">
+          <Card className="bg-gradient-to-br from-primary-50 to-secondary-50 border-primary-200 dark:from-gray-800 dark:to-gray-800 dark:border-gray-700">
             <CardContent className="pt-6">
               <div className="flex items-center gap-2 mb-3">
                 <Brain className="h-5 w-5 text-primary-600" />
-                <h3 className="font-semibold">AI Summary</h3>
+                <h3 className="font-semibold dark:text-white">AI Summary</h3>
               </div>
-              <p className="text-sm text-gray-700 mb-3">
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
                 {unreadCount > 0 
                   ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}. Most are ${alerts.filter(a => !a.is_read)[0]?.type || 'updates'}.`
                   : 'All caught up! No unread notifications.'}
@@ -355,7 +355,7 @@ const Alerts = () => {
                 value={(unreadCount / (alerts.length || 1)) * 100} 
                 className="h-1.5"
               />
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 {Math.round((alerts.length - unreadCount) / (alerts.length || 1) * 100)}% read rate
               </p>
             </CardContent>
@@ -364,19 +364,19 @@ const Alerts = () => {
 
         {/* Right Column - Alerts List */}
         <div className="lg:col-span-3">
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 dark:text-white">
                     Recent Alerts
                     {alerts.length > 0 && (
-                      <Badge variant="outline" className="ml-2">
+                      <Badge variant="outline" className="ml-2 dark:border-gray-600">
                         {alerts.length} total
                       </Badge>
                     )}
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="dark:text-gray-400">
                     {filter === 'all' && 'All your notifications'}
                     {filter === 'unread' && `${unreadCount} unread notifications`}
                     {filter === 'read' && `${alerts.length - unreadCount} read notifications`}
@@ -389,8 +389,8 @@ const Alerts = () => {
                 <div className="space-y-4">
                   {[...Array(5)].map((_, i) => (
                     <div key={i} className="space-y-2">
-                      <Skeleton className="h-4 w-1/3" />
-                      <Skeleton className="h-20" />
+                      <Skeleton className="h-4 w-1/3 dark:bg-gray-700" />
+                      <Skeleton className="h-20 dark:bg-gray-700" />
                     </div>
                   ))}
                 </div>
@@ -407,14 +407,14 @@ const Alerts = () => {
                         whileHover={{ scale: 1.01 }}
                         className={`p-4 rounded-lg border transition-all ${
                           alert.is_read
-                            ? 'bg-white border-gray-200 hover:border-gray-300'
-                            : 'bg-blue-50 border-blue-200 hover:border-blue-300 shadow-sm'
+                            ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                            : 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 hover:border-blue-300 dark:hover:border-blue-600 shadow-sm'
                         }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3 flex-1">
                             <div className={`p-2 rounded-full ${
-                              alert.is_read ? 'bg-gray-100' : 'bg-blue-100'
+                              alert.is_read ? 'bg-gray-100 dark:bg-gray-700' : 'bg-blue-100 dark:bg-blue-900/50'
                             }`}>
                               {getAlertIcon(alert.type, alert.severity)}
                             </div>
@@ -427,24 +427,24 @@ const Alerts = () => {
                                   {alert.type}
                                 </Badge>
                                 {alert.agent_generated && (
-                                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                                  <Badge variant="outline" className="bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700">
                                     <Brain className="h-3 w-3 mr-1" />
                                     AI
                                   </Badge>
                                 )}
                               </div>
                               
-                              <p className="text-sm text-gray-700 mb-2">{alert.message}</p>
+                              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{alert.message}</p>
                               
                               <div className="flex items-center gap-4 text-xs">
-                                <span className="text-gray-500 flex items-center gap-1">
+                                <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
                                   {formatDate(alert.created_at)}
                                 </span>
                                 {alert.action_url && (
                                   <a 
                                     href={alert.action_url}
-                                    className="text-primary-600 hover:text-primary-700 font-medium"
+                                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
                                   >
                                     View details →
                                   </a>
@@ -501,13 +501,13 @@ const Alerts = () => {
                   animate={{ opacity: 1 }}
                   className="text-center py-16"
                 >
-                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <BellOff className="h-10 w-10 text-gray-400" />
+                  <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <BellOff className="h-10 w-10 text-gray-400 dark:text-gray-500" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">
+                  <h3 className="text-lg font-semibold mb-2 dark:text-white">
                     {filter === 'unread' ? 'No unread alerts' : 'No alerts found'}
                   </h3>
-                  <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+                  <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
                     {filter === 'unread' 
                       ? 'You\'re all caught up! Check back later for new notifications.'
                       : 'Alerts will appear here when there are important updates from our AI agents.'}
@@ -545,15 +545,15 @@ const Alerts = () => {
                     <motion.div
                       key={index}
                       whileHover={{ y: -2 }}
-                      className="text-center p-4 border rounded-lg bg-gradient-to-b from-white to-gray-50"
+                      className="text-center p-4 border rounded-lg bg-gradient-to-b from-white dark:from-gray-800 to-gray-50 dark:to-gray-700"
                     >
                       <Icon className={`h-8 w-8 mx-auto mb-2 ${stat.color}`} />
                       <div className="text-2xl font-bold mb-1">{stat.value}</div>
-                      <div className="text-sm text-gray-500 mb-2">{stat.label}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">{stat.label}</div>
                       {alerts.length > 0 && (
                         <>
                           <Progress value={percentage} className="h-1 mb-1" />
-                          <span className="text-xs text-gray-400">{percentage}%</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">{percentage}%</span>
                         </>
                       )}
                     </motion.div>
@@ -564,7 +564,7 @@ const Alerts = () => {
               {/* Activity Timeline */}
               {alerts.length > 0 && (
                 <div className="mt-6 pt-6 border-t">
-                  <h4 className="text-sm font-medium mb-3">Activity Timeline</h4>
+                  <h4 className="text-sm font-medium mb-3 dark:text-white">Activity Timeline</h4>
                   <div className="space-y-2">
                     {alerts.slice(0, 3).map(alert => (
                       <div key={alert.id} className="flex items-center gap-2 text-sm">
@@ -572,9 +572,9 @@ const Alerts = () => {
                           alert.severity === 'high' ? 'bg-red-500' :
                           alert.severity === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
                         }`} />
-                        <span className="text-gray-600">{formatDate(alert.created_at)}</span>
+                        <span className="text-gray-600 dark:text-gray-400">{formatDate(alert.created_at)}</span>
                         <span className="text-gray-400">•</span>
-                        <span className="font-medium truncate">{alert.title}</span>
+                        <span className="font-medium truncate dark:text-gray-300">{alert.title}</span>
                       </div>
                     ))}
                   </div>

@@ -63,21 +63,21 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-600 to-secondary-600 rounded-2xl mb-4">
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center">
               <div className="w-6 h-6 bg-primary-600 rounded-full relative">
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full"></div>
               </div>
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-gray-600 mt-2">Sign in to your CommuteGo account</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome back</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">Sign in to your CommuteGo account</p>
         </div>
 
-        <Card className="border-0 shadow-lg">
+        <Card className="border-0 shadow-lg dark:border-gray-700">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl">Login</CardTitle>
             <CardDescription>
@@ -95,7 +95,7 @@ const Login = () => {
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <Input
                     id="email"
                     name="email"
@@ -112,7 +112,7 @@ const Login = () => {
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <Input
                     id="password"
                     name="password"
@@ -126,7 +126,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-3 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -163,14 +163,14 @@ const Login = () => {
 
             <div className="mt-6 text-center text-sm">
               Don't have an account?{" "}
-              <Link to="/register" className="text-primary-600 hover:text-primary-800 font-medium">
+                <Link to="/register" className="text-primary-600 hover:text-primary-800 dark:hover:text-primary-400 font-medium">
                 Sign up
               </Link>
             </div>
           </CardContent>
         </Card>
 
-        <div className="mt-6 text-center text-xs text-gray-500">
+        <div className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
           By continuing, you agree to our{" "}
           <a href="#" className="underline">Terms of Service</a> and{" "}
           <a href="#" className="underline">Privacy Policy</a>
