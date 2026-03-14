@@ -369,9 +369,8 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 *2025 Passout, B.Tech (IT) | Full Stack Developer*
 
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/keshabdas)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/keshabdas)
-[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/keshabdas)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Keshab1113)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/keshab-das-6a84ab234/)
 
 *Skills: React, Node.js, Express, MySQL, MongoDB, Tailwind CSS*
 
