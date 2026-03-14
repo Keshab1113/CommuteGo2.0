@@ -45,6 +45,28 @@ class Route {
        LIMIT ?`,
       [userId, limit],
     );
+
+    // Fetch options for each route and convert snake_case to camelCase
+    for (const route of rows) {
+      const [options] = await db.execute(
+        `SELECT * FROM route_options WHERE route_id = ? ORDER BY rank_fastest, rank_cheapest, rank_eco`,
+        [route.id]
+      );
+      // Convert snake_case columns to camelCase for frontend compatibility
+      route.options = options.map(opt => ({
+        mode: opt.mode,
+        totalTime: Number(opt.total_time),
+        totalCost: Number(opt.total_cost),
+        carbonKg: Number(opt.carbon_kg),
+        rankCheapest: opt.rank_cheapest,
+        rankFastest: opt.rank_fastest,
+        rankEco: opt.rank_eco,
+        distanceKm: Number(opt.distance_km),
+        steps: opt.steps,
+        polyline: opt.polyline
+      }));
+    }
+
     return rows;
   }
 

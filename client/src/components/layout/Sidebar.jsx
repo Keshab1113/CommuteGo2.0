@@ -159,7 +159,7 @@ const Sidebar = () => {
                     repeat: Infinity,
                     ease: "easeInOut" 
                   }}
-                  className="absolute -inset-1 bg-gradient-to-r from-primary-400 to-secondary-400 rounded-xl blur opacity-30"
+                  className="absolute -inset-1 bg-linear-to-br from-primary-400 to-secondary-400 rounded-xl blur opacity-30"
                 />
               </div>
               <div className="flex-1 min-w-0">
@@ -219,7 +219,7 @@ const Sidebar = () => {
                   className={`
                     relative flex items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300
                     ${isActive 
-                      ? `bg-gradient-to-r ${item.color} text-white shadow-lg` 
+                      ? `bg-linear-to-br ${item.color} text-white shadow-lg` 
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50'
                     }
                     ${collapsed ? 'justify-center' : 'justify-between'}

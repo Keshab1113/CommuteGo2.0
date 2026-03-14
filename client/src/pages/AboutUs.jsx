@@ -193,7 +193,7 @@ We're excited to continue our journey and shape the future of urban mobility tog
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950/20">
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/5 dark:to-blue-500/5" />
+        <div className="absolute inset-0 bg-linear-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/5 dark:to-blue-500/5" />
         <div className="max-w-6xl mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -205,7 +205,7 @@ We're excited to continue our journey and shape the future of urban mobility tog
               <Users className="w-4 h-4 mr-2" />
               About CommuteGo
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-cyan-700 to-blue-600 dark:from-white dark:via-cyan-200 dark:to-blue-200 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-linear-to-br from-slate-900 via-cyan-700 to-blue-600 dark:from-white dark:via-cyan-200 dark:to-blue-200 bg-clip-text text-transparent">
               Transforming Urban Mobility
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8">
@@ -368,7 +368,7 @@ We're excited to continue our journey and shape the future of urban mobility tog
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-cyan-600 to-blue-600">
+      <section className="py-16 px-4 bg-linear-to-br from-cyan-600 to-blue-600">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

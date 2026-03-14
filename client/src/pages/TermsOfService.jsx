@@ -235,7 +235,7 @@ We appreciate your feedback and are committed to resolving any concerns you may 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-20">
+      <div className="bg-linear-to-br from-blue-600 to-indigo-700 text-white py-20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -395,7 +395,7 @@ We appreciate your feedback and are committed to resolving any concerns you may 
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="mt-12 bg-gradient-to-r from-blue-600 to-indigo-700 text-white border-0">
+            <Card className="mt-12 bg-linear-to-br from-blue-600 to-indigo-700 text-white border-0">
               <CardContent className="p-8 md:p-12">
                 <div className="text-center">
                   <HelpCircle className="w-12 h-12 mx-auto mb-4 text-blue-200" />

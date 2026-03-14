@@ -8,6 +8,8 @@ import { AuthProvider } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Register from './pages/Register';
 import PlanCommute from './pages/PlanCommute';
 import RouteDetails from './pages/RouteDetails';
@@ -82,6 +84,8 @@ function App() {
               <div className="min-h-screen bg-background font-sans antialiased">
                 <Routes>
                   <Route path="/login" element={<Login />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/landing" element={<Landing />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/docs" element={<Documentation />} />

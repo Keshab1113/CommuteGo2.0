@@ -98,43 +98,14 @@ const Navbar = () => {
               to={user ? "/" : "/"} 
               className="flex items-center space-x-3 group"
             >
-              <motion.div
-                whileHover={{ rotate: 180, scale: 1.1 }}
-                transition={{ duration: 0.3 }}
-                className="relative"
-              >
-                <div className="w-12 h-12 bg-gradient-to-br from-primary-600 via-secondary-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-                  <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center relative overflow-hidden">
-                    <motion.div
-                      animate={{ 
-                        rotate: [0, 360],
-                      }}
-                      transition={{ 
-                        duration: 20, 
-                        repeat: Infinity, 
-                        ease: "linear" 
-                      }}
-                      className="absolute inset-0 bg-gradient-to-r from-primary-400 to-secondary-400 opacity-20"
-                    />
-                    <Globe className="w-4 h-4 text-primary-600 relative z-10" />
-                  </div>
+              
+                <div className="w-12 h-12 bg-transparent rounded-xl flex items-center justify-center  transition-all duration-300">
+                  <img src="/logo.png" alt="" />
                 </div>
-                <motion.div
-                  animate={{ 
-                    scale: [1, 1.2, 1],
-                    opacity: [0.5, 0.8, 0.5]
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity,
-                    ease: "easeInOut" 
-                  }}
-                  className="absolute -inset-1 bg-gradient-to-r from-primary-400 to-secondary-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"
-                />
-              </motion.div>
+                
               
               <div className="flex flex-col">
-                <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-linear-to-br from-primary-600 to-secondary-600 bg-clip-text text-transparent">
                   CommuteGo
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
@@ -197,7 +168,7 @@ const Navbar = () => {
                             <Brain className="w-4 h-4 text-primary-500" />
                             <span className="font-semibold">My Account</span>
                           </div>
-                          <Badge className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white text-[10px] px-2 py-0.5">
+                          <Badge className="bg-linear-to-br from-primary-500 to-secondary-500 text-white text-[10px] px-2 py-0.5">
                             {user.role || 'User'}
                           </Badge>
                         </div>
@@ -261,7 +232,7 @@ const Navbar = () => {
                     </Button>
                   </Link>
                   <Link to="/register">
-                    <Button className="gap-2 bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white border-0">
+                    <Button className="gap-2 bg-linear-to-br from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white border-0">
                       <UserPlus className="w-4 h-4" />
                       Sign Up
                       <Zap className="w-3 h-3 ml-1" />
@@ -306,7 +277,7 @@ const Navbar = () => {
                     </Link>
                     <Link
                       to="/register"
-                      className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/30 dark:to-secondary-900/30 text-primary-700 dark:text-primary-300"
+                      className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-linear-to-br from-primary-50 to-secondary-50 dark:from-primary-900/30 dark:to-secondary-900/30 text-primary-700 dark:text-primary-300"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <UserPlus className="w-5 h-5" />

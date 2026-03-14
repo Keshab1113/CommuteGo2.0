@@ -141,7 +141,7 @@ const Home = () => {
           </p>
         </div>
         <Link to="/plan">
-          <Button className="gap-2 bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700">
+          <Button className="gap-2 text-white bg-linear-to-br from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700">
             <Sparkles className="h-4 w-4" />
             Plan with AI
           </Button>
@@ -198,7 +198,7 @@ const Home = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-xl p-6 border border-indigo-100 dark:border-indigo-800"
+          className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-xl p-6 border border-indigo-100 dark:border-indigo-800"
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -304,9 +304,9 @@ const Home = () => {
         transition={{ delay: 0.4 }}
         className="mb-8"
       >
-        <Card className="overflow-hidden dark:bg-gray-800 dark:border-gray-700">
+        <Card className="overflow-hidden dark:bg-gray-800 dark:border-gray-700 py-0">
           {/* Gradient Header */}
-          <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-6">
+          <div className="bg-linear-to-br from-emerald-500 via-teal-500 to-cyan-500 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -388,7 +388,7 @@ const Home = () => {
             </div>
 
             {/* Comparison Summary */}
-            <div className="mt-6 p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl">
+            <div className="mt-6 p-4 bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
@@ -420,7 +420,7 @@ const Home = () => {
                   </div>
                 </div>
                 <Link to="/plan-commute">
-                  <Button className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600">
+                  <Button className="gap-2 bg-linear-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600">
                     <MapPin className="h-4 w-4" />
                     Plan Your Route
                   </Button>
@@ -551,7 +551,7 @@ const Home = () => {
 
                 {/* Achievement Badge */}
                 {stats.totalCommutes > 50 && (
-                  <div className="mt-6 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                  <div className="mt-6 p-3 bg-linear-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-lg border border-yellow-200 dark:border-yellow-800">
                     <div className="flex items-center gap-2">
                       <Award className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                       <div>

@@ -105,7 +105,7 @@ const Footer = () => {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
       
       {/* Top gradient line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-br from-transparent via-cyan-500/50 to-transparent" />
       
       {/* Animated gradient orbs */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[100px]" />
@@ -123,22 +123,11 @@ const Footer = () => {
           {/* Brand column */}
           <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
             <Link to="/" className="flex items-center space-x-3 group">
-              <motion.div
-                whileHover={{ rotate: 360, scale: 1.1 }}
-                transition={{ duration: 0.6 }}
-                className="relative"
-              >
-                <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                  <Brain className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 bg-transparent rounded-xl flex items-center justify-center  transition-all duration-300">
+                  <img src="/logo.png" alt="" />
                 </div>
-                <motion.div
-                  animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-2xl blur opacity-30"
-                />
-              </motion.div>
               <div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                <span className="text-2xl font-bold bg-linear-to-br from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                   CommuteGo
                 </span>
                 <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-1">
@@ -206,7 +195,7 @@ const Footer = () => {
                 />
                 <Button 
                   type="submit"
-                  className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white border-0 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 transition-all duration-300"
+                  className="bg-linear-to-br from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white border-0 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 transition-all duration-300"
                 >
                   Subscribe
                 </Button>

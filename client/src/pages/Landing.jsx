@@ -1,13 +1,10 @@
 // frontend/src/pages/Landing.jsx
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
+import React from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
 import {
   TrendingUp,
   Users,
@@ -25,74 +22,138 @@ import {
   MapPin,
   CheckCircle,
   Star,
-  BarChart3
-} from 'lucide-react';
+  BarChart3,
+} from "lucide-react";
+import Footer from "../components/layout/Footer";
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-linear-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-secondary-900 text-white">
-        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:60px_60px]" />
-        <div className="absolute h-32 w-32 bg-primary-500 rounded-full blur-3xl opacity-20 top-20 left-10 animate-pulse" />
-        <div className="absolute h-40 w-40 bg-secondary-500 rounded-full blur-3xl opacity-20 bottom-20 right-10 animate-pulse delay-1000" />
-        
-        <div className="container mx-auto px-4 py-24 relative z-10">
+      <section className="relative overflow-hidden bg-linear-to-br from-primary-950 via-primary-900 to-secondary-950 text-white">
+        <div className="container mx-auto px-4 py-28 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto text-center"
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="max-w-5xl mx-auto text-center"
           >
-            <Badge variant="outline" className="bg-white/10 text-white border-white/20 mb-6 px-4 py-2">
-              <Sparkles className="h-4 w-4 mr-2" />
-              AI-Powered Commute Optimization
-            </Badge>
-            
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-primary-200">
-              Smart Commute Planning Made Simple
-            </h1>
-            
-            <p className="text-xl text-primary-100 mb-10 max-w-2xl mx-auto">
-              Let our AI agents optimize your daily commute by comparing multiple transport modes, 
-              calculating costs, and tracking your environmental impact in real-time.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              <Badge
+                variant="outline"
+                className="bg-white/10 text-white border-white/20 mb-8 px-6 py-3 text-sm backdrop-blur-sm"
+              >
+                <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                AI-Powered Commute Optimization
+              </Badge>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 bg-clip-text text-transparent bg-linear-to-br from-white via-primary-100 to-white"
+            >
+              Smart Commute
+              <br />
+              <span className="text-transparent bg-clip-text bg-linear-to-br from-primary-300 via-secondary-300 to-primary-300">
+                Planning Made Simple
+              </span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="text-xl md:text-2xl text-primary-100 mb-12 max-w-3xl mx-auto leading-relaxed"
+            >
+              Let our AI agents optimize your daily commute by comparing
+              multiple transport modes, calculating costs, and tracking your
+              environmental impact in real-time.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+              className="flex flex-col sm:flex-row gap-5 justify-center"
+            >
               <Link to="/register">
-                <Button size="lg" className="bg-white text-primary-900 hover:bg-primary-50 px-8 py-6 text-lg">
+                <Button
+                  size="lg"
+                  className="bg-white text-primary-900 hover:bg-primary-50 px-10 py-7 text-lg font-semibold rounded-xl shadow-lg shadow-white/10 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                >
                   Get Started Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/login">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10 hover:border-white/50 px-10 py-7 text-lg font-semibold rounded-xl backdrop-blur-sm transition-all duration-300"
+                >
                   Sign In
                 </Button>
               </Link>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+            {/* Enhanced Stats with glow effects */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20"
+            >
               {[
-                { icon: Users, value: "10K+", label: "Active Users" },
-                { icon: Target, value: "98%", label: "Accuracy Rate" },
-                { icon: Clock, value: "15K+", label: "Hours Saved" }
+                {
+                  icon: Users,
+                  value: "10K+",
+                  label: "Active Users",
+                  sublabel: "growing daily",
+                },
+                {
+                  icon: Target,
+                  value: "98%",
+                  label: "Accuracy Rate",
+                  sublabel: "AI-powered",
+                },
+                {
+                  icon: Clock,
+                  value: "15K+",
+                  label: "Hours Saved",
+                  sublabel: "this month",
+                },
               ].map((stat, idx) => (
                 <motion.div
                   key={idx}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + idx * 0.1 }}
-                  className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20"
+                  transition={{ delay: 0.7 + idx * 0.1 }}
+                  whileHover={{ scale: 1.02, y: -5 }}
+                  className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300 group"
                 >
-                  <stat.icon className="h-8 w-8 mx-auto mb-3 text-primary-200" />
-                  <div className="text-3xl font-bold">{stat.value}</div>
-                  <div className="text-primary-200">{stat.label}</div>
+                  <div className="relative">
+                    <stat.icon className="h-10 w-10 mx-auto mb-4 text-primary-300 group-hover:text-primary-200 transition-colors" />
+                    <div className="absolute inset-0 bg-primary-500 blur-xl opacity-0 group-hover:opacity-20 transition-opacity" />
+                  </div>
+                  <div className="text-4xl font-bold mb-1">{stat.value}</div>
+                  <div className="text-primary-100 font-medium">
+                    {stat.label}
+                  </div>
+                  <div className="text-primary-300/60 text-sm mt-1">
+                    {stat.sublabel}
+                  </div>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </motion.div>
         </div>
-      </section>
+       </section>
 
       {/* Features Grid */}
       <section className="py-20">
@@ -104,9 +165,12 @@ const Landing = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-4xl font-bold mb-4 dark:text-white">Why Choose Commute?</h2>
+            <h2 className="text-4xl font-bold mb-4 dark:text-white">
+              Why Choose Commute?
+            </h2>
             <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
-              Powered by advanced AI agents that learn from your preferences and real-time data
+              Powered by advanced AI agents that learn from your preferences and
+              real-time data
             </p>
           </motion.div>
 
@@ -116,26 +180,26 @@ const Landing = () => {
                 icon: Brain,
                 title: "AI-Powered Planning",
                 desc: "Multi-agent system optimizes your route in real-time",
-                color: "from-blue-500 to-cyan-500"
+                color: "from-blue-500 to-cyan-500",
               },
               {
                 icon: Zap,
                 title: "Real-Time Updates",
                 desc: "Instant alerts for traffic, weather, and delays",
-                color: "from-orange-500 to-red-500"
+                color: "from-orange-500 to-red-500",
               },
               {
                 icon: Leaf,
                 title: "Eco-Friendly",
                 desc: "Reduce carbon footprint with green route options",
-                color: "from-green-500 to-emerald-500"
+                color: "from-green-500 to-emerald-500",
               },
               {
                 icon: Shield,
                 title: "Secure & Private",
                 desc: "Your data is encrypted and never shared",
-                color: "from-purple-500 to-pink-500"
-              }
+                color: "from-purple-500 to-pink-500",
+              },
             ].map((feature, idx) => (
               <motion.div
                 key={idx}
@@ -148,11 +212,17 @@ const Landing = () => {
               >
                 <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-primary-200 dark:border-gray-700 dark:hover:border-primary-400">
                   <CardContent className="pt-6">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} p-4 mb-4 group-hover:scale-110 transition-transform`}>
+                    <div
+                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} p-4 mb-4 group-hover:scale-110 transition-transform`}
+                    >
                       <feature.icon className="w-full h-full text-white" />
                     </div>
-                    <h3 className="text-xl font-semibold mb-2 dark:text-white">{feature.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">{feature.desc}</p>
+                    <h3 className="text-xl font-semibold mb-2 dark:text-white">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {feature.desc}
+                    </p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -165,8 +235,12 @@ const Landing = () => {
       <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 dark:text-white">How It Works</h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">Four intelligent agents working together for you</p>
+            <h2 className="text-4xl font-bold mb-4 dark:text-white">
+              How It Works
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">
+              Four intelligent agents working together for you
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -175,26 +249,26 @@ const Landing = () => {
                 step: "01",
                 title: "Planning Agent",
                 desc: "Analyzes routes and gathers real-time data from multiple sources",
-                icon: Globe
+                icon: Globe,
               },
               {
                 step: "02",
                 title: "Optimization Agent",
                 desc: "Calculates optimal routes based on time, cost, and sustainability",
-                icon: Target
+                icon: Target,
               },
               {
                 step: "03",
                 title: "Analytics Agent",
                 desc: "Adds insights and predicts traffic patterns",
-                icon: TrendingUp
+                icon: TrendingUp,
               },
               {
                 step: "04",
                 title: "Notification Agent",
                 desc: "Sends alerts about delays and suggests alternatives",
-                icon: Bell
-              }
+                icon: Bell,
+              },
             ].map((agent, idx) => (
               <motion.div
                 key={idx}
@@ -205,10 +279,16 @@ const Landing = () => {
                 className="relative"
               >
                 <div className="bg-white dark:bg-gray-700 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-                  <div className="text-6xl font-bold text-primary-100 mb-4">{agent.step}</div>
+                  <div className="text-6xl font-bold text-primary-100 mb-4">
+                    {agent.step}
+                  </div>
                   <agent.icon className="h-8 w-8 text-primary-600 mb-4" />
-                  <h3 className="text-xl font-semibold mb-2 dark:text-white">{agent.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-300">{agent.desc}</p>
+                  <h3 className="text-xl font-semibold mb-2 dark:text-white">
+                    {agent.title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {agent.desc}
+                  </p>
                 </div>
                 {idx < 3 && (
                   <div className="hidden lg:block absolute top-1/2 -right-4 text-primary-300">
@@ -230,17 +310,45 @@ const Landing = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <Badge className="mb-4 dark:bg-gray-700 dark:text-gray-200">Smart Features</Badge>
-              <h2 className="text-3xl font-bold mb-6 dark:text-white">Everything you need for a smarter commute</h2>
-              
+              <Badge className="mb-4 dark:bg-gray-700 dark:text-gray-200">
+                Smart Features
+              </Badge>
+              <h2 className="text-3xl font-bold mb-6 dark:text-white">
+                Everything you need for a smarter commute
+              </h2>
+
               <div className="space-y-4">
                 {[
-                  { icon: MapPin, title: "Multi-Modal Routing", desc: "Compare cab, bus, train, metro, and walking options" },
-                  { icon: DollarSign, title: "Cost Optimization", desc: "Find the most economical route for your budget" },
-                  { icon: Clock, title: "Time Efficiency", desc: "Save time with real-time traffic updates" },
-                  { icon: Leaf, title: "Eco-Friendly Options", desc: "Reduce your carbon footprint with green routes" },
-                  { icon: BarChart3, title: "Detailed Analytics", desc: "Track your commuting patterns and savings" },
-                  { icon: Bell, title: "Smart Alerts", desc: "Get notified about delays and alternatives" }
+                  {
+                    icon: MapPin,
+                    title: "Multi-Modal Routing",
+                    desc: "Compare cab, bus, train, metro, and walking options",
+                  },
+                  {
+                    icon: DollarSign,
+                    title: "Cost Optimization",
+                    desc: "Find the most economical route for your budget",
+                  },
+                  {
+                    icon: Clock,
+                    title: "Time Efficiency",
+                    desc: "Save time with real-time traffic updates",
+                  },
+                  {
+                    icon: Leaf,
+                    title: "Eco-Friendly Options",
+                    desc: "Reduce your carbon footprint with green routes",
+                  },
+                  {
+                    icon: BarChart3,
+                    title: "Detailed Analytics",
+                    desc: "Track your commuting patterns and savings",
+                  },
+                  {
+                    icon: Bell,
+                    title: "Smart Alerts",
+                    desc: "Get notified about delays and alternatives",
+                  },
                 ].map((feature, idx) => (
                   <motion.div
                     key={idx}
@@ -253,8 +361,12 @@ const Landing = () => {
                       <feature.icon className="h-5 w-5 text-primary-600" />
                     </div>
                     <div>
-                    <h3 className="font-semibold dark:text-white">{feature.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">{feature.desc}</p>
+                      <h3 className="font-semibold dark:text-white">
+                        {feature.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {feature.desc}
+                      </p>
                     </div>
                   </motion.div>
                 ))}
@@ -267,40 +379,68 @@ const Landing = () => {
               viewport={{ once: true }}
               className="bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 rounded-3xl p-8"
             >
-<div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl">
                 <div className="flex items-center gap-3 mb-4">
                   <Brain className="h-6 w-6 text-primary-600" />
-                  <h3 className="font-semibold dark:text-white">AI Agent Dashboard</h3>
+                  <h3 className="font-semibold dark:text-white">
+                    AI Agent Dashboard
+                  </h3>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                    <span className="text-sm dark:text-white">Planning Agent</span>
-                    <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Active</Badge>
+                    <span className="text-sm dark:text-white">
+                      Planning Agent
+                    </span>
+                    <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                      Active
+                    </Badge>
                   </div>
                   <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                    <span className="text-sm dark:text-white">Optimization Agent</span>
-                    <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Active</Badge>
+                    <span className="text-sm dark:text-white">
+                      Optimization Agent
+                    </span>
+                    <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                      Active
+                    </Badge>
                   </div>
                   <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                    <span className="text-sm dark:text-white">Analytics Agent</span>
-                    <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">Processing</Badge>
+                    <span className="text-sm dark:text-white">
+                      Analytics Agent
+                    </span>
+                    <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
+                      Processing
+                    </Badge>
                   </div>
                   <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                    <span className="text-sm dark:text-white">Notification Agent</span>
-                    <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">Monitoring</Badge>
+                    <span className="text-sm dark:text-white">
+                      Notification Agent
+                    </span>
+                    <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                      Monitoring
+                    </Badge>
                   </div>
                 </div>
 
                 <div className="mt-4 pt-4 border-t dark:border-gray-600">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-300">Today's Predictions</span>
-                    <span className="font-semibold dark:text-white">98% accurate</span>
+                    <span className="text-gray-600 dark:text-gray-300">
+                      Today's Predictions
+                    </span>
+                    <span className="font-semibold dark:text-white">
+                      98% accurate
+                    </span>
                   </div>
                   <div className="mt-2 space-y-1">
-                    <p className="text-xs text-gray-600 dark:text-gray-400">• Best time to leave: 8:30 AM</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">• Expected traffic: Moderate</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">• Recommended mode: Train</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      • Best time to leave: 8:30 AM
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      • Expected traffic: Moderate
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      • Recommended mode: Train
+                    </p>
                   </div>
                 </div>
               </div>
@@ -313,8 +453,12 @@ const Landing = () => {
       <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 dark:text-white">Loved by commuters</h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">Join thousands of happy users saving time and money</p>
+            <h2 className="text-4xl font-bold mb-4 dark:text-white">
+              Loved by commuters
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">
+              Join thousands of happy users saving time and money
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -322,24 +466,27 @@ const Landing = () => {
               {
                 name: "Sarah Johnson",
                 role: "Daily Commuter",
-                content: "CommuteGo has transformed my daily commute. I save 45 minutes every day and $200 monthly!",
+                content:
+                  "CommuteGo has transformed my daily commute. I save 45 minutes every day and $200 monthly!",
                 rating: 5,
-                image: "https://i.pravatar.cc/100?img=1"
+                image: "https://i.pravatar.cc/100?img=1",
               },
               {
                 name: "Michael Chen",
                 role: "Software Engineer",
-                content: "The AI recommendations are spot-on. It knows exactly when to leave to avoid traffic.",
+                content:
+                  "The AI recommendations are spot-on. It knows exactly when to leave to avoid traffic.",
                 rating: 5,
-                image: "https://i.pravatar.cc/100?img=2"
+                image: "https://i.pravatar.cc/100?img=2",
               },
               {
                 name: "Emily Rodriguez",
                 role: "Environmentalist",
-                content: "Love how it helps me track my carbon footprint. I've reduced my emissions by 30%!",
+                content:
+                  "Love how it helps me track my carbon footprint. I've reduced my emissions by 30%!",
                 rating: 5,
-                image: "https://i.pravatar.cc/100?img=3"
-              }
+                image: "https://i.pravatar.cc/100?img=3",
+              },
             ].map((testimonial, idx) => (
               <motion.div
                 key={idx}
@@ -350,15 +497,28 @@ const Landing = () => {
               >
                 <div className="flex items-center gap-1 mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <Star
+                      key={i}
+                      className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                    />
                   ))}
                 </div>
-                <p className="text-gray-700 dark:text-gray-200 mb-4">"{testimonial.content}"</p>
+                <p className="text-gray-700 dark:text-gray-200 mb-4">
+                  "{testimonial.content}"
+                </p>
                 <div className="flex items-center gap-3">
-                  <img src={testimonial.image} alt={testimonial.name} className="w-10 h-10 rounded-full" />
+                  <img
+                    src={testimonial.image}
+                    alt={testimonial.name}
+                    className="w-10 h-10 rounded-full"
+                  />
                   <div>
-                    <p className="font-semibold dark:text-white">{testimonial.name}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</p>
+                    <p className="font-semibold dark:text-white">
+                      {testimonial.name}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {testimonial.role}
+                    </p>
                   </div>
                 </div>
               </motion.div>
@@ -367,100 +527,230 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section className="py-20">
+      {/* Technology Section */}
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 dark:text-white">Simple, transparent pricing</h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">Start saving today with our free plan</p>
+          <div className="text-center mb-16">
+            <Badge className="mb-4 dark:bg-gray-700 dark:text-gray-200">
+              Advanced Technology
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 dark:text-white">
+              Powered by Intelligent Agents
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
+              Our multi-agent AI system works around the clock to optimize your
+              daily commute with unprecedented accuracy.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                name: "Free",
-                price: "$0",
-                description: "Perfect for occasional commuters",
-                features: [
-                  "5 route plans per month",
-                  "Basic route optimization",
-                  "Email support",
-                  "Carbon tracking"
-                ]
+                title: "Planning Agent",
+                desc: "Analyzes thousands of route combinations in milliseconds",
+                icon: Globe,
+                color: "from-blue-500 to-cyan-500",
               },
               {
-                name: "Pro",
-                price: "$9.99",
-                period: "/month",
-                description: "For daily commuters",
-                features: [
-                  "Unlimited route plans",
-                  "AI-powered optimization",
-                  "Real-time alerts",
-                  "Advanced analytics",
-                  "Priority support",
-                  "Historical data export"
-                ],
-                popular: true
+                title: "Optimization Agent",
+                desc: "Balances time, cost, and environmental impact",
+                icon: Target,
+                color: "from-purple-500 to-pink-500",
               },
               {
-                name: "Business",
-                price: "$29.99",
-                period: "/month",
-                description: "For teams and organizations",
-                features: [
-                  "Everything in Pro",
-                  "Team management",
-                  "API access",
-                  "Custom integrations",
-                  "Dedicated account manager",
-                  "SLA guarantee"
-                ]
-              }
-            ].map((plan, idx) => (
+                title: "Analytics Agent",
+                desc: "Predicts traffic patterns using historical data",
+                icon: TrendingUp,
+                color: "from-green-500 to-emerald-500",
+              },
+              {
+                title: "Notification Agent",
+                desc: "Real-time alerts keep you one step ahead",
+                icon: Bell,
+                color: "from-orange-500 to-red-500",
+              },
+            ].map((agent, idx) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className={`relative rounded-2xl p-8 ${
-                  plan.popular 
-                    ? 'bg-gradient-to-b from-primary-600 to-secondary-600 text-white shadow-xl scale-105' 
-                    : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
-                }`}
+                viewport={{ once: true }}
+                className="group relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700"
               >
-                {plan.popular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-primary-600 border-0">
-                    Most Popular
-                  </Badge>
-                )}
-                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                <div className="mb-4">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  {plan.period && <span className={plan.popular ? 'text-white/80' : 'text-gray-500'}>{plan.period}</span>}
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${agent.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity`}
+                />
+                <div
+                  className={`w-14 h-14 rounded-xl bg-gradient-to-br ${agent.color} p-3 mb-4`}
+                >
+                  <agent.icon className="w-full h-full text-white" />
                 </div>
-                <p className={`mb-6 ${plan.popular ? 'text-white/90' : 'text-gray-600 dark:text-gray-300'}`}>{plan.description}</p>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-2">
-                      <CheckCircle className={`h-4 w-4 ${plan.popular ? 'text-white' : 'text-green-500'}`} />
-                      <span className={plan.popular ? 'text-white/90' : 'text-gray-600 dark:text-gray-300'}>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/register">
-                  <Button 
-                    className={`w-full ${
-                      plan.popular 
-                        ? 'bg-white text-primary-600 hover:bg-gray-100' 
-                        : 'bg-primary-600 text-white hover:bg-primary-700'
-                    }`}
-                  >
-                    Get Started
-                  </Button>
-                </Link>
+                <h3 className="text-xl font-bold mb-2 dark:text-white">
+                  {agent.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300">{agent.desc}</p>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <Badge className="mb-4 dark:bg-gray-700 dark:text-gray-200">
+                Why CommuteGo
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 dark:text-white">
+                The smarter way to commute
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 text-lg mb-8">
+                We combine cutting-edge AI technology with comprehensive transit
+                data to deliver the most accurate and efficient commute
+                recommendations possible.
+              </p>
+
+              <div className="space-y-4">
+                {[
+                  {
+                    icon: Clock,
+                    title: "Save 30+ minutes daily",
+                    desc: "AI-optimized routes that adapt to real-time conditions",
+                  },
+                  {
+                    icon: DollarSign,
+                    title: "Cut commute costs by 40%",
+                    desc: "Find the most economical transportation options",
+                  },
+                  {
+                    icon: Leaf,
+                    title: "Reduce your carbon footprint",
+                    desc: "Choose eco-friendly routes and track your impact",
+                  },
+                  {
+                    icon: Shield,
+                    title: "Enterprise-grade security",
+                    desc: "Your data is encrypted and protected",
+                  },
+                ].map((item, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800"
+                  >
+                    <div className="p-3 bg-primary-100 dark:bg-primary-900 rounded-lg">
+                      <item.icon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold dark:text-white">
+                        {item.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-linear-to-br from-primary-500 to-secondary-500 rounded-3xl blur-3xl opacity-20" />
+              <div className="relative bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-2xl">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold dark:text-white">
+                    Live Route Analysis
+                  </h3>
+                  <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" />
+                    Live
+                  </Badge>
+                </div>
+
+                <div className="space-y-4">
+                  {[
+                    {
+                      mode: "Metro",
+                      time: "25 min",
+                      cost: "$2.50",
+                      eco: "Low",
+                    },
+                    {
+                      mode: "Bus",
+                      time: "35 min",
+                      cost: "$1.80",
+                      eco: "Medium",
+                    },
+                    {
+                      mode: "Cab",
+                      time: "20 min",
+                      cost: "$12.00",
+                      eco: "High",
+                    },
+                    {
+                      mode: "Walk",
+                      time: "55 min",
+                      cost: "$0.00",
+                      eco: "None",
+                    },
+                  ].map((route, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+                          <span className="text-primary-600 dark:text-primary-400 font-semibold">
+                            {route.mode[0]}
+                          </span>
+                        </div>
+                        <span className="font-medium dark:text-white">
+                          {route.mode}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm">
+                        <span className="text-gray-600 dark:text-gray-300">
+                          {route.time}
+                        </span>
+                        <span className="font-semibold dark:text-white">
+                          {route.cost}
+                        </span>
+                        <Badge
+                          className={`text-xs ${route.eco === "Low" ? "bg-green-100 text-green-700" : route.eco === "Medium" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}
+                        >
+                          {route.eco}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 pt-4 border-t dark:border-gray-600">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-300">
+                      Recommended
+                    </span>
+                    <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                      Metro • 25 min • $2.50
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -472,14 +762,20 @@ const Landing = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-r from-primary-900 to-secondary-900 rounded-3xl p-12 text-center text-white"
+            className="bg-linear-to-br from-primary-900 to-secondary-900 rounded-3xl p-12 text-center text-white"
           >
-            <h2 className="text-4xl font-bold mb-4">Ready to optimize your commute?</h2>
+            <h2 className="text-4xl font-bold mb-4">
+              Ready to optimize your commute?
+            </h2>
             <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-              Join thousands of users saving time, money, and the environment with AI-powered route planning.
+              Join thousands of users saving time, money, and the environment
+              with AI-powered route planning.
             </p>
             <Link to="/register">
-              <Button size="lg" className="bg-white text-primary-900 hover:bg-primary-50 px-8 py-6 text-lg">
+              <Button
+                size="lg"
+                className="bg-white text-primary-900 hover:bg-primary-50 px-8 py-6 text-lg"
+              >
                 Start Your Free Trial
               </Button>
             </Link>
@@ -488,50 +784,7 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 dark:bg-black text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">CG</span>
-                </div>
-                <span className="text-xl font-bold">CommuteGo</span>
-              </div>
-              <p className="text-gray-400 dark:text-gray-500 text-sm">
-                Making daily commutes smarter, cheaper, and greener with AI.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">Features</a></li>
-                <li><a href="#" className="hover:text-white">Pricing</a></li>
-                <li><a href="#" className="hover:text-white">FAQ</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">About</a></li>
-                <li><a href="#" className="hover:text-white">Blog</a></li>
-                <li><a href="#" className="hover:text-white">Careers</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">Privacy</a></li>
-                <li><a href="#" className="hover:text-white">Terms</a></li>
-                <li><a href="#" className="hover:text-white">Security</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 dark:border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
-            © 2024 CommuteGo. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 };

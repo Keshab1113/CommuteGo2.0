@@ -140,7 +140,7 @@ const Pricing = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-purple-950/20">
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 dark:from-purple-500/5 dark:to-blue-500/5" />
+        <div className="absolute inset-0 bg-linear-to-br from-purple-500/10 to-blue-500/10 dark:from-purple-500/5 dark:to-blue-500/5" />
         <div className="max-w-6xl mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -152,7 +152,7 @@ const Pricing = () => {
               <Crown className="w-4 h-4 mr-2" />
               Pricing
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-purple-700 to-blue-600 dark:from-white dark:via-purple-200 dark:to-blue-200 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-linear-to-br from-slate-900 via-purple-700 to-blue-600 dark:from-white dark:via-purple-200 dark:to-blue-200 bg-clip-text text-transparent">
               Simple, Transparent Pricing
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8">
@@ -195,7 +195,7 @@ const Pricing = () => {
                 }`}>
                   {plan.popular && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <Badge className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-1">
+                      <Badge className="bg-linear-to-br from-purple-500 to-blue-500 text-white px-4 py-1">
                         <Star className="w-3 h-3 mr-1" />
                         Most Popular
                       </Badge>
@@ -223,7 +223,7 @@ const Pricing = () => {
                     <Button 
                       className={`w-full mb-6 ${
                         plan.popular 
-                          ? 'bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white' 
+                          ? 'bg-linear-to-br from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white' 
                           : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800'
                       }`}
                     >
@@ -261,7 +261,7 @@ const Pricing = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            <Card className="bg-gradient-to-r from-violet-600 to-purple-600 border-0 overflow-hidden">
+            <Card className="bg-linear-to-br from-violet-600 to-purple-600 border-0 overflow-hidden">
               <CardContent className="p-8 md:p-12">
                 <div className="grid md:grid-cols-2 gap-8 items-center">
                   <div>
@@ -348,7 +348,7 @@ const Pricing = () => {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-blue-600 to-purple-600">
+      <section className="py-16 px-4 bg-linear-to-br from-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

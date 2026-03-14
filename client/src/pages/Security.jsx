@@ -264,7 +264,7 @@ We value your security and are committed to maintaining the highest standards of
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-slate-700 to-slate-900 text-white py-20">
+      <div className="bg-linear-to-br from-slate-700 to-slate-900 text-white py-20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -327,7 +327,7 @@ We value your security and are committed to maintaining the highest standards of
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="mb-8 bg-gradient-to-r from-slate-100 to-blue-100 border-slate-200">
+            <Card className="mb-8 bg-linear-to-br from-slate-100 to-blue-100 border-slate-200">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
@@ -451,7 +451,7 @@ We value your security and are committed to maintaining the highest standards of
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="mt-12 bg-gradient-to-r from-slate-700 to-slate-900 text-white border-0">
+            <Card className="mt-12 bg-linear-to-br from-slate-700 to-slate-900 text-white border-0">
               <CardContent className="p-8 md:p-12">
                 <div className="text-center">
                   <HelpCircle className="w-12 h-12 mx-auto mb-4 text-slate-300" />

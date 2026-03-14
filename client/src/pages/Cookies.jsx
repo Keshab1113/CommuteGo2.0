@@ -210,7 +210,7 @@ We value your privacy and are committed to transparent cookie practices.`
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-amber-600 to-orange-700 text-white py-20">
+      <div className="bg-linear-to-br from-amber-600 to-orange-700 text-white py-20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -271,7 +271,7 @@ We value your privacy and are committed to transparent cookie practices.`
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="mb-8 bg-gradient-to-r from-amber-100 to-orange-100 border-amber-200">
+            <Card className="mb-8 bg-linear-to-br from-amber-100 to-orange-100 border-amber-200">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
@@ -395,7 +395,7 @@ We value your privacy and are committed to transparent cookie practices.`
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="mt-12 bg-gradient-to-r from-amber-600 to-orange-700 text-white border-0">
+            <Card className="mt-12 bg-linear-to-br from-amber-600 to-orange-700 text-white border-0">
               <CardContent className="p-8 md:p-12">
                 <div className="text-center">
                   <Info className="w-12 h-12 mx-auto mb-4 text-amber-200" />

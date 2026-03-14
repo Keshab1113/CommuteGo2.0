@@ -226,7 +226,7 @@ const SupportCenter = () => {
               className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
             >
               How can we{' '}
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+              <span className="bg-linear-to-br from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                 help you?
               </span>
             </motion.h1>
@@ -255,7 +255,7 @@ const SupportCenter = () => {
                 />
                 <Button 
                   type="submit"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-linear-to-br from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400"
                 >
                   Search
                 </Button>
@@ -630,7 +630,7 @@ const SupportCenter = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400"
+                  className="w-full bg-linear-to-br from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   Submit Ticket

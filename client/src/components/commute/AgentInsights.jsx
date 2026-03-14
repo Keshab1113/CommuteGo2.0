@@ -7,7 +7,7 @@ const AgentInsights = ({ insights }) => {
     if (!insights) return null;
     
     return (
-        <Card className="bg-gradient-to-r from-primary-50 to-secondary-50 border-primary-200">
+        <Card className="bg-linear-to-br from-primary-50 to-secondary-50 border-primary-200">
             <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
                     <Brain className="h-5 w-5 text-primary-600" />

@@ -128,7 +128,7 @@ export default function Roadmap() {
               <MapPin className="w-4 h-4 mr-2" />
               Product Roadmap
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-linear-to-br from-primary to-primary/60 bg-clip-text text-transparent">
               Our Journey Ahead
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
