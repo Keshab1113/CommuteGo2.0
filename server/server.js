@@ -2,6 +2,7 @@ const app = require("./app");
 const { testConnection } = require("./config/database");
 const { config } = require("./config/appConfig");
 const logger = require("./utils/logger");
+const { initializeTables } = require("./utils/initializeDatabase");
 
 const PORT = config.server.port;
 
@@ -17,6 +18,9 @@ const startServer = async () => {
     try {
         await testConnection();
         logger.info("✅ MySQL database connected successfully");
+        
+        // Initialize database tables
+        await initializeTables();
         
         const server = app.listen(PORT, () => {
             logger.info(`🚀 Server running on port ${PORT}`);

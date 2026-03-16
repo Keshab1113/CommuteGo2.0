@@ -233,7 +233,7 @@ We appreciate your feedback and are committed to resolving any concerns you may 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900">
       {/* Hero Section */}
       <div className="bg-linear-to-br from-blue-600 to-indigo-700 text-white py-20">
         <div className="container mx-auto px-4">
@@ -281,7 +281,7 @@ We appreciate your feedback and are committed to resolving any concerns you may 
                 className={`p-4 rounded-xl text-left transition-all ${
                   expandedSection === section.id
                     ? 'bg-blue-600 text-white shadow-lg'
-                    : 'bg-white text-slate-600 hover:bg-blue-50'
+                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30'
                 }`}
               >
                 <section.icon className="w-6 h-6 mb-2" />
@@ -303,7 +303,7 @@ We appreciate your feedback and are committed to resolving any concerns you may 
                   expandedSection === section.id 
                     ? 'ring-2 ring-blue-500 shadow-lg' 
                     : 'hover:shadow-md'
-                }`}>
+                } dark:bg-slate-800`}>
                   <button
                     onClick={() => setExpandedSection(
                       expandedSection === section.id ? '' : section.id
@@ -314,7 +314,7 @@ We appreciate your feedback and are committed to resolving any concerns you may 
                       <div className={`p-2 rounded-lg ${
                         expandedSection === section.id
                           ? 'bg-blue-600 text-white'
-                          : 'bg-blue-100 text-blue-600'
+                          : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
                       }`}>
                         <section.icon className="w-5 h-5" />
                       </div>
@@ -322,9 +322,9 @@ We appreciate your feedback and are committed to resolving any concerns you may 
                         <CardTitle className="text-lg">{section.title}</CardTitle>
                       </div>
                       {expandedSection === section.id ? (
-                        <ChevronDown className="w-5 h-5 text-slate-400" />
+                        <ChevronDown className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                       ) : (
-                        <ChevronRight className="w-5 h-5 text-slate-400" />
+                        <ChevronRight className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                       )}
                     </CardHeader>
                   </button>
@@ -348,9 +348,9 @@ We appreciate your feedback and are committed to resolving any concerns you may 
                                   return (
                                     <div key={i} className="flex items-start gap-2 mb-2">
                                       <CheckCircle className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" />
-                                      <span className="text-slate-600 text-sm">
+                                      <span className="text-slate-600 dark:text-slate-300 text-sm">
                                         {parts.map((part, idx) => 
-                                          idx % 2 === 1 ? <strong key={idx} className="text-slate-800">{part}</strong> : part
+                                          idx % 2 === 1 ? <strong key={idx} className="text-slate-800 dark:text-slate-200">{part}</strong> : part
                                         )}
                                       </span>
                                     </div>
@@ -359,22 +359,22 @@ We appreciate your feedback and are committed to resolving any concerns you may 
                                 return (
                                   <div key={i} className="flex items-start gap-2 mb-2">
                                     <CheckCircle className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" />
-                                    <span className="text-slate-600 text-sm">{bulletContent}</span>
+                                    <span className="text-slate-600 dark:text-slate-300 text-sm">{bulletContent}</span>
                                   </div>
                                 );
                               }
                               if (line.includes('**')) {
                                 const parts = line.split(/\*\*(.*?)\*\*/g);
                                 return (
-                                  <p key={i} className="text-slate-600 text-sm mb-2">
+                                  <p key={i} className="text-slate-600 dark:text-slate-300 text-sm mb-2">
                                     {parts.map((part, idx) => 
-                                      idx % 2 === 1 ? <strong key={idx} className="text-slate-800">{part}</strong> : part
+                                      idx % 2 === 1 ? <strong key={idx} className="text-slate-800 dark:text-slate-200">{part}</strong> : part
                                     )}
                                   </p>
                                 );
                               }
                               return (
-                                <p key={i} className="text-slate-600 text-sm mb-2">
+                                <p key={i} className="text-slate-600 dark:text-slate-300 text-sm mb-2">
                                   {line}
                                 </p>
                               );

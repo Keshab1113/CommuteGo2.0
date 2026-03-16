@@ -262,7 +262,7 @@ We value your security and are committed to maintaining the highest standards of
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       {/* Hero Section */}
       <div className="bg-linear-to-br from-slate-700 to-slate-900 text-white py-20">
         <div className="container mx-auto px-4">
@@ -303,21 +303,21 @@ We value your security and are committed to maintaining the highest standards of
             transition={{ delay: 0.2 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
           >
-            <div className="bg-white p-4 rounded-xl text-center shadow-sm">
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl text-center shadow-sm dark:shadow-slate-900/50">
               <Lock className="w-8 h-8 mx-auto mb-2 text-green-600" />
-              <span className="text-sm font-medium text-slate-600">TLS 1.3</span>
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-300">TLS 1.3</span>
             </div>
-            <div className="bg-white p-4 rounded-xl text-center shadow-sm">
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl text-center shadow-sm dark:shadow-slate-900/50">
               <Fingerprint className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-              <span className="text-sm font-medium text-slate-600">MFA Enabled</span>
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-300">MFA Enabled</span>
             </div>
-            <div className="bg-white p-4 rounded-xl text-center shadow-sm">
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl text-center shadow-sm dark:shadow-slate-900/50">
               <Activity className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-              <span className="text-sm font-medium text-slate-600">24/7 Monitoring</span>
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-300">24/7 Monitoring</span>
             </div>
-            <div className="bg-white p-4 rounded-xl text-center shadow-sm">
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl text-center shadow-sm dark:shadow-slate-900/50">
               <Shield className="w-8 h-8 mx-auto mb-2 text-amber-600" />
-              <span className="text-sm font-medium text-slate-600">GDPR Compliant</span>
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-300">GDPR Compliant</span>
             </div>
           </motion.div>
 
@@ -327,17 +327,18 @@ We value your security and are committed to maintaining the highest standards of
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="mb-8 bg-linear-to-br from-slate-100 to-blue-100 border-slate-200">
+            <Card className="mb-8 bg-linear-to-br from-slate-100 to-blue-100 border-slate-200 dark:from-slate-800 dark:to-slate-700 dark:border-slate-600 dark:bg-slate-800">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <Shield className="w-8 h-8 text-slate-600" />
+                    <Shield className="w-8 h-8 text-slate-600 dark:text-slate-300" />
                     <div>
-                      <h3 className="font-semibold text-slate-800">Your Security is Our Priority</h3>
-                      <p className="text-sm text-slate-600">We use industry-leading security measures to protect your data</p>
+                      <h3 className="font-semibold text-slate-800 dark:text-white">Your Security is Our Priority</h3>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">We use industry-leading security measures to protect your data</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">We use industry-leading security measures to protect your data</p>
                     </div>
                   </div>
-                  <Button className="bg-slate-700 hover:bg-slate-800">
+                    <Button className="bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-500">
                     <AlertCircle className="w-4 h-4 mr-2" />
                     Report Security Issue
                   </Button>
@@ -355,10 +356,10 @@ We value your security and are committed to maintaining the highest standards of
           >
             {sections.map((section) => (
               <motion.div key={section.id} variants={itemVariants}>
-                <Card className={`overflow-hidden transition-all ${
+                <Card className={`overflow-hidden transition-all dark:bg-slate-800 dark:border-slate-600 ${
                   expandedSection === section.id 
-                    ? 'ring-2 ring-slate-500 shadow-lg' 
-                    : 'hover:shadow-md'
+                    ? 'ring-2 ring-slate-500 shadow-lg dark:shadow-slate-900/50' 
+                    : 'hover:shadow-md dark:hover:shadow-slate-900/50'
                 }`}>
                   <button
                     onClick={() => setExpandedSection(
@@ -370,12 +371,12 @@ We value your security and are committed to maintaining the highest standards of
                       <div className={`p-2 rounded-lg ${
                         expandedSection === section.id
                           ? 'bg-slate-700 text-white'
-                          : 'bg-slate-100 text-slate-600'
+                          : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                       }`}>
                         <section.icon className="w-5 h-5" />
                       </div>
                       <div className="flex-1 text-left">
-                        <CardTitle className="text-lg">{section.title}</CardTitle>
+                        <CardTitle className="text-lg dark:text-white">{section.title}</CardTitle>
                       </div>
                       {expandedSection === section.id ? (
                         <ChevronDown className="w-5 h-5 text-slate-400" />
@@ -404,9 +405,9 @@ We value your security and are committed to maintaining the highest standards of
                                   return (
                                     <div key={i} className="flex items-start gap-2 mb-2">
                                       <CheckCircle className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" />
-                                      <span className="text-slate-600 text-sm">
+                                      <span className="text-slate-600 dark:text-slate-300 text-sm">
                                         {parts.map((part, idx) => 
-                                          idx % 2 === 1 ? <strong key={idx} className="text-slate-800">{part}</strong> : part
+                                          idx % 2 === 1 ? <strong key={idx} className="text-slate-800 dark:text-white">{part}</strong> : part
                                         )}
                                       </span>
                                     </div>
@@ -415,22 +416,22 @@ We value your security and are committed to maintaining the highest standards of
                                 return (
                                   <div key={i} className="flex items-start gap-2 mb-2">
                                     <CheckCircle className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" />
-                                    <span className="text-slate-600 text-sm">{bulletContent}</span>
+                                    <span className="text-slate-600 dark:text-slate-300 text-sm">{bulletContent}</span>
                                   </div>
                                 );
                               }
                               if (line.includes('**')) {
                                 const parts = line.split(/\*\*(.*?)\*\*/g);
                                 return (
-                                  <p key={i} className="text-slate-600 text-sm mb-2">
+                                  <p key={i} className="text-slate-600 dark:text-slate-300 text-sm mb-2">
                                     {parts.map((part, idx) => 
-                                      idx % 2 === 1 ? <strong key={idx} className="text-slate-800">{part}</strong> : part
+                                      idx % 2 === 1 ? <strong key={idx} className="text-slate-800 dark:text-white">{part}</strong> : part
                                     )}
                                   </p>
                                 );
                               }
                               return (
-                                <p key={i} className="text-slate-600 text-sm mb-2">
+                                <p key={i} className="text-slate-600 dark:text-slate-300 text-sm mb-2">
                                   {line}
                                 </p>
                               );
@@ -451,7 +452,7 @@ We value your security and are committed to maintaining the highest standards of
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="mt-12 bg-linear-to-br from-slate-700 to-slate-900 text-white border-0">
+            <Card className="mt-12 bg-linear-to-br from-slate-700 to-slate-900 text-white border-0 dark:from-slate-800 dark:to-slate-900">
               <CardContent className="p-8 md:p-12">
                 <div className="text-center">
                   <HelpCircle className="w-12 h-12 mx-auto mb-4 text-slate-300" />
@@ -460,11 +461,11 @@ We value your security and are committed to maintaining the highest standards of
                     If you have any questions or concerns about our security practices, please reach out to our security team.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button className="bg-white text-slate-700 hover:bg-slate-100">
+                    <Button className="bg-white text-slate-700 hover:bg-slate-100 dark:bg-slate-200 dark:text-slate-800 dark:hover:bg-slate-300">
                       <Mail className="w-4 h-4 mr-2" />
                       Contact Security Team
                     </Button>
-                    <Button variant="outline" className="border-white text-white hover:bg-slate-700">
+                    <Button variant="outline" className="border-white text-white hover:bg-slate-700 dark:border-slate-400 dark:text-slate-200 dark:hover:bg-slate-600">
                       View Privacy Policy
                     </Button>
                   </div>

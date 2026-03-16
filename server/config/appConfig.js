@@ -43,7 +43,7 @@ const config = {
     concurrentRequests: parseInt(process.env.TINYFISH_CONCURRENT) || 5,
     cacheTTL: parseInt(process.env.TINYFISH_CACHE_TTL) || 5 * 60 * 1000, // 5 minutes
     timeout: parseInt(process.env.TINYFISH_TIMEOUT) || 30000, // 30 seconds
-    baseUrl: process.env.TINYFISH_BASE_URL || 'https://api.tinyfish.io',
+    baseUrl: process.env.TINYFISH_BASE_URL || 'https://agent.tinyfish.ai/v1',
   },
 
   // ============================================

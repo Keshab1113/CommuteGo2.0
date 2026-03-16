@@ -135,6 +135,10 @@ export const commuteAPI = {
     saveHistory: (data) => api.post('/commute/history', data),
     getHistory: (limit = 20) => api.get(`/commute/history?limit=${limit}`),
     getAgentInsights: (routeId) => api.get(`/commute/agent/insights/${routeId}`),
+    // TinyFish integration endpoints
+    getTinyFishOptions: (routeId) => api.get(`/commute/routes/${routeId}/tinyfish/options`),
+    getTinyFishPricing: (routeId, optionId) => api.get(`/commute/routes/${routeId}/tinyfish/pricing/${optionId}`),
+    prepareBooking: (data) => api.post(`/commute/routes/tinyfish/prepare-booking`, data),
 };
 
 // Analytics API

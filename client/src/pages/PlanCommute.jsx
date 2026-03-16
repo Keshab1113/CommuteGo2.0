@@ -35,6 +35,8 @@ const PlanCommute = () => {
   const [loading, setLoading] = useState(false);
   const [routeOptions, setRouteOptions] = useState(null);
   const [currentRoute, setCurrentRoute] = useState(null);
+  const [currentRouteId, setCurrentRouteId] = useState(null);
+  const [tinyFishData, setTinyFishData] = useState(null);
   const [selectedPreference, setSelectedPreference] = useState('balanced');
   const [filters, setFilters] = useState({
     maxCost: 20000,
@@ -72,6 +74,8 @@ const PlanCommute = () => {
       });
       
       setCurrentRoute(response.data.route);
+      setCurrentRouteId(response.data.routeId);
+      setTinyFishData(response.data.tinyFishData);
       
       // Filter and sort options based on preferences
       // API returns snake_case (total_cost, rank_cheapest), frontend expects camelCase
@@ -127,15 +131,18 @@ const PlanCommute = () => {
   };
 
   const handleSelectRoute = (option) => {
-    // Navigate to RouteDetails page with route option data
+    // Navigate to RouteDetails page with route option data and routeId in URL
     const state = {
       option: option,
+      routeId: currentRouteId,
       from: formData.source,
       to: formData.destination,
       date: formData.travelDate,
-      preference: selectedPreference
+      preference: selectedPreference,
+      tinyFishData: tinyFishData
     };
-    navigate('/route-details', { state });
+    // Navigate to unique URL with routeId
+    navigate(`/route-details/${currentRouteId}`, { state });
   };
 
   const preferenceOptions = [

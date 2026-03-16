@@ -158,24 +158,24 @@ const AdminAnalytics = () => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 dark:bg-gray-900 min-h-screen">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Advanced Analytics</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold mb-2 dark:text-white">Advanced Analytics</h1>
+          <p className="text-gray-600 dark:text-gray-400">
             Detailed insights and performance metrics
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowDetails(!showDetails)}>
+          <Button variant="outline" onClick={() => setShowDetails(!showDetails)} className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
             {showDetails ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
             {showDetails ? 'Hide Details' : 'Show Details'}
           </Button>
-          <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
+          <Button variant="outline" onClick={handleRefresh} disabled={refreshing} className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button variant="outline" onClick={handleExport}>
+          <Button variant="outline" onClick={handleExport} className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
@@ -183,12 +183,12 @@ const AdminAnalytics = () => {
       </div>
 
       {/* Time Range Selector */}
-      <Card>
+      <Card className="dark:bg-gray-800 dark:border-gray-700">
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h3 className="font-medium">Analytics Period</h3>
-              <p className="text-sm text-gray-500">Select time range for analysis</p>
+              <h3 className="font-medium dark:text-white">Analytics Period</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Select time range for analysis</p>
             </div>
             <div className="flex items-center gap-4">
               <Select value={timeRange} onValueChange={setTimeRange}>
@@ -205,8 +205,8 @@ const AdminAnalytics = () => {
               </Select>
               
               <div className="hidden sm:flex items-center gap-2">
-                <Filter className="h-4 w-4 text-gray-400" />
-                <span className="text-sm text-gray-500">
+                <Filter className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {getDateRange().startDate} to {getDateRange().endDate}
                 </span>
               </div>
@@ -219,72 +219,72 @@ const AdminAnalytics = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {loading ? (
           [...Array(4)].map((_, i) => (
-            <Card key={i}>
+            <Card key={i} className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="pt-6">
-                <Skeleton className="h-8 w-24 mb-2" />
-                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-8 w-24 mb-2 dark:bg-gray-700" />
+                <Skeleton className="h-4 w-32 dark:bg-gray-700" />
               </CardContent>
             </Card>
           ))
         ) : (
           <>
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Users className="h-6 w-6 text-blue-600" />
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                    <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-400 dark:border-green-800">
                     +12%
                   </Badge>
                 </div>
-                <div className="text-2xl font-bold">{formatNumber(metrics.totalUsers)}</div>
-                <p className="text-sm text-gray-500">Total Users</p>
+                <div className="text-2xl font-bold dark:text-white">{formatNumber(metrics.totalUsers)}</div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                    <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
                   </div>
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-400 dark:border-blue-800">
                     +8%
                   </Badge>
                 </div>
-                <div className="text-2xl font-bold">{formatNumber(metrics.totalRoutes)}</div>
-                <p className="text-sm text-gray-500">Routes Planned</p>
+                <div className="text-2xl font-bold dark:text-white">{formatNumber(metrics.totalRoutes)}</div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Routes Planned</p>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Clock className="h-6 w-6 text-purple-600" />
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                    <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-400 dark:border-purple-800">
                     +15%
                   </Badge>
                 </div>
-                <div className="text-2xl font-bold">{formatNumber(metrics.totalCommutes)}</div>
-                <p className="text-sm text-gray-500">Completed Commutes</p>
+                <div className="text-2xl font-bold dark:text-white">{formatNumber(metrics.totalCommutes)}</div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Completed Commutes</p>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-2 bg-yellow-100 rounded-lg">
-                    <DollarSign className="h-6 w-6 text-yellow-600" />
+                  <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                    <DollarSign className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
                   </div>
-                  <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                  <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-400 dark:border-yellow-800">
                     +22%
                   </Badge>
                 </div>
-                <div className="text-2xl font-bold">{formatCurrency(metrics.totalRevenue)}</div>
-                <p className="text-sm text-gray-500">Total Revenue</p>
+                <div className="text-2xl font-bold dark:text-white">{formatCurrency(metrics.totalRevenue)}</div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Revenue</p>
               </CardContent>
             </Card>
           </>
@@ -293,20 +293,20 @@ const AdminAnalytics = () => {
 
       {/* Chart Tabs */}
       <Tabs value={activeChart} onValueChange={setActiveChart} className="space-y-6">
-        <TabsList className="grid grid-cols-4">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
+        <TabsList className="grid grid-cols-4 dark:bg-gray-800">
+          <TabsTrigger value="overview" className="flex items-center gap-2 dark:text-gray-400 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">
             <LineChart className="h-4 w-4" />
             <span className="hidden sm:inline">Overview</span>
           </TabsTrigger>
-          <TabsTrigger value="revenue" className="flex items-center gap-2">
+          <TabsTrigger value="revenue" className="flex items-center gap-2 dark:text-gray-400 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">
             <BarChart3 className="h-4 w-4" />
             <span className="hidden sm:inline">Revenue</span>
           </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center gap-2">
+          <TabsTrigger value="users" className="flex items-center gap-2 dark:text-gray-400 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">
             <Users className="h-4 w-4" />
             <span className="hidden sm:inline">Users</span>
           </TabsTrigger>
-          <TabsTrigger value="transport" className="flex items-center gap-2">
+          <TabsTrigger value="transport" className="flex items-center gap-2 dark:text-gray-400 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">
             <PieChart className="h-4 w-4" />
             <span className="hidden sm:inline">Transport</span>
           </TabsTrigger>
@@ -314,25 +314,25 @@ const AdminAnalytics = () => {
 
         {/* Overview Tab */}
         <TabsContent value="overview">
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
-              <CardTitle>Performance Overview</CardTitle>
-              <CardDescription>
+              <CardTitle className="dark:text-white">Performance Overview</CardTitle>
+              <CardDescription className="dark:text-gray-400">
                 Key metrics and trends over the selected period
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
-                <Skeleton className="h-80" />
+                <Skeleton className="h-80 dark:bg-gray-700" />
               ) : analytics ? (
                 <div className="space-y-6">
                   <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={analytics.commutesPerDay}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                        <XAxis dataKey="date" stroke="#9CA3AF" />
+                        <YAxis stroke="#9CA3AF" />
+                        <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: '8px', color: '#fff' }} />
                         <Legend />
                         <Area 
                           type="monotone" 
@@ -349,30 +349,30 @@ const AdminAnalytics = () => {
                   
                   {showDetails && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 border rounded-lg">
-                        <h4 className="font-medium mb-2">Peak Hours</h4>
+                      <div className="p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                        <h4 className="font-medium mb-2 dark:text-white">Peak Hours</h4>
                         <div className="space-y-2">
                           {analytics.peakHours.slice(0, 3).map((hour, index) => (
                             <div key={index} className="flex items-center justify-between">
-                              <span className="text-sm">{hour.hour}</span>
-                              <span className="font-medium">{hour.count} commutes</span>
+                              <span className="text-sm dark:text-gray-300">{hour.hour}</span>
+                              <span className="font-medium dark:text-white">{hour.count} commutes</span>
                             </div>
                           ))}
                         </div>
                       </div>
                       
-                      <div className="p-4 border rounded-lg">
-                        <h4 className="font-medium mb-2">Revenue Summary</h4>
+                      <div className="p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                        <h4 className="font-medium mb-2 dark:text-white">Revenue Summary</h4>
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm">Total Revenue</span>
-                            <span className="font-medium">
+                            <span className="text-sm dark:text-gray-300">Total Revenue</span>
+                            <span className="font-medium dark:text-white">
                               {formatCurrency(analytics.revenueTrend.reduce((sum, day) => sum + day.revenue, 0))}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-sm">Average Daily</span>
-                            <span className="font-medium">
+                            <span className="text-sm dark:text-gray-300">Average Daily</span>
+                            <span className="font-medium dark:text-white">
                               {formatCurrency(
                                 analytics.revenueTrend.reduce((sum, day) => sum + day.revenue, 0) / analytics.revenueTrend.length
                               )}
@@ -381,19 +381,19 @@ const AdminAnalytics = () => {
                         </div>
                       </div>
                       
-                      <div className="p-4 border rounded-lg">
-                        <h4 className="font-medium mb-2">Most Popular Mode</h4>
+                      <div className="p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                        <h4 className="font-medium mb-2 dark:text-white">Most Popular Mode</h4>
                         {analytics.modeDistribution.length > 0 && (
                           <>
                             <div className="flex items-center gap-2 mb-2">
-                              <div className="text-2xl font-bold">
+                              <div className="text-2xl font-bold dark:text-white">
                                 {analytics.modeDistribution[0].percentage}%
                               </div>
                               <div>
-                                <div className="font-medium capitalize">
+                                <div className="font-medium capitalize dark:text-white">
                                   {analytics.modeDistribution[0].mode.toLowerCase()}
                                 </div>
-                                <div className="text-sm text-gray-500">
+                                <div className="text-sm text-gray-500 dark:text-gray-400">
                                   {analytics.modeDistribution[0].count} trips
                                 </div>
                               </div>
@@ -407,7 +407,7 @@ const AdminAnalytics = () => {
               ) : (
                 <div className="text-center py-12">
                   <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <p className="text-gray-500">No analytics data available</p>
+                  <p className="text-gray-500 dark:text-gray-400">No analytics data available</p>
                 </div>
               )}
             </CardContent>
@@ -416,25 +416,25 @@ const AdminAnalytics = () => {
 
         {/* Revenue Tab */}
         <TabsContent value="revenue">
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
-              <CardTitle>Revenue Analysis</CardTitle>
-              <CardDescription>
+              <CardTitle className="dark:text-white">Revenue Analysis</CardTitle>
+              <CardDescription className="dark:text-gray-400">
                 Revenue trends and projections
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
-                <Skeleton className="h-80" />
+                <Skeleton className="h-80 dark:bg-gray-700" />
               ) : analytics ? (
                 <div className="space-y-6">
                   <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <RechartsLineChart data={analytics.revenueTrend}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip formatter={(value) => [formatCurrency(value), 'Revenue']} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                        <XAxis dataKey="date" stroke="#9CA3AF" />
+                        <YAxis stroke="#9CA3AF" />
+                        <Tooltip formatter={(value) => [formatCurrency(value), 'Revenue']} contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: '8px', color: '#fff' }} />
                         <Legend />
                         <Line 
                           type="monotone" 
@@ -451,58 +451,58 @@ const AdminAnalytics = () => {
                   
                   {showDetails && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="p-4 border rounded-lg">
-                        <h4 className="font-medium mb-4">Revenue Statistics</h4>
+                      <div className="p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                        <h4 className="font-medium mb-4 dark:text-white">Revenue Statistics</h4>
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Total Revenue</span>
-                            <span className="font-medium">
+                            <span className="text-gray-600 dark:text-gray-300">Total Revenue</span>
+                            <span className="font-medium dark:text-white">
                               {formatCurrency(analytics.revenueTrend.reduce((sum, day) => sum + day.revenue, 0))}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Average Daily</span>
-                            <span className="font-medium">
+                            <span className="text-gray-600 dark:text-gray-300">Average Daily</span>
+                            <span className="font-medium dark:text-white">
                               {formatCurrency(
                                 analytics.revenueTrend.reduce((sum, day) => sum + day.revenue, 0) / analytics.revenueTrend.length
                               )}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Highest Day</span>
-                            <span className="font-medium">
+                            <span className="text-gray-600 dark:text-gray-300">Highest Day</span>
+                            <span className="font-medium dark:text-white">
                               {formatCurrency(Math.max(...analytics.revenueTrend.map(day => day.revenue)))}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Growth Rate</span>
-                            <span className="font-medium text-green-600">+22%</span>
+                            <span className="text-gray-600 dark:text-gray-300">Growth Rate</span>
+                            <span className="font-medium text-green-600 dark:text-green-400">+22%</span>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="p-4 border rounded-lg">
-                        <h4 className="font-medium mb-4">Revenue Forecast</h4>
+                      <div className="p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                        <h4 className="font-medium mb-4 dark:text-white">Revenue Forecast</h4>
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Next 7 Days</span>
-                            <span className="font-medium">
+                            <span className="text-gray-600 dark:text-gray-300">Next 7 Days</span>
+                            <span className="font-medium dark:text-white">
                               {formatCurrency(
                                 (analytics.revenueTrend.reduce((sum, day) => sum + day.revenue, 0) / analytics.revenueTrend.length) * 7
                               )}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Next 30 Days</span>
-                            <span className="font-medium">
+                            <span className="text-gray-600 dark:text-gray-300">Next 30 Days</span>
+                            <span className="font-medium dark:text-white">
                               {formatCurrency(
                                 (analytics.revenueTrend.reduce((sum, day) => sum + day.revenue, 0) / analytics.revenueTrend.length) * 30
                               )}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Projected Monthly</span>
-                            <span className="font-medium">
+                            <span className="text-gray-600 dark:text-gray-300">Projected Monthly</span>
+                            <span className="font-medium dark:text-white">
                               {formatCurrency(metrics.totalRevenue * 1.22)}
                             </span>
                           </div>
@@ -514,7 +514,7 @@ const AdminAnalytics = () => {
               ) : (
                 <div className="text-center py-12">
                   <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <p className="text-gray-500">No revenue data available</p>
+                  <p className="text-gray-500 dark:text-gray-400">No revenue data available</p>
                 </div>
               )}
             </CardContent>
@@ -523,25 +523,25 @@ const AdminAnalytics = () => {
 
         {/* Users Tab */}
         <TabsContent value="users">
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
-              <CardTitle>User Analytics</CardTitle>
-              <CardDescription>
+              <CardTitle className="dark:text-white">User Analytics</CardTitle>
+              <CardDescription className="dark:text-gray-400">
                 User growth and engagement metrics
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
-                <Skeleton className="h-80" />
+                <Skeleton className="h-80 dark:bg-gray-700" />
               ) : analytics ? (
                 <div className="space-y-6">
                   <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <RechartsBarChart data={analytics.peakHours}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis dataKey="hour" />
-                        <YAxis />
-                        <Tooltip />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                        <XAxis dataKey="hour" stroke="#9CA3AF" />
+                        <YAxis stroke="#9CA3AF" />
+                        <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: '8px', color: '#fff' }} />
                         <Legend />
                         <Bar 
                           dataKey="count" 
@@ -555,56 +555,56 @@ const AdminAnalytics = () => {
                   
                   {showDetails && realTimeMetrics && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="p-4 border rounded-lg">
-                        <h4 className="font-medium mb-4">Real-Time Activity</h4>
+                      <div className="p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                        <h4 className="font-medium mb-4 dark:text-white">Real-Time Activity</h4>
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Active Today</span>
-                            <span className="font-medium">
+                            <span className="text-gray-600 dark:text-gray-300">Active Today</span>
+                            <span className="font-medium dark:text-white">
                               {formatNumber(realTimeMetrics.activeUsersToday)}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Current Hour</span>
-                            <span className="font-medium">
+                            <span className="text-gray-600 dark:text-gray-300">Current Hour</span>
+                            <span className="font-medium dark:text-white">
                               {formatNumber(realTimeMetrics.currentHourCommutes)}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Today's Commutes</span>
-                            <span className="font-medium">
+                            <span className="text-gray-600 dark:text-gray-300">Today's Commutes</span>
+                            <span className="font-medium dark:text-white">
                               {formatNumber(realTimeMetrics.todayCommutes)}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Peak Hour</span>
-                            <span className="font-medium">
+                            <span className="text-gray-600 dark:text-gray-300">Peak Hour</span>
+                            <span className="font-medium dark:text-white">
                               {realTimeMetrics.mostActiveHour.hour}:00 ({realTimeMetrics.mostActiveHour.count})
                             </span>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="p-4 border rounded-lg">
-                        <h4 className="font-medium mb-4">User Engagement</h4>
+                      <div className="p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                        <h4 className="font-medium mb-4 dark:text-white">User Engagement</h4>
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Avg. Commutes/User</span>
-                            <span className="font-medium">
+                            <span className="text-gray-600 dark:text-gray-300">Avg. Commutes/User</span>
+                            <span className="font-medium dark:text-white">
                               {(metrics.totalCommutes / metrics.totalUsers).toFixed(1)}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Retention Rate</span>
-                            <span className="font-medium text-green-600">87%</span>
+                            <span className="text-gray-600 dark:text-gray-300">Retention Rate</span>
+                            <span className="font-medium text-green-600 dark:text-green-400">87%</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">New Users (7d)</span>
-                            <span className="font-medium">+{Math.round(metrics.totalUsers * 0.05)}</span>
+                            <span className="text-gray-600 dark:text-gray-300">New Users (7d)</span>
+                            <span className="font-medium dark:text-white">+{Math.round(metrics.totalUsers * 0.05)}</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Active Sessions</span>
-                            <span className="font-medium">142</span>
+                            <span className="text-gray-600 dark:text-gray-300">Active Sessions</span>
+                            <span className="font-medium dark:text-white">142</span>
                           </div>
                         </div>
                       </div>
@@ -614,7 +614,7 @@ const AdminAnalytics = () => {
               ) : (
                 <div className="text-center py-12">
                   <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <p className="text-gray-500">No user data available</p>
+                  <p className="text-gray-500 dark:text-gray-400">No user data available</p>
                 </div>
               )}
             </CardContent>
@@ -623,16 +623,16 @@ const AdminAnalytics = () => {
 
         {/* Transport Tab */}
         <TabsContent value="transport">
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
-              <CardTitle>Transport Mode Analysis</CardTitle>
-              <CardDescription>
+              <CardTitle className="dark:text-white">Transport Mode Analysis</CardTitle>
+              <CardDescription className="dark:text-gray-400">
                 Distribution and performance of different transport modes
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
-                <Skeleton className="h-80" />
+                <Skeleton className="h-80 dark:bg-gray-700" />
               ) : analytics ? (
                 <div className="space-y-6">
                   <div className="h-80">
@@ -655,7 +655,7 @@ const AdminAnalytics = () => {
                         <Tooltip formatter={(value, name, props) => [
                           `${value} trips (${props.payload.percentage}%)`,
                           props.payload.mode
-                        ]} />
+                        ]} contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: '8px', color: '#fff' }} />
                         <Legend />
                       </RechartsPieChart>
                     </ResponsiveContainer>
@@ -663,28 +663,28 @@ const AdminAnalytics = () => {
                   
                   {showDetails && (
                     <div className="space-y-4">
-                      <h4 className="font-medium">Mode Performance Metrics</h4>
+                      <h4 className="font-medium dark:text-white">Mode Performance Metrics</h4>
                       <div className="overflow-x-auto">
                         <table className="w-full">
                           <thead>
-                            <tr className="border-b">
-                              <th className="text-left py-2 px-4">Mode</th>
-                              <th className="text-left py-2 px-4">Trips</th>
-                              <th className="text-left py-2 px-4">Share</th>
-                              <th className="text-left py-2 px-4">Avg. Cost</th>
-                              <th className="text-left py-2 px-4">Avg. Time</th>
-                              <th className="text-left py-2 px-4">Avg. Carbon</th>
+                            <tr className="border-b dark:border-gray-600">
+                              <th className="text-left py-2 px-4 dark:text-white">Mode</th>
+                              <th className="text-left py-2 px-4 dark:text-white">Trips</th>
+                              <th className="text-left py-2 px-4 dark:text-white">Share</th>
+                              <th className="text-left py-2 px-4 dark:text-white">Avg. Cost</th>
+                              <th className="text-left py-2 px-4 dark:text-white">Avg. Time</th>
+                              <th className="text-left py-2 px-4 dark:text-white">Avg. Carbon</th>
                             </tr>
                           </thead>
                           <tbody>
                             {analytics.modeDistribution.map((mode, index) => (
-                              <tr key={index} className="border-b hover:bg-gray-50">
-                                <td className="py-2 px-4 font-medium capitalize">{mode.mode.toLowerCase()}</td>
-                                <td className="py-2 px-4">{formatNumber(mode.count)}</td>
-                                <td className="py-2 px-4">{mode.percentage}%</td>
-                                <td className="py-2 px-4">{formatCurrency(mode.avg_cost || 0)}</td>
-                                <td className="py-2 px-4">{mode.avg_time ? `${Math.round(mode.avg_time)} min` : 'N/A'}</td>
-                                <td className="py-2 px-4">{mode.avg_carbon ? `${mode.avg_carbon.toFixed(1)} kg` : 'N/A'}</td>
+                              <tr key={index} className="border-b hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700">
+                                <td className="py-2 px-4 font-medium capitalize dark:text-white">{mode.mode.toLowerCase()}</td>
+                                <td className="py-2 px-4 dark:text-gray-300">{formatNumber(mode.count)}</td>
+                                <td className="py-2 px-4 dark:text-gray-300">{mode.percentage}%</td>
+                                <td className="py-2 px-4 dark:text-gray-300">{formatCurrency(mode.avg_cost || 0)}</td>
+                                <td className="py-2 px-4 dark:text-gray-300">{mode.avg_time ? `${Math.round(mode.avg_time)} min` : 'N/A'}</td>
+                                <td className="py-2 px-4 dark:text-gray-300">{mode.avg_carbon ? `${mode.avg_carbon.toFixed(1)} kg` : 'N/A'}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -696,7 +696,7 @@ const AdminAnalytics = () => {
               ) : (
                 <div className="text-center py-12">
                   <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <p className="text-gray-500">No transport data available</p>
+                  <p className="text-gray-500 dark:text-gray-400">No transport data available</p>
                 </div>
               )}
             </CardContent>
@@ -706,48 +706,48 @@ const AdminAnalytics = () => {
 
       {/* Real-Time Dashboard */}
       {realTimeMetrics && (
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 dark:text-white">
               <RefreshCw className="h-5 w-5" />
               Real-Time Dashboard
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="dark:text-gray-400">
               Live system metrics and activity
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="p-4 border rounded-lg">
-                <div className="text-2xl font-bold text-green-600">
+              <div className="p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {realTimeMetrics.activeUsersToday}
                 </div>
-                <p className="text-sm text-gray-500">Active Users Today</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Active Users Today</p>
               </div>
               
-              <div className="p-4 border rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">
+              <div className="p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {realTimeMetrics.todayCommutes}
                 </div>
-                <p className="text-sm text-gray-500">Commutes Today</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Commutes Today</p>
               </div>
               
-              <div className="p-4 border rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">
+              <div className="p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                   {realTimeMetrics.currentHourCommutes}
                 </div>
-                <p className="text-sm text-gray-500">This Hour</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">This Hour</p>
               </div>
               
-              <div className="p-4 border rounded-lg">
-                <div className="text-2xl font-bold text-yellow-600">
+              <div className="p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                   {realTimeMetrics.mostActiveHour.hour}:00
                 </div>
-                <p className="text-sm text-gray-500">Peak Hour ({realTimeMetrics.mostActiveHour.count})</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Peak Hour ({realTimeMetrics.mostActiveHour.count})</p>
               </div>
             </div>
             
-            <div className="mt-4 text-sm text-gray-500">
+            <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
               Last updated: {new Date(realTimeMetrics.lastUpdated).toLocaleTimeString()}
             </div>
           </CardContent>

@@ -1,5 +1,5 @@
 // frontend/src/components/layout/Footer.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -18,15 +18,34 @@ import {
   Clock,
   MapPin,
   Phone,
-  ExternalLink
+  ExternalLink,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { useToast } from '../../hooks/use-toast';
+import { applyTheme, setStoredTheme, getStoredTheme } from '../../lib/utils';
 
 const Footer = () => {
   const { toast } = useToast();
   const [email, setEmail] = React.useState('');
+  const [theme, setTheme] = useState(getStoredTheme() || 'system');
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    setStoredTheme(newTheme);
+    applyTheme(newTheme);
+    toast({
+      title: newTheme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode',
+      description: `Switched to ${newTheme} mode`,
+    });
+  };
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
@@ -176,6 +195,31 @@ const Footer = () => {
                   </motion.a>
                 );
               })}
+            </div>
+
+            {/* Theme Toggle */}
+            <div className="space-y-3 pt-2">
+              <h4 className="text-sm font-semibold flex items-center gap-2 text-gray-700 dark:text-slate-300">
+                <Sun className="w-4 h-4 text-cyan-400" />
+                Appearance
+              </h4>
+              <button
+                onClick={toggleTheme}
+                className="w-full p-3 rounded-xl bg-gray-200/60 dark:bg-slate-800/60 hover:bg-gray-300/80 dark:hover:bg-slate-700/80 border border-gray-300 dark:border-slate-700/50 hover:border-cyan-500/30 transition-all duration-300 flex items-center justify-center gap-2 text-gray-700 dark:text-slate-300 font-medium"
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? (
+                  <>
+                    <Sun className="w-5 h-5 text-amber-400" />
+                    <span>Light Mode</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-5 h-5 text-indigo-400" />
+                    <span>Dark Mode</span>
+                  </>
+                )}
+              </button>
             </div>
 
             {/* Newsletter */}

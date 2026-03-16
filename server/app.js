@@ -13,6 +13,7 @@ const commuteRoutes = require("./routes/commute");
 const adminRoutes = require("./routes/admin");
 const analyticsRoutes = require("./routes/analytics");
 const userRoutes = require("./routes/user");
+const contactRoutes = require("./routes/contact");
 const logger = require("./utils/logger");
 const { ipKeyGenerator } = require("express-rate-limit");
 
@@ -132,6 +133,7 @@ app.use("/api/commute", commuteRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/contact", contactRoutes);
 
 // Health check endpoint with database status
 app.get("/health", async (req, res) => {

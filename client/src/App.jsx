@@ -37,6 +37,7 @@ import Blog from './pages/Blog';
 import Careers from './pages/Careers';
 import PressKit from './pages/PressKit';
 import SupportCenter from './pages/SupportCenter';
+import Contact from './pages/Contact';
 import { initializeTheme } from './lib/utils';
 
 // Create a client
@@ -103,6 +104,7 @@ function App() {
                   <Route path="/careers" element={<Careers />} />
                   <Route path="/press" element={<PressKit />} />
                   <Route path="/support" element={<SupportCenter />} />
+                  <Route path="/contact" element={<Contact />} />
                   <Route path="/" element={
                     <PrivateRoute>
                       <Layout>
@@ -117,7 +119,7 @@ function App() {
                       </Layout>
                     </PrivateRoute>
                   } />
-                  <Route path="/route-details" element={
+                  <Route path="/route-details/:routeId" element={
                     <PrivateRoute>
                       <Layout>
                         <RouteDetails />

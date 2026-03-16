@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, color } from 'framer-motion';
 import {
   Home,
   Map,
@@ -17,7 +17,7 @@ import {
   Sparkles,
   Brain,
   Zap,
-  TrendingUp,
+  Contact,
   Leaf,
   Clock,
   DollarSign
@@ -82,6 +82,13 @@ const Sidebar = () => {
       path: '/settings',
       color: 'from-gray-500 to-slate-500',
       description: 'Preferences'
+    },
+    {
+      icon: <Contact size={20} />,
+      label: 'Contact',
+      path: '/contact',
+      color: 'from-teal-500 to-cyan-500',
+      description: 'Get in touch'
     },
     ...(isAdmin() ? [
       { 

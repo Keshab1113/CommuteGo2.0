@@ -206,7 +206,7 @@ For urgent matters, please include "URGENT" in your email subject line.`
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-linear-to-br from-indigo-600 via-purple-600 to-blue-600">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMtOS45NDEgMC0xOCA4LjA1OS0xOCAxOHM4LjA1OSAxOCAxOCAxOCAxOC04LjA1OSAxOC0xOC04LjA1OS0xOC0xOC0xOHptMCAzMmMtNy43MzIgMC0xNC02LjI2OC0xNC0xNHM2LjI2OC0xNCAxNC0xNCAxNCA2LjI2OCAxNCAxNC02LjI2OCAxNC0xNCAxNHoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjEiLz48L2c+PC9zdmc+')] opacity-30"></div>
@@ -259,24 +259,24 @@ For urgent matters, please include "URGENT" in your email subject line.`
 
       {/* Last Updated Banner */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                 <Clock className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-slate-500">Last Updated</p>
-                <p className="text-lg font-semibold text-slate-800">March 13, 2026</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Last Updated</p>
+                <p className="text-lg font-semibold text-slate-800 dark:text-white">March 13, 2026</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                <FileText className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                <FileText className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-500">Version</p>
-                <p className="text-lg font-semibold text-slate-800">2.0.0</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Version</p>
+                <p className="text-lg font-semibold text-slate-800 dark:text-white">2.0.0</p>
               </div>
             </div>
             <Button className="bg-indigo-600 hover:bg-indigo-700">
@@ -293,13 +293,13 @@ For urgent matters, please include "URGENT" in your email subject line.`
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-slate-800 dark:border-slate-700">
               <CardContent className="p-6">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-                  <Eye className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-4">
+                  <Eye className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-2">Transparency</h3>
-                <p className="text-slate-600 text-sm">
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Transparency</h3>
+                <p className="text-slate-600 dark:text-slate-300 text-sm">
                   We clearly explain what data we collect and how we use it. No hidden clauses or surprise data sharing.
                 </p>
               </CardContent>
@@ -311,13 +311,13 @@ For urgent matters, please include "URGENT" in your email subject line.`
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-slate-800 dark:border-slate-700">
               <CardContent className="p-6">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
-                  <Lock className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-4">
+                  <Lock className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-2">Security First</h3>
-                <p className="text-slate-600 text-sm">
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Security First</h3>
+                <p className="text-slate-600 dark:text-slate-300 text-sm">
                   Your data is protected with industry-standard encryption and security measures.
                 </p>
               </CardContent>
@@ -329,13 +329,13 @@ For urgent matters, please include "URGENT" in your email subject line.`
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-shadow dark:bg-slate-800 dark:border-slate-700">
               <CardContent className="p-6">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
-                  <User className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center mb-4">
+                  <User className="w-6 h-6 text-green-600 dark:text-green-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-2">Your Control</h3>
-                <p className="text-slate-600 text-sm">
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Your Control</h3>
+                <p className="text-slate-600 dark:text-slate-300 text-sm">
                   You have full control over your data. Access, modify, or delete your information anytime.
                 </p>
               </CardContent>
@@ -345,7 +345,7 @@ For urgent matters, please include "URGENT" in your email subject line.`
 
         {/* Privacy Sections */}
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             {sections.map((section, index) => (
               <motion.div
                 key={section.id}
@@ -354,32 +354,32 @@ For urgent matters, please include "URGENT" in your email subject line.`
                 transition={{ delay: index * 0.05 }}
               >
                 <div
-                  className={`border-b border-slate-100 last:border-b-0 ${
-                    expandedSection === section.id ? 'bg-slate-50' : ''
+                  className={`border-b border-slate-100 dark:border-slate-700 last:border-b-0 ${
+                    expandedSection === section.id ? 'bg-slate-50 dark:bg-slate-700/50' : ''
                   }`}
                 >
                   <button
                     onClick={() => toggleSection(section.id)}
-                    className="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                    className="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                         expandedSection === section.id 
-                          ? 'bg-indigo-100 text-indigo-600' 
-                          : 'bg-slate-100 text-slate-600'
+                          ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400' 
+                          : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                       }`}>
                         <section.icon className="w-5 h-5" />
                       </div>
                       <span className={`font-semibold ${
-                        expandedSection === section.id ? 'text-indigo-600' : 'text-slate-800'
+                        expandedSection === section.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-800 dark:text-white'
                       }`}>
                         {section.title}
                       </span>
                     </div>
                     {expandedSection === section.id ? (
-                      <ChevronDown className="w-5 h-5 text-slate-400" />
+                      <ChevronDown className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                     ) : (
-                      <ChevronRight className="w-5 h-5 text-slate-400" />
+                      <ChevronRight className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                     )}
                   </button>
                   
@@ -401,9 +401,9 @@ For urgent matters, please include "URGENT" in your email subject line.`
                                 return (
                                   <div key={i} className="flex items-start gap-2 mb-2">
                                     <CheckCircle className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" />
-                                    <span className="text-slate-600 text-sm">
+                                    <span className="text-slate-600 dark:text-slate-300 text-sm">
                                       {parts.map((part, idx) => 
-                                        idx % 2 === 1 ? <strong key={idx} className="text-slate-800">{part}</strong> : part
+                                        idx % 2 === 1 ? <strong key={idx} className="text-slate-800 dark:text-white">{part}</strong> : part
                                       )}
                                     </span>
                                   </div>
@@ -412,22 +412,22 @@ For urgent matters, please include "URGENT" in your email subject line.`
                               return (
                                 <div key={i} className="flex items-start gap-2 mb-2">
                                   <CheckCircle className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" />
-                                  <span className="text-slate-600 text-sm">{bulletContent}</span>
+                                  <span className="text-slate-600 dark:text-slate-300 text-sm">{bulletContent}</span>
                                 </div>
                               );
                             }
                             if (line.includes('**')) {
                               const parts = line.split(/\*\*(.*?)\*\*/g);
                               return (
-                                <p key={i} className="text-slate-600 text-sm mb-2">
+                                <p key={i} className="text-slate-600 dark:text-slate-300 text-sm mb-2">
                                   {parts.map((part, idx) => 
-                                    idx % 2 === 1 ? <strong key={idx} className="text-slate-800">{part}</strong> : part
+                                    idx % 2 === 1 ? <strong key={idx} className="text-slate-800 dark:text-white">{part}</strong> : part
                                   )}
                                 </p>
                               );
                             }
                             return (
-                              <p key={i} className="text-slate-600 text-sm mb-2">
+                              <p key={i} className="text-slate-600 dark:text-slate-300 text-sm mb-2">
                                 {line}
                               </p>
                             );

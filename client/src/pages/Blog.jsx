@@ -159,7 +159,7 @@ export default function Blog() {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10 dark:from-primary/20 dark:via-background dark:to-secondary/20" />
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -192,7 +192,7 @@ export default function Blog() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 bg-muted/30">
+      <section className="py-12 bg-muted/30 dark:bg-muted/20">
         <div className="container mx-auto px-4">
           <motion.div 
             variants={container}
@@ -224,7 +224,7 @@ export default function Blog() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
                 placeholder="Search articles..." 
-                className="pl-10"
+                className="pl-10 dark:bg-background dark:border-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -258,9 +258,9 @@ export default function Blog() {
               <Award className="w-6 h-6 mr-2 text-primary" />
               Featured Article
             </h2>
-            <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+            <Card className="overflow-hidden hover:shadow-lg transition-shadow dark:bg-card dark:border-border">
               <div className="grid md:grid-cols-2 gap-0">
-                <div className="h-64 md:h-auto bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                <div className="h-64 md:h-auto bg-gradient-to-br from-primary/20 to-secondary/20 dark:from-primary/30 dark:to-secondary/30 flex items-center justify-center">
                   <MapPin className="w-24 h-24 text-primary/30" />
                 </div>
                 <CardContent className="p-8 flex flex-col justify-center">
@@ -306,20 +306,20 @@ export default function Blog() {
           >
             {filteredPosts.map((post) => (
               <motion.div key={post.id} variants={item}>
-                <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group h-full">
-                  <div className="h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center relative">
+                <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group h-full dark:bg-card dark:border-border">
+                  <div className="h-48 bg-gradient-to-br from-primary/20 to-secondary/20 dark:from-primary/30 dark:to-secondary/30 flex items-center justify-center relative">
                     <MapPin className="w-16 h-16 text-primary/30 group-hover:scale-110 transition-transform" />
                     <div className="absolute top-3 right-3 flex gap-2">
-                      <Button size="icon" variant="secondary" className="w-8 h-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button size="icon" variant="secondary" className="w-8 h-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity dark:bg-secondary dark:text-secondary-foreground">
                         <Bookmark className="w-4 h-4" />
                       </Button>
-                      <Button size="icon" variant="secondary" className="w-8 h-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button size="icon" variant="secondary" className="w-8 h-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity dark:bg-secondary dark:text-secondary-foreground">
                         <Share2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
-                  <CardContent className="p-5">
-                    <Badge variant="secondary" className="w-fit mb-3 text-xs">{post.category}</Badge>
+                  <CardContent className="p-5 dark:bg-card">
+                    <Badge variant="secondary" className="w-fit mb-3 text-xs dark:bg-secondary dark:text-secondary-foreground">{post.category}</Badge>
                     <h3 className="font-bold mb-2 line-clamp-2 hover:text-primary transition-colors cursor-pointer">
                       {post.title}
                     </h3>
@@ -349,7 +349,7 @@ export default function Blog() {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30 dark:bg-muted/20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -359,11 +359,11 @@ export default function Blog() {
           >
             <Card className="border-primary/20">
               <CardHeader>
-                <CardTitle className="text-2xl">
+                <CardTitle className="text-2xl dark:text-foreground">
                   <Lightbulb className="w-6 h-6 inline-block mr-2 text-primary" />
                   Never Miss a Post
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="dark:text-muted-foreground">
                   Subscribe to our newsletter and get the latest articles delivered to your inbox
                 </CardDescription>
               </CardHeader>
@@ -372,7 +372,7 @@ export default function Blog() {
                   <Input 
                     placeholder="Enter your email" 
                     type="email"
-                    className="flex-1"
+                    className="flex-1 dark:bg-background dark:border-input"
                   />
                   <Button>
                     Subscribe
@@ -397,7 +397,7 @@ export default function Blog() {
             viewport={{ once: true }}
             className="text-center"
           >
-            <Card className="bg-primary text-primary-foreground border-0">
+            <Card className="bg-primary text-primary-foreground border-0 dark:bg-primary dark:text-primary-foreground">
               <CardContent className="p-12">
                 <Award className="w-16 h-16 mx-auto mb-6" />
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -407,10 +407,10 @@ export default function Blog() {
                   Join thousands of users who have transformed their daily travel experience
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
-                  <Button size="lg" variant="secondary" className="text-primary">
+                  <Button size="lg" variant="secondary" className="text-primary dark:text-primary dark:bg-secondary-foreground dark:hover:bg-secondary-foreground/90">
                     Get Started Free
                   </Button>
-                  <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
+                  <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 dark:border-primary-foreground dark:text-primary-foreground">
                     Read More Articles
                   </Button>
                 </div>

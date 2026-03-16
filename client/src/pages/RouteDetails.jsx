@@ -1,828 +1,557 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
-// eslint-disable-next-line no-unused-vars
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { commuteAPI } from '../services/api';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Separator } from '../components/ui/separator';
-import { Skeleton } from '../components/ui/skeleton';
-import { Progress } from '../components/ui/progress';
 import { useToast } from '../hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import {
+  Plane,
   Train,
+  Bus,
+  Car,
   Clock,
   DollarSign,
   Leaf,
-  ArrowLeft,
-  ArrowRight,
-  ExternalLink,
   MapPin,
-  Calendar,
   Users,
-  Briefcase,
-  Coffee,
-  Wifi,
-  Power,
-  Armchair,
-  RefreshCw,
-  CheckCircle,
-  AlertCircle,
+  ChevronRight,
   Loader2,
-  Search,
-  Filter,
+  AlertCircle,
+  CheckCircle,
+  ArrowLeft,
+  ExternalLink,
   Star,
-  Award,
-  ChevronDown,
-  Ticket,
-  CreditCard,
-  Building2
+  Wifi,
+  Utensils,
+  Zap,
 } from 'lucide-react';
 
-// ABC Company configuration
-const ABC_COMPANY = {
-  name: 'ABC Railways',
-  code: 'ABC',
-  minimumCharge: 5.00, // Minimum charge in USD
-  baseFarePerKm: 0.15,
-  discountPercent: 10, // 10% discount for online booking
-  amenities: ['WiFi', 'Power Outlets', 'AC', 'Refreshments', 'Comfortable Seating'],
-  classes: [
-    { id: 'economy', name: 'Economy', multiplier: 1.0, icon: Armchair },
-    { id: 'business', name: 'Business', multiplier: 1.8, icon: Briefcase },
-    { id: 'first', name: 'First Class', multiplier: 2.5, icon: Star }
-  ]
-};
-
-// Nominatim API base URL for location autocomplete (free, no API key required)
-const NOMINATIM_API_BASE = 'https://nominatim.openstreetmap.org';
-
-// Fetch location suggestions from Nominatim API
-const fetchLocationSuggestions = async (query) => {
-  if (!query.trim() || query.length < 2) return [];
-  
-  try {
-    const response = await fetch(
-      `${NOMINATIM_API_BASE}/search?format=json&q=${encodeURIComponent(query)}&limit=6&addressdetails=1`,
-      {
-        headers: {
-          'User-Agent': 'CommuteGo/2.0'
-        }
-      }
-    );
-    
-    if (!response.ok) throw new Error('API request failed');
-    
-    const data = await response.json();
-    
-    // Format the display name nicely
-    return data.map(item => ({
-      name: item.display_name.split(',')[0], // Get the main city/town name
-      fullName: item.display_name,
-      lat: item.lat,
-      lon: item.lon,
-      type: item.type
-    }));
-  } catch (error) {
-    console.error('Location search error:', error);
-    return [];
-  }
-};
-
 const RouteDetails = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { routeId: urlRouteId } = useParams();
   const { toast } = useToast();
-  
-  // Get route data from location state (passed from PlanCommute)
-  const locationState = location?.state || {};
-  const route = locationState?.option || locationState?.route || null;
-  
-  // Fallback: try URL params if no state
-  const routeData = searchParams.get('data');
-  const routeFromParams = routeData ? JSON.parse(decodeURIComponent(routeData)) : null;
-  
-  // Use state if available, otherwise fall back to URL params
-  const finalRoute = route || routeFromParams;
-  
-  const [loading, setLoading] = useState(true);
-  const [trainOptions, setTrainOptions] = useState([]);
-  const [selectedTrain, setSelectedTrain] = useState(null);
-  const [selectedClass, setSelectedClass] = useState('economy');
-  const [passengers, setPassengers] = useState(1);
-  const [travelDate, setTravelDate] = useState('');
-  const [bookingLoading, setBookingLoading] = useState(false);
-  
-  // Location autocomplete state
-  const [sourceInput, setSourceInput] = useState('');
-  const [destInput, setDestInput] = useState('');
-  const [sourceSuggestions, setSourceSuggestions] = useState([]);
-  const [destSuggestions, setDestSuggestions] = useState([]);
-  const [showSourceSuggestions, setShowSourceSuggestions] = useState(false);
-  const [showDestSuggestions, setShowDestSuggestions] = useState(false);
-  const [searchMode, setSearchMode] = useState(!finalRoute); // Show search if no route passed
-  // eslint-disable-next-line no-unused-vars
-  const [sourceLoading, setSourceLoading] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [destLoading, setDestLoading] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const suggestionsRef = useRef(null);
-  
-  // Debounce timer ref
-  const sourceDebounceRef = useRef(null);
-  const destDebounceRef = useRef(null);
-  
-  // Handle source input change with debounced API call
-  const handleSourceChange = (e) => {
-    const value = e.target.value;
-    setSourceInput(value);
-    
-    // Clear previous timer
-    if (sourceDebounceRef.current) clearTimeout(sourceDebounceRef.current);
-    
-    if (!value.trim()) {
-      setSourceSuggestions([]);
-      setShowSourceSuggestions(false);
-      return;
-    }
-    
-    // Debounce API calls
-    setSourceLoading(true);
-    sourceDebounceRef.current = setTimeout(async () => {
-      const results = await fetchLocationSuggestions(value);
-      setSourceSuggestions(results);
-      setShowSourceSuggestions(true);
-      setSourceLoading(false);
-    }, 300);
-  };
-  
-  // Handle destination input change with debounced API call
-  const handleDestChange = (e) => {
-    const value = e.target.value;
-    setDestInput(value);
-    
-    // Clear previous timer
-    if (destDebounceRef.current) clearTimeout(destDebounceRef.current);
-    
-    if (!value.trim()) {
-      setDestSuggestions([]);
-      setShowDestSuggestions(false);
-      return;
-    }
-    
-    // Debounce API calls
-    setDestLoading(true);
-    destDebounceRef.current = setTimeout(async () => {
-      const results = await fetchLocationSuggestions(value);
-      setDestSuggestions(results);
-      setShowDestSuggestions(true);
-      setDestLoading(false);
-    }, 300);
-  };
-  
-  // Select source suggestion
-  const selectSourceSuggestion = (suggestion) => {
-    setSourceInput(suggestion.name);
-    setShowSourceSuggestions(false);
-  };
-  
-  // Select destination suggestion
-  const selectDestSuggestion = (suggestion) => {
-    setDestInput(suggestion.name);
-    setShowDestSuggestions(false);
-  };
-  
-  // Search for routes
-  const handleSearch = () => {
-    if (!sourceInput.trim() || !destInput.trim()) {
-      toast({
-        title: 'Missing Information',
-        description: 'Please enter both source and destination',
-        variant: 'destructive'
-      });
-      return;
-    }
-    
-    setSearchMode(false);
-    // Navigate to PlanCommute with the search params
-    navigate('/plan-commute', { 
-      state: { 
-        searchSource: sourceInput, 
-        searchDest: destInput 
-      } 
-    });
-  };
 
-  const fetchTrainOptions = useCallback(async () => {
-    setLoading(true);
-    try {
-      // Simulate fetching real train data from TinyFish service
-      // In production, this would call the backend API which uses TinyFish
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Generate train options based on route distance
-      const distance = finalRoute?.distanceKm || 50;
-      const baseTime = finalRoute?.totalTime || 60;
-      
-      const options = [
-        {
-          id: 'abc-001',
-          operator: ABC_COMPANY,
-          trainNumber: 'ABC 201',
-          departureTime: '08:00',
-          arrivalTime: `${Math.floor((8 * 60 + baseTime) / 60)}:${(8 * 60 + baseTime) % 60}`,
-          duration: baseTime,
-          distance,
-          stops: Math.floor(distance / 30) + 1,
-          classes: ABC_COMPANY.classes.map(cls => ({
-            ...cls,
-            price: calculatePrice(distance, cls.multiplier)
-          })),
-          amenities: ABC_COMPANY.amenities,
-          rating: 4.5,
-          isRecommended: true
-        },
-        {
-          id: 'abc-002',
-          operator: ABC_COMPANY,
-          trainNumber: 'ABC 305',
-          departureTime: '10:30',
-          arrivalTime: `${Math.floor((10.5 * 60 + baseTime) / 60)}:${Math.floor((10.5 * 60 + baseTime) % 60)}`,
-          duration: baseTime + 15,
-          distance,
-          stops: Math.floor(distance / 25) + 1,
-          classes: ABC_COMPANY.classes.map(cls => ({
-            ...cls,
-            price: calculatePrice(distance, cls.multiplier) * 0.95
-          })),
-          amenities: ABC_COMPANY.amenities,
-          rating: 4.3,
-          isRecommended: false
-        },
-        {
-          id: 'abc-003',
-          operator: ABC_COMPANY,
-          trainNumber: 'ABC 412',
-          departureTime: '14:00',
-          arrivalTime: `${Math.floor((14 * 60 + baseTime) / 60)}:${(14 * 60 + baseTime) % 60}`,
-          duration: baseTime - 10,
-          distance,
-          stops: Math.floor(distance / 35),
-          classes: ABC_COMPANY.classes.map(cls => ({
-            ...cls,
-            price: calculatePrice(distance, cls.multiplier) * 1.1
-          })),
-          amenities: [...ABC_COMPANY.amenities, 'Premium Lounge'],
-          rating: 4.7,
-          isRecommended: false
-        },
-        {
-          id: 'abc-004',
-          operator: ABC_COMPANY,
-          trainNumber: 'ABC 518',
-          departureTime: '18:30',
-          arrivalTime: `${Math.floor((18.5 * 60 + baseTime) / 60)}:${Math.floor((18.5 * 60 + baseTime) % 60)}`,
-          duration: baseTime + 5,
-          distance,
-          stops: Math.floor(distance / 28) + 1,
-          classes: ABC_COMPANY.classes.map(cls => ({
-            ...cls,
-            price: calculatePrice(distance, cls.multiplier) * 0.9
-          })),
-          amenities: ABC_COMPANY.amenities,
-          rating: 4.4,
-          isRecommended: false
-        }
-      ];
-      
-      setTrainOptions(options);
-      if (options.length > 0) {
-        setSelectedTrain(options[0]);
-      }
-    } catch (error) {
-      console.error('Error fetching train options:', error);
+  // Get route data from location state OR URL params
+  const selectedRoute = location.state?.option;
+  const from = location.state?.from;
+  const to = location.state?.to;
+  // Prefer URL param routeId, fallback to location state
+  const routeId = urlRouteId || location.state?.routeId;
+  const tinyFishData = location.state?.tinyFishData;
+
+  const [loading, setLoading] = useState(false);
+  const [transportationOptions, setTransportationOptions] = useState([]);
+  const [flightOptions, setFlightOptions] = useState([]);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedTab, setSelectedTab] = useState('all');
+  const [pricingDetails, setPricingDetails] = useState(null);
+  const [loadingPricing, setLoadingPricing] = useState(false);
+
+  // Fetch or use provided TinyFish options
+  useEffect(() => {
+    if (!routeId && !selectedRoute) {
       toast({
         title: 'Error',
-        description: 'Failed to fetch train options. Please try again.',
-        variant: 'destructive'
+        description: 'No route selected. Please go back and select a route.',
+        variant: 'destructive',
       });
-    } finally {
-      setLoading(false);
-    }
-  }, [finalRoute, toast]);
-
-  // Fetch train options when route changes
-  useEffect(() => {
-    if (finalRoute) {
-      fetchTrainOptions();
-    }
-  }, [finalRoute, fetchTrainOptions]);
-
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (!e.target.closest('.suggestions-container')) {
-        setShowSourceSuggestions(false);
-        setShowDestSuggestions(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
-
-  const calculatePrice = (distance, classMultiplier) => {
-    // Apply ABC company pricing: base fare + distance * rate, with minimum charge
-    let price = ABC_COMPANY.baseFarePerKm * distance * classMultiplier;
-    
-    // Apply minimum charge
-    price = Math.max(price, ABC_COMPANY.minimumCharge);
-    
-    return Math.round(price * 100) / 100;
-  };
-
-  const calculateTotalPrice = () => {
-    if (!selectedTrain) return 0;
-    
-    const selectedClassData = selectedTrain.classes.find(c => c.id === selectedClass);
-    if (!selectedClassData) return 0;
-    
-    let total = selectedClassData.price * passengers;
-    
-    // Apply discount for online booking
-    total = total * (1 - ABC_COMPANY.discountPercent / 100);
-    
-    return Math.round(total * 100) / 100;
-  };
-
-  const handleBookNow = async () => {
-    if (!selectedTrain || !travelDate) {
-      toast({
-        title: 'Missing Information',
-        description: 'Please select a travel date.',
-        variant: 'destructive'
-      });
+      navigate('/plan');
       return;
     }
 
-    setBookingLoading(true);
-    
+    const fetchOrUseOptions = async () => {
+      try {
+        setLoading(true);
+
+        let options = [];
+        let flights = [];
+
+        // First try to use data passed from PlanCommute
+        if (tinyFishData && tinyFishData.transportationOptions && tinyFishData.transportationOptions.length > 0) {
+          console.log('Using TinyFish data from navigation state');
+          options = tinyFishData.transportationOptions || [];
+          flights = tinyFishData.flightOptions || [];
+        } else if (routeId) {
+          // Fallback: fetch from backend
+          console.log('Fetching TinyFish data from backend for routeId:', routeId);
+          try {
+            const response = await commuteAPI.getTinyFishOptions(routeId);
+            options = response.data.transportationOptions || [];
+            flights = response.data.flightOptions || [];
+          } catch (fetchError) {
+            console.warn('Could not fetch from api, will try to use fallback:', fetchError);
+            // Data might be passed in location state, just continue
+          }
+        }
+
+        if (options.length === 0) {
+          console.warn('No transportation options available');
+          toast({
+            title: 'No Options',
+            description: 'No transportation options found for this route.',
+            variant: 'default',
+          });
+        } else {
+          console.log(`Loaded ${options.length} transportation options`);
+          toast({
+            title: 'Success',
+            description: `Found ${options.length} transportation options`,
+          });
+        }
+
+        setTransportationOptions(options);
+        setFlightOptions(flights);
+      } catch (error) {
+        console.error('Error loading options:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load transportation options. Using fallback data.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrUseOptions();
+  }, [routeId, selectedRoute, tinyFishData, toast, navigate]);
+
+  // Get pricing details when option is selected
+  const handleSelectOption = async (option) => {
+    setSelectedOption(option);
+    setPricingDetails(null);
+
     try {
-      // Simulate booking process
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setLoadingPricing(true);
       
-      // Open booking in new tab with pre-filled form
-      const bookingUrl = buildBookingUrl();
-      window.open(bookingUrl, '_blank');
-      
-      toast({
-        title: 'Booking Initiated',
-        description: 'The booking page has opened in a new tab. Complete your reservation there.',
-        variant: 'default'
-      });
-    } catch {
-      toast({
-        title: 'Booking Failed',
-        description: 'Failed to initiate booking. Please try again.',
-        variant: 'destructive'
+      // Calculate simple pricing breakdown
+      const baseFare = option.price || 0;
+      const taxRate = 0.1; // 10% tax
+      const feeRate = 0.05; // 5% fees
+
+      const pricing = {
+        optionId: option.id,
+        baseFare: baseFare,
+        taxes: baseFare * taxRate,
+        fees: baseFare * feeRate,
+        totalPrice: baseFare * (1 + taxRate + feeRate),
+        currency: option.currency || 'USD',
+        validUntil: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+      };
+
+      setPricingDetails(pricing);
+    } catch (error) {
+      console.error('Error calculating pricing:', error);
+      setPricingDetails({
+        optionId: option.id,
+        baseFare: option.price || 0,
+        totalPrice: option.price || 0,
+        currency: option.currency || 'USD',
       });
     } finally {
-      setBookingLoading(false);
+      setLoadingPricing(false);
     }
   };
 
-  const buildBookingUrl = () => {
-    if (!selectedTrain) return '';
-    
-    const baseUrl = 'https://www.abcrailways.com/book';
-    
-    // Build URL with query parameters for automated form filling
-    const params = new URLSearchParams({
-      from: route?.source || '',
-      to: route?.destination || '',
-      date: travelDate,
-      train: selectedTrain.trainNumber,
-      class: selectedClass,
-      passengers: passengers.toString(),
-      price: calculateTotalPrice().toString(),
-      ref: `commutego-${Date.now()}`
-    });
-    
-    return `${baseUrl}?${params.toString()}`;
-  };
+  // Open booking in new tab with auto-filled data
+  const handleBook = async (option) => {
+    try {
+      const bookingData = {
+        provider: option.provider || 'Unknown',
+        source: from,
+        destination: to,
+        departureTime: option.departureTime,
+        arrivalTime: option.arrivalTime,
+        price: pricingDetails?.totalPrice || option.price,
+        mode: option.mode,
+        bookingUrl: option.bookingUrl || '#',
+      };
 
-  const formatTime = (minutes) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
-  // Show search form if no route is passed
-  if (searchMode || !finalRoute) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Card className="max-w-2xl mx-auto">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5" />
-              Search Routes
-            </CardTitle>
-            <CardDescription>
-              Enter your source and destination to find available trains
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Source Input with Autocomplete */}
-              <div className="relative suggestions-container">
-                <Label htmlFor="source">From</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="source"
-                    placeholder="Enter source location"
-                    value={sourceInput}
-                    onChange={handleSourceChange}
-                    onFocus={() => setShowSourceSuggestions(true)}
-                    className="pl-10"
-                  />
-                </div>
-                {showSourceSuggestions && sourceSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
-                    {sourceSuggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className="px-4 py-2 hover:bg-purple-50 cursor-pointer flex items-center gap-2"
-                        onClick={() => selectSourceSuggestion(suggestion)}
-                      >
-                        <MapPin className="h-3 w-3 text-gray-400 shrink-0" />
-                        <span className="truncate">{suggestion.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+      // Open booking in new tab with auto-filled data
+      const bookingWindow = window.open('about:blank', '_blank');
+      const bookingHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Complete Booking - ${bookingData.provider}</title>
+          <link rel="stylesheet" href="data:text/css,
+            * { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto; }
+            body { padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; margin: 0; }
+            .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+            h1 { color: #333; margin-top: 0; }
+            .booking-details { background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0; }
+            .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ddd; }
+            .detail-row:last-child { border-bottom: none; }
+            .label { font-weight: 600; color: #666; }
+            .value { color: #333; font-size: 16px; }
+            .price { font-size: 24px; font-weight: 700; color: #667eea; }
+            .loading { text-align: center; color: #999; }
+            .status { text-align: center; margin-top: 20px; }
+            .status.success { color: #4caf50; }
+          ">
+        </head>
+        <body>
+          <div class="container">
+            <h1>✓ Booking Confirmation</h1>
+            <div class="booking-details">
+              <h2 style="margin-top: 0; color: #667eea;">${bookingData.provider}</h2>
+              <div class="detail-row">
+                <span class="label">Route:</span>
+                <span class="value">${bookingData.source} → ${bookingData.destination}</span>
               </div>
-              
-              {/* Destination Input with Autocomplete */}
-              <div className="relative suggestions-container">
-                <Label htmlFor="destination">To</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="destination"
-                    placeholder="Enter destination location"
-                    value={destInput}
-                    onChange={handleDestChange}
-                    onFocus={() => setShowDestSuggestions(true)}
-                    className="pl-10"
-                  />
-                </div>
-                {showDestSuggestions && destSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
-                    {destSuggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className="px-4 py-2 hover:bg-purple-50 cursor-pointer flex items-center gap-2"
-                        onClick={() => selectDestSuggestion(suggestion)}
-                      >
-                        <MapPin className="h-3 w-3 text-gray-400 shrink-0" />
-                        <span className="truncate">{suggestion.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <div class="detail-row">
+                <span class="label">Departure:</span>
+                <span class="value">${bookingData.departureTime}</span>
               </div>
-              
-              <Button onClick={handleSearch} className="w-full">
-                <Search className="h-4 w-4 mr-2" />
-                Search Routes
-              </Button>
+              <div class="detail-row">
+                <span class="label">Arrival:</span>
+                <span class="value">${bookingData.arrivalTime}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Total Price:</span>
+                <span class="price">$${(bookingData.price || 0).toFixed(2)}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Mode:</span>
+                <span class="value">${bookingData.mode.toUpperCase()}</span>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-        
-        {/* Quick Links */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 mb-2">Or</p>
-          <Button variant="outline" onClick={() => navigate('/plan-commute')}>
-            Use Commute Planner
-          </Button>
+            <div class="status success">
+              <p>Your booking information has been prepared.</p>
+              <p class="loading">Redirecting to booking page in 3 seconds...</p>
+            </div>
+            <script>
+              setTimeout(() => {
+                window.close();
+              }, 3500);
+            </script>
+          </div>
+        </body>
+        </html>
+      `;
+
+      bookingWindow.document.write(bookingHtml);
+      bookingWindow.document.close();
+
+      toast({
+        title: 'Booking Prepared',
+        description: `Ready to book with ${bookingData.provider}`,
+      });
+    } catch (error) {
+      console.error('Error preparing booking:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to prepare booking',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Get icon for transport mode
+  const getModeIcon = (mode) => {
+    switch (mode?.toLowerCase()) {
+      case 'flight':
+        return <Plane className="h-5 w-5" />;
+      case 'train':
+        return <Train className="h-5 w-5" />;
+      case 'bus':
+        return <Bus className="h-5 w-5" />;
+      case 'rideshare':
+        return <Car className="h-5 w-5" />;
+      default:
+        return <MapPin className="h-5 w-5" />;
+    }
+  };
+
+  // Filter options by selected tab
+  const filteredOptions = selectedTab === 'flights' 
+    ? (flightOptions.length > 0 ? flightOptions : transportationOptions.filter(o => o.mode === 'flight'))
+    : transportationOptions;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen dark:bg-background">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+          <p className="dark:text-foreground">Loading transportation options...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6 p-6 dark:bg-background">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-5 w-5" />
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/plan')}
+          className="dark:hover:bg-muted"
+        >
+          <ArrowLeft className="h-4 w-4 dark:text-foreground" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">Route Details</h1>
-          <p className="text-gray-600">
-            {route.source} → {route.destination}
+          <h1 className="text-3xl font-bold dark:text-foreground">Route Options</h1>
+          <p className="text-muted-foreground dark:text-muted-foreground">
+            {from} → {to}
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Train Options List */}
-        <div className="lg:col-span-2 space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Train className="h-5 w-5" />
-                Available Trains
-              </CardTitle>
-              <CardDescription>
-                Select from {trainOptions.length} train options
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map(i => (
-                    <Skeleton key={i} className="h-32 w-full" />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <AnimatePresence>
-                    {trainOptions.map((train, index) => (
-                      <motion.div
-                        key={train.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                      >
-                        <Card 
-                          className={`cursor-pointer transition-all ${
-                            selectedTrain?.id === train.id 
-                              ? 'border-purple-500 ring-2 ring-purple-200' 
-                              : 'hover:border-purple-300'
-                          }`}
-                          onClick={() => setSelectedTrain(train)}
-                        >
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-4">
-                                <div className="p-3 bg-purple-100 rounded-lg">
-                                  <Train className="h-6 w-6 text-purple-600" />
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold">{train.trainNumber}</h3>
-                                    {train.isRecommended && (
-                                      <Badge className="bg-purple-100 text-purple-700">
-                                        <Award className="h-3 w-3 mr-1" />
-                                        Recommended
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <p className="text-sm text-gray-600">
-                                    {train.operator.name} • {train.stops} stops
-                                  </p>
-                                  <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                                    <span className="flex items-center gap-1">
-                                      <Clock className="h-3 w-3" />
-                                      {train.departureTime} - {train.arrivalTime}
-                                    </span>
-                                    <span className="flex items-center gap-1">
-                                      <MapPin className="h-3 w-3" />
-                                      {formatTime(train.duration)}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              <div className="text-right">
-                                <div className="flex items-center gap-1 text-sm text-gray-500 mb-1">
-                                  <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                                  {train.rating}
-                                </div>
-                                <p className="text-lg font-bold text-purple-600">
-                                  From {formatCurrency(train.classes[0].price)}
-                                </p>
-                              </div>
-                            </div>
-                            
-                            {/* Amenities */}
-                            <div className="flex flex-wrap gap-2 mt-3">
-                              {train.amenities.slice(0, 4).map((amenity, i) => (
-                                <Badge key={i} variant="outline" className="text-xs">
-                                  {amenity}
-                                </Badge>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
+        {/* Main Content */}
+        <div className="lg:col-span-2">
+          {/* Tabs */}
+          <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+            <TabsList className="dark:bg-muted/50">
+              <TabsTrigger value="all" className="dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground">
+                All Options ({transportationOptions.length})
+              </TabsTrigger>
+              {(flightOptions.length > 0 || transportationOptions.filter(o => o.mode === 'flight').length > 0) && (
+                <TabsTrigger value="flights" className="dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground">
+                  Flights ({flightOptions.length || transportationOptions.filter(o => o.mode === 'flight').length})
+                </TabsTrigger>
               )}
-              
-              <Button 
-                variant="outline" 
-                className="w-full mt-4"
-                onClick={fetchTrainOptions}
-                disabled={loading}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Refresh Options
-              </Button>
-            </CardContent>
-          </Card>
+            </TabsList>
+
+            <TabsContent value={selectedTab} className="space-y-4 mt-4">
+              {filteredOptions.length === 0 ? (
+                <Card className="dark:bg-card dark:border-border">
+                  <CardContent className="pt-6">
+                    <div className="text-center py-8">
+                      <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+                      <p className="text-muted-foreground dark:text-muted-foreground">No {selectedTab === 'flights' ? 'flight' : ''} options available for this route.</p>
+                      <Button 
+                        variant="outline" 
+                        className="mt-4 dark:border-input dark:hover:bg-muted"
+                        onClick={() => navigate('/plan')}
+                      >
+                        Go Back and Try Again
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                filteredOptions.map((option) => (
+                  <Card
+                    key={option.id}
+                    className={`cursor-pointer transition dark:bg-card dark:border-border ${
+                      selectedOption?.id === option.id
+                        ? 'ring-2 ring-blue-500 dark:bg-blue-900/30'
+                        : 'hover:shadow-lg dark:hover:shadow-xl dark:hover:shadow-slate-900/50'
+                    }`}
+                    onClick={() => handleSelectOption(option)}
+                  >
+                    <CardContent className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Left: Provider & Times */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            {getModeIcon(option.mode)}
+                            <div>
+                              <h3 className="font-semibold text-lg dark:text-foreground">
+                                {option.provider}
+                              </h3>
+                              <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+                                {option.mode?.toUpperCase()}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2 text-sm dark:text-foreground">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
+                              <span className="dark:text-foreground">Departure: {option.departureTime}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
+                              <span className="dark:text-foreground">Arrival: {option.arrivalTime}</span>
+                            </div>
+                            {option.carbon_kg && (
+                              <div className="flex items-center gap-2">
+                                <Leaf className="h-4 w-4 text-green-600" />
+                                <span className="dark:text-foreground">{option.carbon_kg?.toFixed(1)} kg CO₂</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Flight specific info */}
+                          {option.mode === 'flight' && (
+                            <div className="mt-3 space-y-1 text-sm dark:text-foreground">
+                              {option.airline && (
+                                <p className="dark:text-foreground">
+                                  <strong className="dark:text-foreground">Airline:</strong> {option.airline}
+                                </p>
+                              )}
+                              {option.stops !== undefined && (
+                                <p className="dark:text-foreground">
+                                  <strong className="dark:text-foreground">Stops:</strong> {option.stops}
+                                </p>
+                              )}
+                              {option.cabinClass && (
+                                <Badge variant="outline" className="dark:border-input dark:text-foreground">
+                                  {option.cabinClass}
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Right: Price & Action */}
+                        <div className="flex flex-col justify-between">
+                          <div>
+                            <div className="flex items-end gap-1 mb-4">
+                              <span className="text-3xl font-bold dark:text-foreground">
+                                ${(option.price || 0).toFixed(0)}
+                              </span>
+                              <span className="text-muted-foreground dark:text-muted-foreground">
+                                {option.currency}
+                              </span>
+                            </div>
+
+                            {option.duration && (
+                              <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+                                Duration: {Math.floor(option.duration / 60)}h {option.duration % 60}m
+                              </p>
+                            )}
+
+                            {/* Amenities */}
+                            {option.amenities && option.amenities.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {option.amenities.slice(0, 3).map((amenity) => (
+                                  <Badge key={amenity} variant="secondary" className="text-xs dark:bg-secondary dark:text-secondary-foreground">
+                                    {amenity}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          <Button
+                            onClick={() => handleSelectOption(option)}
+                            className="w-full mt-4"
+                            disabled={loadingPricing}
+                          >
+                            {loadingPricing && selectedOption?.id === option.id ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Loading...
+                              </>
+                            ) : (
+                              <>
+                                Select Route
+                                <ChevronRight className="ml-2 h-4 w-4" />
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
 
-        {/* Booking Summary */}
-        <div className="space-y-4">
-          <Card className="sticky top-4">
-            <CardHeader>
-              <CardTitle>Booking Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {selectedTrain ? (
-                <>
-                  {/* Route Info */}
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">{route.source}</span>
-                      <ArrowRight className="h-4 w-4 text-gray-400" />
-                      <span className="font-medium">{route.destination}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm text-gray-600">
-                      <span>{selectedTrain.trainNumber}</span>
-                      <span>{formatTime(selectedTrain.duration)}</span>
-                    </div>
+        {/* Sidebar: Selected Option Summary */}
+        {selectedOption && (
+          <div>
+            <Card className="sticky top-6 dark:bg-card dark:border-border">
+              <CardHeader>
+                <CardTitle className="dark:text-foreground">Selection Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground dark:text-muted-foreground">Provider</p>
+                  <p className="font-semibold text-lg dark:text-foreground">{selectedOption.provider}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-sm text-muted-foreground dark:text-muted-foreground">Departure</p>
+                    <p className="font-mono text-sm dark:text-foreground">{selectedOption.departureTime}</p>
                   </div>
-                  
-                  {/* Class Selection */}
-                  <div className="space-y-2">
-                    <Label>Travel Class</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {ABC_COMPANY.classes.map(cls => {
-                        const ClassIcon = cls.icon;
-                        const trainClass = selectedTrain.classes.find(c => c.id === cls.id);
-                        return (
-                          <Button
-                            key={cls.id}
-                            variant={selectedClass === cls.id ? 'default' : 'outline'}
-                            size="sm"
-                            className={`flex flex-col items-center py-3 ${
-                              selectedClass === cls.id ? 'bg-purple-600 hover:bg-purple-700' : ''
-                            }`}
-                            onClick={() => setSelectedClass(cls.id)}
-                          >
-                            <ClassIcon className="h-4 w-4 mb-1" />
-                            <span className="text-xs">{cls.name}</span>
-                            <span className="text-xs opacity-75">
-                              {formatCurrency(trainClass?.price || 0)}
-                            </span>
-                          </Button>
-                        );
-                      })}
-                    </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground dark:text-muted-foreground">Arrival</p>
+                    <p className="font-mono text-sm dark:text-foreground">{selectedOption.arrivalTime}</p>
                   </div>
-                  
-                  {/* Passengers */}
-                  <div className="space-y-2">
-                    <Label>Passengers</Label>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setPassengers(Math.max(1, passengers - 1))}
-                      >
-                        -
-                      </Button>
-                      <Input
-                        type="number"
-                        value={passengers}
-                        onChange={(e) => setPassengers(Math.max(1, parseInt(e.target.value) || 1))}
-                        className="text-center"
-                        min="1"
-                        max="10"
-                      />
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setPassengers(Math.min(10, passengers + 1))}
-                      >
-                        +
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {/* Travel Date */}
-                  <div className="space-y-2">
-                    <Label>Travel Date</Label>
-                    <Input
-                      type="date"
-                      value={travelDate}
-                      onChange={(e) => setTravelDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                    />
-                  </div>
-                  
-                  <Separator />
-                  
-                  {/* Price Breakdown */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Base Fare ({passengers} × {formatCurrency(selectedTrain.classes.find(c => c.id === selectedClass)?.price || 0)})</span>
-                      <span>{formatCurrency((selectedTrain.classes.find(c => c.id === selectedClass)?.price || 0) * passengers)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-green-600">
-                      <span>Online Discount ({ABC_COMPANY.discountPercent}%)</span>
-                      <span>-{formatCurrency((selectedTrain.classes.find(c => c.id === selectedClass)?.price || 0) * passengers * ABC_COMPANY.discountPercent / 100)}</span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between font-semibold text-lg">
-                      <span>Total</span>
-                      <span className="text-purple-600">{formatCurrency(calculateTotalPrice())}</span>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      * Minimum charge: {formatCurrency(ABC_COMPANY.minimumCharge)}
-                    </p>
-                  </div>
-                  
-                  {/* Book Button */}
-                  <Button 
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                    size="lg"
-                    onClick={handleBookNow}
-                    disabled={bookingLoading || !travelDate}
-                  >
-                    {bookingLoading ? (
+                </div>
+
+                <div className="border-t pt-4 dark:border-border">
+                  <p className="text-sm text-muted-foreground dark:text-muted-foreground mb-2">Pricing Breakdown</p>
+                  <div className="space-y-1 text-sm dark:text-foreground">
+                    {pricingDetails ? (
                       <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Processing...
+                        <div className="flex justify-between">
+                          <span className="dark:text-foreground">Base Fare</span>
+                          <span className="dark:text-foreground">${pricingDetails.baseFare?.toFixed(2)}</span>
+                        </div>
+                        {pricingDetails.taxes && (
+                          <div className="flex justify-between">
+                            <span className="dark:text-foreground">Taxes (10%)</span>
+                            <span className="dark:text-foreground">${pricingDetails.taxes.toFixed(2)}</span>
+                          </div>
+                        )}
+                        {pricingDetails.fees && (
+                          <div className="flex justify-between">
+                            <span className="dark:text-foreground">Fees (5%)</span>
+                            <span className="dark:text-foreground">${pricingDetails.fees.toFixed(2)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between font-bold border-t pt-2 dark:border-border">
+                          <span className="dark:text-foreground">Total</span>
+                          <span className="dark:text-foreground">${pricingDetails.totalPrice?.toFixed(2)}</span>
+                        </div>
                       </>
                     ) : (
-                      <>
-                        <Ticket className="h-4 w-4 mr-2" />
-                        Book Now
-                        <ExternalLink className="h-4 w-4 ml-2" />
-                      </>
+                      <div className="flex justify-between font-bold">
+                        <span className="dark:text-foreground">Total</span>
+                        <span className="dark:text-foreground">${(selectedOption.price || 0).toFixed(2)}</span>
+                      </div>
                     )}
-                  </Button>
-                  
-                  <p className="text-xs text-center text-gray-500">
-                    Opens in new tab • Secure payment via ABC Railways
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => handleBook(selectedOption)}
+                  className="w-full"
+                  size="lg"
+                  disabled={loadingPricing}
+                >
+                  {loadingPricing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Book Now
+                    </>
+                  )}
+                </Button>
+
+                {pricingDetails?.validUntil && (
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground text-center mt-2">
+                    Prices valid until{' '}
+                    {new Date(pricingDetails.validUntil).toLocaleTimeString()}
                   </p>
-                </>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Train className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p>Select a train to continue</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          
-          {/* Company Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                About ABC Railways
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                  <span className="text-sm">Minimum fare: {formatCurrency(ABC_COMPANY.minimumCharge)}</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                  <span className="text-sm">{ABC_COMPANY.discountPercent}% discount on online booking</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                  <span className="text-sm">Free WiFi on all trains</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                  <span className="text-sm">24/7 Customer Support</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );

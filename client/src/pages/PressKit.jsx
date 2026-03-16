@@ -177,7 +177,7 @@ export default function PressKit() {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10 dark:from-primary/20 dark:via-background dark:to-secondary/20" />
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -210,7 +210,7 @@ export default function PressKit() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 bg-muted/30">
+      <section className="py-12 bg-muted/30 dark:bg-muted/20">
         <div className="container mx-auto px-4">
           <motion.div 
             variants={container}
@@ -238,7 +238,7 @@ export default function PressKit() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <Tabs defaultValue="brand" className="w-full">
-            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 mb-8">
+            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 mb-8 bg-muted dark:bg-muted/50">
               <TabsTrigger value="brand">Brand Assets</TabsTrigger>
               <TabsTrigger value="colors">Colors & Fonts</TabsTrigger>
               <TabsTrigger value="releases">Press Releases</TabsTrigger>
@@ -260,7 +260,7 @@ export default function PressKit() {
 
                 <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                   {brandAssets.map((asset) => (
-                    <Card key={asset.id} className="hover:shadow-lg transition-shadow">
+                    <Card key={asset.id} className="hover:shadow-lg transition-shadow dark:bg-card dark:border-border">
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div className="w-20 h-20 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -289,7 +289,7 @@ export default function PressKit() {
                 </div>
 
                 <div className="mt-8 text-center">
-                  <Card className="max-w-2xl mx-auto bg-muted/30 border-dashed">
+                  <Card className="max-w-2xl mx-auto bg-muted/30 border-dashed dark:bg-muted/20 dark:border-border">
                     <CardContent className="p-8">
                       <Palette className="w-12 h-12 mx-auto mb-4 text-primary" />
                       <h3 className="font-bold text-lg mb-2">Need Custom Assets?</h3>
@@ -323,7 +323,7 @@ export default function PressKit() {
                   <h3 className="text-xl font-bold mb-4">Color Palette</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     {colorPalette.map((color, index) => (
-                      <Card key={index} className="overflow-hidden">
+                      <Card key={index} className="overflow-hidden dark:bg-card dark:border-border">
                         <div 
                           className="h-24" 
                           style={{ backgroundColor: color.hex }}
@@ -342,7 +342,7 @@ export default function PressKit() {
                   <h3 className="text-xl font-bold mb-4">Typography</h3>
                   <div className="grid md:grid-cols-2 gap-6">
                     {fonts.map((font, index) => (
-                      <Card key={index}>
+                      <Card key={index} className="dark:bg-card dark:border-border">
                         <CardContent className="p-6">
                           <div className="text-3xl font-bold mb-2" style={{ fontFamily: font.name }}>
                             {font.name}
@@ -375,7 +375,7 @@ export default function PressKit() {
 
                 <div className="max-w-3xl mx-auto space-y-4">
                   {pressReleases.map((release) => (
-                    <Card key={release.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                    <Card key={release.id} className="hover:shadow-lg transition-shadow cursor-pointer dark:bg-card dark:border-border">
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-2">
                           <Badge variant="secondary">{release.category}</Badge>
@@ -419,7 +419,7 @@ export default function PressKit() {
 
                 <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-12">
                   {mediaContacts.map((contact, index) => (
-                    <Card key={index}>
+                    <Card key={index} className="dark:bg-card dark:border-border">
                       <CardContent className="p-6">
                         <div className="flex items-start gap-4">
                           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl">
@@ -456,7 +456,7 @@ export default function PressKit() {
                   <h3 className="text-xl font-bold mb-6 text-center">Follow Us</h3>
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     {socialLinks.map((social, index) => (
-                      <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+                      <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer dark:bg-card dark:border-border">
                         <CardContent className="p-4 text-center">
                           <social.icon className="w-8 h-8 mx-auto mb-2 text-primary" />
                           <div className="font-bold text-sm">{social.name}</div>
@@ -473,7 +473,7 @@ export default function PressKit() {
       </section>
 
       {/* Press Inquiry Form */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30 dark:bg-muted/20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -481,7 +481,7 @@ export default function PressKit() {
             viewport={{ once: true }}
             className="max-w-2xl mx-auto"
           >
-            <Card>
+            <Card className="dark:bg-card dark:border-border">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">Press Inquiry</CardTitle>
                 <CardDescription>
@@ -493,20 +493,20 @@ export default function PressKit() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">Name</label>
-                      <Input placeholder="Your name" />
+                      <Input placeholder="Your name" className="dark:bg-background dark:border-input" />
                     </div>
                     <div>
                       <label className="text-sm font-medium mb-2 block">Organization</label>
-                      <Input placeholder="Media organization" />
+                      <Input placeholder="Media organization" className="dark:bg-background dark:border-input" />
                     </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-2 block">Email</label>
-                    <Input type="email" placeholder="your@email.com" />
+                    <Input type="email" placeholder="your@email.com" className="dark:bg-background dark:border-input" />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-2 block">Inquiry Type</label>
-                    <select className="w-full h-10 px-3 rounded-md border border-input bg-background">
+                    <select className="w-full h-10 px-3 rounded-md border border-input bg-background dark:bg-background dark:border-input dark:text-foreground">
                       <option>Interview Request</option>
                       <option>Press Pass</option>
                       <option>Product Review</option>
@@ -517,7 +517,7 @@ export default function PressKit() {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Message</label>
                     <textarea 
-                      className="w-full min-h-[120px] px-3 py-2 rounded-md border border-input bg-background"
+                      className="w-full min-h-[120px] px-3 py-2 rounded-md border border-input bg-background dark:bg-background dark:border-input dark:text-foreground"
                       placeholder="Tell us about your inquiry..."
                     />
                   </div>

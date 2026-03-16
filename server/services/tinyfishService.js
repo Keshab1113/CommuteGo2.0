@@ -103,12 +103,17 @@ class TinyFishClient {
       method: options.method || 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`,
+        'X-API-Key': this.apiKey,
         'User-Agent': 'CommuteGo/2.0',
         ...options.headers
       },
       timeout: this.timeout
     };
+
+    // Check if this is an SSE endpoint
+    if (endpoint.includes('run-sse')) {
+      return this.requestSSE(url, requestOptions, options.body);
+    }
 
     return new Promise((resolve, reject) => {
       const protocol = url.startsWith('https') ? https : http;
@@ -143,11 +148,105 @@ class TinyFishClient {
   }
 
   /**
-   * Browse a URL using TinyFish web agent
+   * Handle SSE (Server-Sent Events) responses from TinyFish API
    */
-  async browse(url, instructions = '') {
-    const cacheKey = `${url}:${instructions}`;
-    
+  requestSSE(url, headers, body) {
+    return new Promise((resolve, reject) => {
+      const protocol = url.startsWith('https') ? https : http;
+      
+      const options = {
+        ...headers,
+        headers: {
+          ...headers,
+          'Accept': 'text/event-stream',
+          'Connection': 'keep-alive'
+        }
+      };
+
+      const req = protocol.request(url, options, (res) => {
+        let buffer = '';
+        let result = null;
+        let error = null;
+        
+        res.on('data', (chunk) => {
+          buffer += chunk.toString();
+          
+          // Process complete lines
+          const lines = buffer.split('\n');
+          buffer = lines.pop(); // Keep incomplete line in buffer
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = line.slice(6); // Remove 'data: ' prefix
+                const parsed = JSON.parse(data);
+                
+                // Track events
+                if (parsed.type === 'COMPLETED') {
+                  result = parsed;
+                } else if (parsed.type === 'ERROR') {
+                  error = new Error(parsed.message || 'TinyFish API error');
+                } else if (parsed.type === 'FAILED') {
+                  error = new Error(parsed.message || 'TinyFish task failed');
+                }
+              } catch (e) {
+                // Skip malformed JSON
+              }
+            }
+          }
+        });
+        
+        res.on('end', () => {
+          // Process any remaining data in buffer
+          if (buffer.trim()) {
+            const lines = buffer.split('\n');
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const data = line.slice(6);
+                  const parsed = JSON.parse(data);
+                  if (parsed.type === 'COMPLETED') {
+                    result = parsed;
+                  } else if (parsed.type === 'ERROR') {
+                    error = new Error(parsed.message || 'TinyFish API error');
+                  }
+                } catch (e) {}
+              }
+            }
+          }
+          
+          if (error) {
+            reject(error);
+          } else if (result) {
+            // Extract the actual result from the COMPLETED event
+            resolve(result.data || result.result || result);
+          } else {
+            reject(new Error('No result received from TinyFish SSE'));
+          }
+        });
+      });
+
+      req.on('error', reject);
+      req.setTimeout(120000, () => {
+        req.destroy();
+        reject(new Error('SSE request timeout'));
+      });
+
+      if (body) {
+        req.write(JSON.stringify(body));
+      }
+
+      req.end();
+    });
+  }
+
+  /**
+   * Browse a URL using TinyFish web agent
+   * Uses SSE endpoint: /v1/automation/run-sse
+   */
+  async browse(url, goal = '') {
+    const cacheKey = `${url}:${goal}`;
+
     // Check cache
     const cached = this.cache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < this.cacheTTL) {
@@ -155,15 +254,14 @@ class TinyFishClient {
     }
 
     try {
-      const result = await this.request('/agents/browse', {
+      // Use correct endpoint: /automation/run-sse with 'goal' field
+      const result = await this.request('/automation/run-sse', {
         method: 'POST',
         body: {
           url,
-          instructions,
-          options: {
-            extract_structured_data: true,
-            wait_for_selector: 'body',
-            screenshot: false
+          goal,
+          proxy_config: {
+            enabled: false
           }
         }
       });
@@ -187,7 +285,7 @@ class TinyFishClient {
   async concurrentSearch(queries) {
     const results = await Promise.all(
       queries.map(query => 
-        this.requestPool.add(() => this.browse(query.url, query.instructions))
+        this.requestPool.add(() => this.browse(query.url, query.goal))
       )
     );
     return results;
@@ -203,7 +301,7 @@ class TinyFishClient {
     
     const queries = sites.map(site => ({
       url: site.url,
-      instructions: site.instructions
+      goal: site.goal
     }));
 
     return this.concurrentSearch(queries);
@@ -217,53 +315,53 @@ class TinyFishClient {
       flight: [
         {
           url: `https://www.google.com/flights?q=flights+from+${encodeURIComponent(origin)}+to+${encodeURIComponent(destination)}`,
-          instructions: `Extract all flight options with prices, airlines, departure times, duration, and number of stops. Return as JSON array.`
+          goal: `Extract all flight options with prices, airlines, departure times, duration, and number of stops. Return as JSON array.`
         },
         {
           url: `https://www.kayak.com/flights/${encodeURIComponent(origin)}-${encodeURIComponent(destination)}`,
-          instructions: `Extract flight prices, airline names, departure/arrival times, flight duration, and stops. Return as JSON array.`
+          goal: `Extract flight prices, airline names, departure/arrival times, flight duration, and stops. Return as JSON array.`
         },
         {
           url: `https://www.skyscanner.com/transport/flights-from/${encodeURIComponent(origin.toLowerCase())}/`,
-          instructions: `Extract available flight routes and typical prices from ${origin} to ${destination}. Return as JSON.`
+          goal: `Extract available flight routes and typical prices from ${origin} to ${destination}. Return as JSON.`
         }
       ],
       bus: [
         {
           url: `https://www.greyhound.com/bus-schedule?from=${encodeURIComponent(origin)}&to=${encodeURIComponent(destination)}`,
-          instructions: `Extract bus departure times, arrival times, duration, prices, and bus company names. Return as JSON array.`
+          goal: `Extract bus departure times, arrival times, duration, prices, and bus company names. Return as JSON array.`
         },
         {
           url: `https://www.flixbus.com/search?departure_city=${encodeURIComponent(origin)}&arrival_city=${encodeURIComponent(destination)}`,
-          instructions: `Extract bus options with departure times, arrival times, duration, prices, and any amenities. Return as JSON array.`
+          goal: `Extract bus options with departure times, arrival times, duration, prices, and any amenities. Return as JSON array.`
         },
         {
           url: `https://www.busbud.com/bus-from-${encodeURIComponent(origin.toLowerCase())}-to-${encodeURIComponent(destination.toLowerCase())}`,
-          instructions: `Extract all bus options with prices, departure times, bus companies, and travel duration. Return as JSON array.`
+          goal: `Extract all bus options with prices, departure times, bus companies, and travel duration. Return as JSON array.`
         }
       ],
       train: [
         {
           url: `https://www.amtrak.com/routes/`,
-          instructions: `Find train routes from ${origin} to ${destination}. Extract departure times, arrival times, duration, prices, and train types. Return as JSON array.`
+          goal: `Find train routes from ${origin} to ${destination}. Extract departure times, arrival times, duration, prices, and train types. Return as JSON array.`
         },
         {
           url: `https://www.amtrak.com/farefinder?from=${encodeURIComponent(origin)}&to=${encodeURIComponent(destination)}`,
-          instructions: `Extract train fare options, departure times, arrival times, duration, and price tiers. Return as JSON array.`
+          goal: `Extract train fare options, departure times, arrival times, duration, and price tiers. Return as JSON array.`
         },
         {
           url: `https://www.trainline.com/trains/${encodeURIComponent(origin)}/to/${encodeURIComponent(destination)}`,
-          instructions: `Extract train options with times, duration, prices, and operators. Return as JSON array.`
+          goal: `Extract train options with times, duration, prices, and operators. Return as JSON array.`
         }
       ],
       rideshare: [
         {
           url: `https://www.uber.com/riders/`,
-          instructions: `Get estimated prices for rides from ${origin} to ${destination}. Extract ride types (UberX, Uber Black, etc.), estimated prices, and pickup times.`
+          goal: `Get estimated prices for rides from ${origin} to ${destination}. Extract ride types (UberX, Uber Black, etc.), estimated prices, and pickup times.`
         },
         {
           url: `https://www.lyft.com/rider/${origin}`,
-          instructions: `Get fare estimates from ${origin} to ${destination}. Extract Lyft ride types, prices, and ETA. Return as JSON.`
+          goal: `Get fare estimates from ${origin} to ${destination}. Extract Lyft ride types, prices, and ETA. Return as JSON.`
         }
       ]
     };
@@ -368,30 +466,32 @@ class FlightAgent {
         sourceResult.data.forEach(flight => {
           flights.push({
             mode: 'flight',
-            provider: sourceResult.source || 'unknown',
-            airline: flight.airline || flight.airline_name,
-            flightNumber: flight.flight_number || flight.flightNumber,
-            departure: {
-              airport: flight.departure_airport || flight.departureAirport,
-              time: flight.departure_time || flight.departureTime
-            },
-            arrival: {
-              airport: flight.arrival_airport || flight.arrivalAirport,
-              time: flight.arrival_time || flight.arrivalTime
-            },
-            duration: flight.duration || this.parseDuration(flight.duration_text),
+            provider: sourceResult.source || 'Unknown Airline',
+            airline: flight.airline || flight.airline_name || 'Unknown Airline',
+            flightNumber: flight.flight_number || flight.flightNumber || 'N/A',
+            departureTime: flight.departure_time || flight.departureTime || '08:00',
+            arrivalTime: flight.arrival_time || flight.arrivalTime || '12:00',
+            duration: flight.duration || this.parseDuration(flight.duration_text) || 180,
             stops: flight.stops || 0,
             price: this.parsePrice(flight.price),
             currency: flight.currency || 'USD',
             cabinClass: flight.cabin_class || 'economy',
-            baggageAllowance: flight.baggage_allowance
+            baggageAllowance: flight.baggage_allowance || '1 piece',
+            departure: {
+              airport: flight.departure_airport || flight.departureAirport || 'START',
+              time: flight.departure_time || flight.departureTime || '08:00'
+            },
+            arrival: {
+              airport: flight.arrival_airport || flight.arrivalAirport || 'END',
+              time: flight.arrival_time || flight.arrivalTime || '12:00'
+            }
           });
         });
       }
     });
 
-    // Sort by price
-    return flights.sort((a, b) => a.price - b.price);
+    // Return flights sorted by price, or empty array if none found
+    return flights.length > 0 ? flights.sort((a, b) => a.price - b.price) : [];
   }
 
   parsePrice(price) {
@@ -441,29 +541,27 @@ class BusAgent {
         sourceResult.data.forEach(bus => {
           buses.push({
             mode: 'bus',
-            provider: bus.bus_company || bus.provider || sourceResult.source,
-            departure: {
-              station: bus.departure_station || bus.departureStation,
-              time: bus.departure_time || bus.departureTime
-            },
-            arrival: {
-              station: bus.arrival_station || bus.arrivalStation,
-              time: bus.arrival_time || bus.arrivalTime
-            },
+            provider: bus.bus_company || bus.provider || sourceResult.source || 'Unknown Bus Line',
+            departureTime: bus.departure_time || bus.departureTime || '08:00',
+            arrivalTime: bus.arrival_time || bus.arrivalTime || '16:00',
             duration: this.parseDuration(bus.duration || bus.duration_text),
             price: this.parsePrice(bus.price),
             currency: bus.currency || 'USD',
-            amenities: {
-              wifi: bus.wifi || bus.amenities?.includes('WiFi'),
-              power: bus.power || bus.amenities?.includes('Power'),
-              restroom: bus.restroom || bus.amenities?.includes('Restroom')
+            amenities: Array.isArray(bus.amenities) ? bus.amenities : [],
+            departure: {
+              station: bus.departure_station || bus.departureStation || 'Central Station',
+              time: bus.departure_time || bus.departureTime || '08:00'
+            },
+            arrival: {
+              station: bus.arrival_station || bus.arrivalStation || 'Destination',
+              time: bus.arrival_time || bus.arrivalTime || '16:00'
             }
           });
         });
       }
     });
 
-    return buses.sort((a, b) => a.price - b.price);
+    return buses.length > 0 ? buses.sort((a, b) => a.price - b.price) : [];
   }
 
   parsePrice(price) {
@@ -513,31 +611,29 @@ class TrainAgent {
         sourceResult.data.forEach(train => {
           trains.push({
             mode: 'train',
-            provider: train.train_operator || train.operator || sourceResult.source,
-            trainNumber: train.train_number || train.trainNumber,
-            departure: {
-              station: train.departure_station || train.departureStation,
-              time: train.departure_time || train.departureTime
-            },
-            arrival: {
-              station: train.arrival_station || train.arrivalStation,
-              time: train.arrival_time || train.arrivalTime
-            },
+            provider: train.train_operator || train.operator || sourceResult.source || 'Unknown Operator',
+            trainNumber: train.train_number || train.trainNumber || 'N/A',
+            departureTime: train.departure_time || train.departureTime || '08:00',
+            arrivalTime: train.arrival_time || train.arrivalTime || '16:00',
             duration: this.parseDuration(train.duration || train.duration_text),
             price: this.parsePrice(train.price),
             currency: train.currency || 'USD',
             class: train.class || train.travel_class || 'standard',
-            amenities: {
-              wifi: train.wifi,
-              power: train.power,
-              food: train.food
+            amenities: Array.isArray(train.amenities) ? train.amenities : [],
+            departure: {
+              station: train.departure_station || train.departureStation || 'Central Station',
+              time: train.departure_time || train.departureTime || '08:00'
+            },
+            arrival: {
+              station: train.arrival_station || train.arrivalStation || 'Destination',
+              time: train.arrival_time || train.arrivalTime || '16:00'
             }
           });
         });
       }
     });
 
-    return trains.sort((a, b) => a.price - b.price);
+    return trains.length > 0 ? trains.sort((a, b) => a.price - b.price) : [];
   }
 
   parsePrice(price) {
@@ -586,28 +682,36 @@ class RideShareAgent {
         sourceResult.data.forEach(ride => {
           rides.push({
             mode: 'rideshare',
-            provider: ride.provider || ride.ride_type || sourceResult.source,
-            rideType: ride.ride_type || ride.rideType,
-            vehicleType: ride.vehicle_type || ride.vehicleType,
-            estimatedPrice: this.parsePrice(ride.estimated_price || ride.price),
-            baseFare: this.parsePrice(ride.base_fare),
-            perMileRate: this.parsePrice(ride.per_mile_rate),
-            estimatedPickup: ride.estimated_pickup || ride.pickup_time,
-            driverRating: ride.driver_rating
+            provider: ride.provider || ride.ride_type || sourceResult.source || 'Unknown Rideshare',
+            rideType: ride.ride_type || ride.rideType || 'Standard',
+            vehicleType: ride.vehicle_type || ride.vehicleType || 'Sedan',
+            estimatedPrice: this.parsePrice(ride.estimated_price || ride.price) || 25,
+            baseFare: this.parsePrice(ride.base_fare) || 2.5,
+            perMileRate: this.parsePrice(ride.per_mile_rate) || 1.5,
+            estimatedPickup: ride.estimated_pickup || ride.pickup_time || '5 min',
+            driverRating: ride.driver_rating || 4.8,
+            departureTime: 'ASAP',
+            arrivalTime: 'N/A',
+            duration: null
           });
         });
       }
     });
 
-    return rides.sort((a, b) => a.estimatedPrice - b.estimatedPrice);
+    return rides.length > 0 ? rides.sort((a, b) => a.estimatedPrice - b.estimatedPrice) : [];
   }
 
   parsePrice(price) {
     if (typeof price === 'number') return price;
-    if (typeof price === 'price') {
+    if (typeof price === 'string') {
       return parseFloat(price.replace(/[^0-9.]/g, ''));
     }
     return 0;
+  }
+
+  // Alias for compatibility
+  async searchRideShare(origin, destination, options = {}) {
+    return this.getEstimates(origin, destination, options);
   }
 }
 

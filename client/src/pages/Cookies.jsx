@@ -208,9 +208,9 @@ We value your privacy and are committed to transparent cookie practices.`
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-800">
       {/* Hero Section */}
-      <div className="bg-linear-to-br from-amber-600 to-orange-700 text-white py-20">
+      <div className="bg-linear-to-br from-amber-600 to-orange-700 text-white py-20 dark:from-amber-900 dark:to-orange-900">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -255,8 +255,8 @@ We value your privacy and are committed to transparent cookie practices.`
                 onClick={() => setExpandedSection(section.id)}
                 className={`p-4 rounded-xl text-left transition-all ${
                   expandedSection === section.id
-                    ? 'bg-amber-600 text-white shadow-lg'
-                    : 'bg-white text-slate-600 hover:bg-amber-50'
+                    ? 'bg-amber-600 text-white shadow-lg dark:bg-amber-700'
+                    : 'bg-white text-slate-600 hover:bg-amber-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
                 }`}
               >
                 <section.icon className="w-6 h-6 mb-2" />
@@ -271,14 +271,14 @@ We value your privacy and are committed to transparent cookie practices.`
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="mb-8 bg-linear-to-br from-amber-100 to-orange-100 border-amber-200">
+            <Card className="mb-8 bg-linear-to-br from-amber-100 to-orange-100 border-amber-200 dark:from-amber-900 dark:to-orange-900 dark:border-amber-700">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <Settings className="w-8 h-8 text-amber-600" />
                     <div>
-                      <h3 className="font-semibold text-slate-800">Cookie Preferences</h3>
-                      <p className="text-sm text-slate-600">Manage your cookie settings</p>
+                      <h3 className="font-semibold text-slate-800 dark:text-slate-200">Cookie Preferences</h3>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">Manage your cookie settings</p>
                     </div>
                   </div>
                   <Button className="bg-amber-600 hover:bg-amber-700">
@@ -299,7 +299,7 @@ We value your privacy and are committed to transparent cookie practices.`
           >
             {sections.map((section) => (
               <motion.div key={section.id} variants={itemVariants}>
-                <Card className={`overflow-hidden transition-all ${
+                <Card className={`overflow-hidden transition-all dark:bg-slate-800 ${
                   expandedSection === section.id 
                     ? 'ring-2 ring-amber-500 shadow-lg' 
                     : 'hover:shadow-md'
@@ -311,7 +311,7 @@ We value your privacy and are committed to transparent cookie practices.`
                     className="w-full"
                   >
                     <CardHeader className="flex flex-row items-center gap-4 py-4 cursor-pointer">
-                      <div className={`p-2 rounded-lg ${
+                      <div className={`p-2 rounded-lg dark:bg-slate-700 ${
                         expandedSection === section.id
                           ? 'bg-amber-600 text-white'
                           : 'bg-amber-100 text-amber-600'
@@ -348,9 +348,9 @@ We value your privacy and are committed to transparent cookie practices.`
                                   return (
                                     <div key={i} className="flex items-start gap-2 mb-2">
                                       <CheckCircle className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" />
-                                      <span className="text-slate-600 text-sm">
+                                      <span className="text-slate-600 text-sm dark:text-slate-400">
                                         {parts.map((part, idx) => 
-                                          idx % 2 === 1 ? <strong key={idx} className="text-slate-800">{part}</strong> : part
+                                          idx % 2 === 1 ? <strong key={idx} className="text-slate-800 dark:text-slate-200">{part}</strong> : part
                                         )}
                                       </span>
                                     </div>
@@ -359,22 +359,22 @@ We value your privacy and are committed to transparent cookie practices.`
                                 return (
                                   <div key={i} className="flex items-start gap-2 mb-2">
                                     <CheckCircle className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" />
-                                    <span className="text-slate-600 text-sm">{bulletContent}</span>
+                                    <span className="text-slate-600 text-sm dark:text-slate-400">{bulletContent}</span>
                                   </div>
                                 );
                               }
                               if (line.includes('**')) {
                                 const parts = line.split(/\*\*(.*?)\*\*/g);
                                 return (
-                                  <p key={i} className="text-slate-600 text-sm mb-2">
+                                  <p key={i} className="text-slate-600 text-sm mb-2 dark:text-slate-400">
                                     {parts.map((part, idx) => 
-                                      idx % 2 === 1 ? <strong key={idx} className="text-slate-800">{part}</strong> : part
+                                      idx % 2 === 1 ? <strong key={idx} className="text-slate-800 dark:text-slate-200">{part}</strong> : part
                                     )}
                                   </p>
                                 );
                               }
                               return (
-                                <p key={i} className="text-slate-600 text-sm mb-2">
+                                <p key={i} className="text-slate-600 text-sm mb-2 dark:text-slate-400">
                                   {line}
                                 </p>
                               );
@@ -395,7 +395,7 @@ We value your privacy and are committed to transparent cookie practices.`
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="mt-12 bg-linear-to-br from-amber-600 to-orange-700 text-white border-0">
+            <Card className="mt-12 bg-linear-to-br from-amber-600 to-orange-700 text-white border-0 dark:from-amber-900 dark:to-orange-900">
               <CardContent className="p-8 md:p-12">
                 <div className="text-center">
                   <Info className="w-12 h-12 mx-auto mb-4 text-amber-200" />

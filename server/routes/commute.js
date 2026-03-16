@@ -18,4 +18,9 @@ router.post('/agent/plan', CommuteController.agentPlanCommute);
 router.get('/routes/:routeId/agent-optimized', CommuteController.getAgentOptimizedOptions);
 router.get('/agent/insights/:routeId', CommuteController.getAgentInsights);
 
+// TinyFish Integration endpoints
+router.get('/routes/:routeId/tinyfish/options', CommuteController.getTinyFishOptions);
+router.get('/routes/:routeId/tinyfish/pricing/:optionId', CommuteController.getTinyFishPricing);
+router.post('/routes/tinyfish/prepare-booking', CommuteController.prepareBooking);
+
 module.exports = router;

@@ -222,7 +222,7 @@ export default function Careers() {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10 dark:from-primary/20 dark:via-background dark:to-secondary/20" />
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -255,7 +255,7 @@ export default function Careers() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 bg-muted/30">
+      <section className="py-12 bg-muted/30 dark:bg-muted/20">
         <div className="container mx-auto px-4">
           <motion.div 
             variants={container}
@@ -266,7 +266,7 @@ export default function Careers() {
           >
             {stats.map((stat, index) => (
               <motion.div key={index} variants={item}>
-                <Card className="border-0 shadow-none bg-transparent">
+                <Card className="border-0 shadow-none bg-transparent dark:bg-transparent">
                   <CardContent className="text-center p-4">
                     <stat.icon className="w-8 h-8 mx-auto mb-3 text-primary" />
                     <div className="text-3xl font-bold mb-1">{stat.value}</div>
@@ -303,7 +303,7 @@ export default function Careers() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="h-full hover:shadow-lg transition-shadow">
+                <Card className="h-full hover:shadow-lg transition-shadow dark:bg-card dark:border-border">
                   <CardContent className="p-6 text-center">
                     <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${value.color} flex items-center justify-center mx-auto mb-4`}>
                       <value.icon className="w-8 h-8 text-white" />
@@ -319,7 +319,7 @@ export default function Careers() {
       </section>
 
       {/* Benefits */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30 dark:bg-muted/20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -342,7 +342,7 @@ export default function Careers() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="h-full hover:shadow-lg transition-shadow">
+                <Card className="h-full hover:shadow-lg transition-shadow dark:bg-card dark:border-border">
                   <CardContent className="p-6">
                     <benefit.icon className="w-10 h-10 text-primary mb-4" />
                     <h3 className="font-bold mb-2">{benefit.title}</h3>
@@ -376,7 +376,7 @@ export default function Careers() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
                 placeholder="Search positions..." 
-                className="pl-10"
+                className="pl-10 dark:bg-background dark:border-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -406,7 +406,7 @@ export default function Careers() {
           >
             {filteredPositions.map((position) => (
               <motion.div key={position.id} variants={item}>
-                <Card className="hover:shadow-lg transition-all hover:border-primary/30">
+                <Card className="hover:shadow-lg transition-all hover:border-primary/30 dark:bg-card dark:border-border dark:hover:border-primary/50">
                   <CardContent className="p-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex-1">
@@ -462,7 +462,7 @@ export default function Careers() {
       </section>
 
       {/* Application Process */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30 dark:bg-muted/20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -511,7 +511,7 @@ export default function Careers() {
             viewport={{ once: true }}
             className="text-center"
           >
-            <Card className="bg-primary text-primary-foreground border-0">
+            <Card className="bg-primary text-primary-foreground border-0 dark:bg-primary dark:text-primary-foreground">
               <CardContent className="p-12">
                 <Briefcase className="w-16 h-16 mx-auto mb-6" />
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
