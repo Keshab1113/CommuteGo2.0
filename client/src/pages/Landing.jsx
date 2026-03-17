@@ -1,6 +1,6 @@
 // frontend/src/pages/Landing.jsx
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
@@ -23,14 +23,156 @@ import {
   CheckCircle,
   Star,
   BarChart3,
+  Car,
+  Bus,
+  Train,
 } from "lucide-react";
+import { FaWalking } from "react-icons/fa";
 import Footer from "../components/layout/Footer";
+
+// Animated Counter Component
+const AnimatedCounter = ({ value, suffix = "", prefix = "" }) => {
+  const [count, setCount] = useState(0);
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    if (isInView) {
+      let start = 0;
+      const end = parseInt(value);
+      const duration = 2000;
+      const increment = end / (duration / 16);
+
+      const timer = setInterval(() => {
+        start += increment;
+        if (start >= end) {
+          setCount(end);
+          clearInterval(timer);
+        } else {
+          setCount(Math.floor(start));
+        }
+      }, 16);
+
+      return () => clearInterval(timer);
+    }
+  }, [isInView, value]);
+
+  return (
+    <span ref={ref}>
+      {prefix}
+      {count.toLocaleString()}
+      {suffix}
+    </span>
+  );
+};
+
+// Floating Element Component
+const FloatingElement = ({ delay, duration = 6, className, children }) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{
+      duration: 0.8,
+      delay,
+      type: "spring",
+      stiffness: 100,
+    }}
+    className={className}
+  >
+    <motion.div
+      animate={{
+        y: [0, -20, 0],
+        rotate: [0, 5, -5, 0],
+      }}
+      transition={{
+        duration,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+    >
+      {children}
+    </motion.div>
+  </motion.div>
+);
+
+// Scroll Reveal Wrapper
+const ScrollReveal = ({ children, delay = 0, direction = "up" }) => {
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+
+  const directions = {
+    up: { opacity: 0, y: 40 },
+    down: { opacity: 0, y: -40 },
+    left: { opacity: 0, x: 40 },
+    right: { opacity: 0, x: -40 },
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={directions[direction]}
+      animate={isInView ? { opacity: 1, x: 0, y: 0 } : directions[direction]}
+      transition={{ duration: 0.6, delay, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-linear-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-linear-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800 overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-linear-to-br from-primary-950 via-primary-900 to-secondary-950 text-white">
+      <section className="relative overflow-hidden bg-linear-to-br from-primary-950 via-primary-900 to-secondary-950 text-white min-h-[90vh] flex items-center">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-primary-500/20 rounded-full blur-3xl"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{ duration: 8, repeat: Infinity }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-500/20 rounded-full blur-3xl"
+            animate={{
+              scale: [1.2, 1, 1.2],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{ duration: 10, repeat: Infinity }}
+          />
+          <motion.div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-linear-to-r from-primary-500/10 to-secondary-500/10 rounded-full blur-3xl"
+            animate={{
+              rotate: 360,
+            }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+
+        {/* Floating Transportation Icons */}
+        <FloatingElement delay={0.3} className="absolute top-32 left-[10%] hidden md:block">
+          <div className="bg-white/10 backdrop-blur-sm p-3 rounded-xl">
+            <Car className="w-8 h-8 text-primary-300" />
+          </div>
+        </FloatingElement>
+        <FloatingElement delay={0.5} duration={7} className="absolute top-48 right-[15%] hidden md:block">
+          <div className="bg-white/10 backdrop-blur-sm p-3 rounded-xl">
+            <Train className="w-8 h-8 text-secondary-300" />
+          </div>
+        </FloatingElement>
+        <FloatingElement delay={0.7} duration={8} className="absolute bottom-32 left-[20%] hidden md:block">
+          <div className="bg-white/10 backdrop-blur-sm p-3 rounded-xl">
+            <Bus className="w-8 h-8 text-primary-300" />
+          </div>
+        </FloatingElement>
+        <FloatingElement delay={0.9} duration={5} className="absolute bottom-48 right-[10%] hidden md:block">
+          <div className="bg-white/10 backdrop-blur-sm p-3 rounded-xl">
+            <FaWalking className="w-8 h-8 text-secondary-300" />
+          </div>
+        </FloatingElement>
+
         <div className="container mx-auto px-4 py-28 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -213,7 +355,7 @@ const Landing = () => {
                 <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-primary-200 dark:border-gray-700 dark:hover:border-primary-400">
                   <CardContent className="pt-6">
                     <div
-                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} p-4 mb-4 group-hover:scale-110 transition-transform`}
+                      className={`w-16 h-16 rounded-2xl bg-linear-to-br ${feature.color} p-4 mb-4 group-hover:scale-110 transition-transform`}
                     >
                       <feature.icon className="w-full h-full text-white" />
                     </div>
@@ -355,16 +497,16 @@ const Landing = () => {
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50"
+                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:text-white hover:dark:text-gray-800"
                   >
                     <div className="p-2 bg-primary-100 rounded-lg">
                       <feature.icon className="h-5 w-5 text-primary-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold dark:text-white">
+                      <h3 className="font-semibold ">
                         {feature.title}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                      <p className="text-sm opacity-80">
                         {feature.desc}
                       </p>
                     </div>
@@ -377,7 +519,7 @@ const Landing = () => {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 rounded-3xl p-8"
+              className="bg-linear-to-br from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 rounded-3xl p-8"
             >
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl">
                 <div className="flex items-center gap-3 mb-4">
@@ -528,7 +670,7 @@ const Landing = () => {
       </section>
 
       {/* Technology Section */}
-      <section className="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black">
+      <section className="py-20 bg-linear-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <Badge className="mb-4 dark:bg-gray-700 dark:text-gray-200">
@@ -579,10 +721,10 @@ const Landing = () => {
                 className="group relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700"
               >
                 <div
-                  className={`absolute inset-0 bg-gradient-to-br ${agent.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity`}
+                  className={`absolute inset-0 bg-linear-to-br ${agent.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity`}
                 />
                 <div
-                  className={`w-14 h-14 rounded-xl bg-gradient-to-br ${agent.color} p-3 mb-4`}
+                  className={`w-14 h-14 rounded-xl bg-linear-to-br ${agent.color} p-3 mb-4`}
                 >
                   <agent.icon className="w-full h-full text-white" />
                 </div>

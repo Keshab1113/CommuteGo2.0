@@ -23,4 +23,14 @@ router.get('/routes/:routeId/tinyfish/options', CommuteController.getTinyFishOpt
 router.get('/routes/:routeId/tinyfish/pricing/:optionId', CommuteController.getTinyFishPricing);
 router.post('/routes/tinyfish/prepare-booking', CommuteController.prepareBooking);
 
+// Flight-specific endpoints
+router.get('/routes/:routeId/flights', CommuteController.getFlightOptions);
+router.post('/flights/booking', CommuteController.createFlightBooking);
+router.get('/flights/booking/:bookingId', CommuteController.getFlightBooking);
+router.get('/flights/bookings', CommuteController.getUserFlightBookings);
+router.get('/flights/upcoming', CommuteController.getUpcomingFlights);
+router.patch('/flights/booking/:bookingId/status', CommuteController.updateFlightBookingStatus);
+router.post('/flights/booking/:bookingId/confirm', CommuteController.confirmFlightBooking);
+router.post('/flights/booking/:bookingId/cancel', CommuteController.cancelFlightBooking);
+
 module.exports = router;

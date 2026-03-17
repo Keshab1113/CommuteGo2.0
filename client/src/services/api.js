@@ -139,6 +139,21 @@ export const commuteAPI = {
     getTinyFishOptions: (routeId) => api.get(`/commute/routes/${routeId}/tinyfish/options`),
     getTinyFishPricing: (routeId, optionId) => api.get(`/commute/routes/${routeId}/tinyfish/pricing/${optionId}`),
     prepareBooking: (data) => api.post(`/commute/routes/tinyfish/prepare-booking`, data),
+    
+    // Flight-specific endpoints
+    getFlightOptions: (routeId) => api.get(`/commute/routes/${routeId}/flights`),
+    createFlightBooking: (data) => api.post('/commute/flights/booking', data),
+    getFlightBooking: (bookingId) => api.get(`/commute/flights/booking/${bookingId}`),
+    getUserFlightBookings: (limit = 20, offset = 0) => 
+        api.get(`/commute/flights/bookings?limit=${limit}&offset=${offset}`),
+    getUpcomingFlights: (daysAhead = 30) => 
+        api.get(`/commute/flights/upcoming?daysAhead=${daysAhead}`),
+    updateFlightBookingStatus: (bookingId, data) => 
+        api.patch(`/commute/flights/booking/${bookingId}/status`, data),
+    confirmFlightBooking: (bookingId, data) => 
+        api.post(`/commute/flights/booking/${bookingId}/confirm`, data),
+    cancelFlightBooking: (bookingId, data) => 
+        api.post(`/commute/flights/booking/${bookingId}/cancel`, data),
 };
 
 // Analytics API
@@ -165,14 +180,101 @@ export const userAPI = {
 
 // Admin API
 export const adminAPI = {
+    // Metrics & Analytics
     getMetrics: () => api.get('/admin/metrics'),
     getAnalytics: (startDate, endDate) => 
         api.get(`/admin/analytics/agent-enhanced?startDate=${startDate}&endDate=${endDate}`),
+    getDashboardStats: () => api.get('/admin/dashboard-stats'),
+    
+    // User Management
     getUsers: (page = 1, limit = 20) => 
         api.get(`/admin/users?page=${page}&limit=${limit}`),
     getUserStats: () => api.get('/admin/users/stats'),
+    updateUser: (userId, userData) => 
+        api.put(`/admin/users/${userId}`, userData),
+    deleteUser: (userId) => 
+        api.delete(`/admin/users/${userId}`),
+    
+    // Route Management
+    getAllRoutes: (page = 1, limit = 20, search = '') => 
+        api.get(`/admin/routes?page=${page}&limit=${limit}&search=${search}`),
+    deleteRoute: (routeId) => 
+        api.delete(`/admin/routes/${routeId}`),
+    
+    // Alert Management
+    getAllAlerts: (page = 1, limit = 20, isRead = null) => {
+        let url = `/admin/alerts?page=${page}&limit=${limit}`;
+        if (isRead !== null) url += `&isRead=${isRead}`;
+        return api.get(url);
+    },
+    updateAlert: (alertId, alertData) => 
+        api.put(`/admin/alerts/${alertId}`, alertData),
+    deleteAlert: (alertId) => 
+        api.delete(`/admin/alerts/${alertId}`),
+    
+    // Settings Management
+    getSettings: (category = 'all') => api.get(`/admin/settings?category=${category}`),
+    getSetting: (key) => api.get(`/admin/settings/${key}`),
+    createSetting: (setting) => api.post('/admin/settings', setting),
+    updateSetting: (key, value) => api.put(`/admin/settings/${key}`, { value }),
+    deleteSetting: (key) => api.delete(`/admin/settings/${key}`),
+    
+    // Agent Management
     getAgentLogs: (limit = 100) => api.get(`/admin/agents/logs?limit=${limit}`),
     getAgentHealth: () => api.get('/admin/agents/health'),
+    
+    // Blog Management
+    getAllBlogs: (status = null) => {
+        let url = '/admin/blogs';
+        if (status) url += `?status=${status}`;
+        return api.get(url);
+    },
+    getBlog: (id) => api.get(`/admin/blogs/${id}`),
+    createBlog: (blogData) => api.post('/admin/blogs', blogData),
+    updateBlog: (id, blogData) => api.put(`/admin/blogs/${id}`, blogData),
+    deleteBlog: (id) => api.delete(`/admin/blogs/${id}`),
+    
+    // FAQ Management
+    getAllFAQs: (visibleOnly = false) => api.get(`/admin/faqs?visibleOnly=${visibleOnly}`),
+    getFAQ: (id) => api.get(`/admin/faqs/${id}`),
+    createFAQ: (faqData) => api.post('/admin/faqs', faqData),
+    updateFAQ: (id, faqData) => api.put(`/admin/faqs/${id}`, faqData),
+    deleteFAQ: (id) => api.delete(`/admin/faqs/${id}`),
+    reorderFAQs: (ids) => api.post('/admin/faqs/reorder', { ids }),
+    
+    // Contact Management
+    getAllContacts: (status = null) => {
+        let url = '/admin/contacts';
+        if (status) url += `?status=${status}`;
+        return api.get(url);
+    },
+    getContact: (id) => api.get(`/admin/contacts/${id}`),
+    updateContact: (id, contactData) => api.put(`/admin/contacts/${id}`, contactData),
+    deleteContact: (id) => api.delete(`/admin/contacts/${id}`),
+    getUnreadContactsCount: () => api.get('/admin/contacts/unread-count'),
+    
+    // Job Management
+    getAllJobs: (activeOnly = false) => api.get(`/admin/jobs?activeOnly=${activeOnly}`),
+    getJob: (id) => api.get(`/admin/jobs/${id}`),
+    createJob: (jobData) => api.post('/admin/jobs', jobData),
+    updateJob: (id, jobData) => api.put(`/admin/jobs/${id}`, jobData),
+    deleteJob: (id) => api.delete(`/admin/jobs/${id}`),
+    toggleJobActive: (id) => api.post(`/admin/jobs/${id}/toggle`),
+    
+    // Pricing Management
+    getAllPricingPlans: (activeOnly = false) => api.get(`/admin/pricing?activeOnly=${activeOnly}`),
+    getPricingPlan: (id) => api.get(`/admin/pricing/${id}`),
+    createPricingPlan: (planData) => api.post('/admin/pricing', planData),
+    updatePricingPlan: (id, planData) => api.put(`/admin/pricing/${id}`, planData),
+    deletePricingPlan: (id) => api.delete(`/admin/pricing/${id}`),
+    reorderPricingPlans: (ids) => api.post('/admin/pricing/reorder', { ids }),
+};
+
+// Public API (no authentication required)
+export const publicAPI = {
+    // FAQs - returns only visible FAQs
+    getFAQs: () => api.get('/faqs'),
+    getFAQsByCategory: (category) => api.get(`/faqs/category/${category}`),
 };
 
 export default api;

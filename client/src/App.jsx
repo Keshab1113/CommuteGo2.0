@@ -1,8 +1,6 @@
 // frontend/src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from './components/ui/sonner';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/layout/Layout';
@@ -19,6 +17,16 @@ import Profile from './pages/Profile';
 import Alerts from './pages/Alerts';
 import Settings from './pages/Settings';
 import AdminAnalytics from './pages/AdminDashboard/AdminAnalytics';
+import AdminUsers from './pages/AdminDashboard/AdminUsers';
+import AdminRoutes from './pages/AdminDashboard/AdminRoutes';
+import AdminAlerts from './pages/AdminDashboard/AdminAlerts';
+import AdminSettings from './pages/AdminDashboard/AdminSettings';
+import BlogManager from './pages/AdminDashboard/BlogManager';
+import BlogEditor from './pages/AdminDashboard/BlogEditor';
+import FAQManager from './pages/AdminDashboard/FAQManager';
+import ContactManager from './pages/AdminDashboard/ContactManager';
+import JobManager from './pages/AdminDashboard/JobManager';
+import PricingManager from './pages/AdminDashboard/PricingManager';
 import ErrorBoundary from './components/ErrorBoundary';
 import { motion, AnimatePresence } from 'framer-motion';
 import Landing from './pages/Landing';
@@ -39,21 +47,6 @@ import PressKit from './pages/PressKit';
 import SupportCenter from './pages/SupportCenter';
 import Contact from './pages/Contact';
 import { initializeTheme } from './lib/utils';
-
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
-    },
-    mutations: {
-      retry: 1,
-    },
-  },
-});
 
 const PrivateRoute = ({ children, adminOnly = false }) => {
   const token = localStorage.getItem('token');
@@ -78,12 +71,11 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <AuthProvider>
-            <AnimatePresence mode="wait">
-              <div className="min-h-screen bg-background font-sans antialiased">
-                <Routes>
+      <Router>
+        <AuthProvider>
+          <AnimatePresence mode="wait">
+            <div className="min-h-screen bg-background font-sans antialiased">
+              <Routes>
                   <Route path="/login" element={<Login />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
@@ -168,6 +160,83 @@ function App() {
                       </Layout>
                     </PrivateRoute>
                   } />
+                  <Route path="/admin/users" element={
+                    <PrivateRoute adminOnly>
+                      <Layout>
+                        <AdminUsers />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/admin/routes" element={
+                    <PrivateRoute adminOnly>
+                      <Layout>
+                        <AdminRoutes />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/admin/alerts" element={
+                    <PrivateRoute adminOnly>
+                      <Layout>
+                        <AdminAlerts />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/admin/settings" element={
+                    <PrivateRoute adminOnly>
+                      <Layout>
+                        <AdminSettings />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/admin/blogs" element={
+                    <PrivateRoute adminOnly>
+                      <Layout>
+                        <BlogManager />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/admin/blogs/new" element={
+                    <PrivateRoute adminOnly>
+                      <Layout>
+                        <BlogEditor />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/admin/blogs/:id" element={
+                    <PrivateRoute adminOnly>
+                      <Layout>
+                        <BlogEditor />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/admin/faqs" element={
+                    <PrivateRoute adminOnly>
+                      <Layout>
+                        <FAQManager />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/admin/contacts" element={
+                    <PrivateRoute adminOnly>
+                      <Layout>
+                        <ContactManager />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/admin/jobs" element={
+                    <PrivateRoute adminOnly>
+                      <Layout>
+                        <JobManager />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/admin/pricing" element={
+                    <PrivateRoute adminOnly>
+                      <Layout>
+                        <PricingManager />
+                      </Layout>
+                    </PrivateRoute>
+                  } />
                 </Routes>
                 <Toaster 
                   position="top-right"
@@ -180,9 +249,7 @@ function App() {
             </AnimatePresence>
           </AuthProvider>
         </Router>
-        {import.meta.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
-      </QueryClientProvider>
-    </ErrorBoundary>
+      </ErrorBoundary>
   );
 }
 

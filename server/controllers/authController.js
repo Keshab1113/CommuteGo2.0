@@ -254,6 +254,84 @@ class AuthController {
             res.status(500).json({ error: 'Server error' });
         }
     }
+
+    static async adminLogin(req, res) {
+        try {
+            const { email, password } = req.body;
+
+            // Validate input
+            if (!email || !password) {
+                return res.status(400).json({ error: 'Email and password are required' });
+            }
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return res.status(400).json({ error: 'Invalid email format' });
+            }
+
+            // Find user by email
+            const user = await User.findByEmail(email);
+
+            if (!user) {
+                logger.warn(`Admin login attempt with invalid email: ${email}`);
+                return res.status(401).json({ error: 'Invalid credentials' });
+            }
+
+            // Check if user has admin role
+            if (user.role !== 'admin') {
+                logger.warn(`Non-admin user attempted admin login: ${email}`);
+                return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+            }
+
+            // Verify password
+            const isMatch = await bcrypt.compare(password, user.password_hash);
+            if (!isMatch) {
+                logger.warn(`Admin login failed - invalid password for: ${email}`);
+                return res.status(401).json({ error: 'Invalid credentials' });
+            }
+
+            // Check if account is active
+            if (!user.is_active) {
+                return res.status(403).json({ error: 'Account is not active' });
+            }
+
+            // Update last active timestamp
+            await db.execute(
+                'UPDATE users SET last_active = NOW() WHERE id = ?',
+                [user.id]
+            );
+
+            // Generate JWT token with admin role
+            const token = jwt.sign(
+                { id: user.id, email: user.email, role: user.role },
+                process.env.JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+
+            logger.info(`Admin login successful: ${email}`);
+
+            // Return user data (excluding password hash)
+            const userData = {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                created_at: user.created_at,
+                preferences: user.preferences
+            };
+
+            res.json({
+                success: true,
+                message: 'Admin login successful',
+                token,
+                user: userData
+            });
+        } catch (error) {
+            logger.error('Admin login error:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
 }
 
 module.exports = AuthController;

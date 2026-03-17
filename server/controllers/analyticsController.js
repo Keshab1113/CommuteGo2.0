@@ -153,7 +153,7 @@ class AnalyticsController {
 
   static async getRealTimeMetrics(req, res) {
     try {
-      const [metrics] = await Promise.all([
+      const results = await Promise.all([
         // Current hour activity
         db.execute(`
                     SELECT COUNT(*) as current_hour_commutes 
@@ -184,10 +184,10 @@ class AnalyticsController {
       ]);
 
       const realTimeMetrics = {
-        currentHourCommutes: metrics[0][0][0]?.current_hour_commutes || 0,
-        todayCommutes: metrics[1][0][0]?.today_commutes || 0,
-        activeUsersToday: metrics[2][0][0]?.active_users_today || 0,
-        mostActiveHour: metrics[3][0][0] || { hour: 0, count: 0 },
+        currentHourCommutes: results[0][0][0]?.current_hour_commutes || 0,
+        todayCommutes: results[1][0][0]?.today_commutes || 0,
+        activeUsersToday: results[2][0][0]?.active_users_today || 0,
+        mostActiveHour: results[3][0][0] || { hour: 0, count: 0 },
         lastUpdated: new Date().toISOString(),
       };
 

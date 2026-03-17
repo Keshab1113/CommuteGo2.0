@@ -17,10 +17,13 @@ CREATE TABLE IF NOT EXISTS users (
     carbon_offset_kg DECIMAL(10, 2) DEFAULT 0,
     preferences JSON,
     is_verified BOOLEAN DEFAULT FALSE,
+    role ENUM('user', 'admin') DEFAULT 'user',
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_email (email),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    INDEX idx_role (role)
 );
 
 -- =============================================
@@ -155,6 +158,41 @@ CREATE TABLE IF NOT EXISTS analytics_cache (
     UNIQUE KEY unique_metric (user_id, metric_type, metric_key),
     INDEX idx_period (period_start, period_end)
 );
+
+-- =============================================
+-- 8. SETTINGS TABLE
+-- =============================================
+CREATE TABLE IF NOT EXISTS settings (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    setting_key VARCHAR(255) UNIQUE NOT NULL,
+    setting_value TEXT,
+    setting_type ENUM('string', 'number', 'boolean', 'json') DEFAULT 'string',
+    category ENUM('general', 'system', 'limits', 'performance', 'auth', 'email', 'payment', 'api', 'notifications') DEFAULT 'general',
+    description TEXT,
+    is_public BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_category (category),
+    INDEX idx_setting_key (setting_key)
+);
+
+-- Insert default settings
+INSERT INTO settings (setting_key, setting_value, setting_type, category, description, is_public) VALUES
+('site_name', 'CommuteGo', 'string', 'general', 'The name of the application', TRUE),
+('site_description', 'Your intelligent commute planning assistant', 'string', 'general', 'The description of the application', TRUE),
+('maintenance_mode', 'false', 'boolean', 'system', 'Enable or disable maintenance mode', FALSE),
+('max_routes_per_user', '100', 'number', 'limits', 'Maximum number of routes a user can save', FALSE),
+('max_alerts_per_user', '50', 'number', 'limits', 'Maximum number of alerts a user can create', FALSE),
+('cache_ttl_minutes', '30', 'number', 'performance', 'Time to live for cached data in minutes', FALSE),
+('session_timeout_hours', '24', 'number', 'auth', 'Session timeout in hours', FALSE),
+('email_verification_required', 'true', 'boolean', 'auth', 'Require email verification for new users', FALSE),
+('smtp_host', '', 'string', 'email', 'SMTP server host', FALSE),
+('smtp_port', '587', 'number', 'email', 'SMTP server port', FALSE),
+('smtp_from_email', 'noreply@commutego.com', 'string', 'email', 'From email address for outgoing emails', FALSE),
+('payment_gateway', 'stripe', 'string', 'payment', 'Payment gateway to use', FALSE),
+('stripe_public_key', '', 'string', 'payment', 'Stripe public key', FALSE),
+('tinyfish_api_enabled', 'true', 'boolean', 'api', 'Enable TinyFish API integration', FALSE),
+('analytics_enabled', 'true', 'boolean', 'notifications', 'Enable analytics tracking', FALSE);
 
 -- =============================================
 -- Verification Queries

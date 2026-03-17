@@ -135,6 +135,10 @@ app.use("/api/analytics", analyticsRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/contact", contactRoutes);
 
+// Public FAQ routes (no authentication required)
+const faqRoutes = require("./routes/faqs");
+app.use("/api/faqs", faqRoutes);
+
 // Health check endpoint with database status
 app.get("/health", async (req, res) => {
   try {

@@ -30,7 +30,13 @@ const Login = () => {
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      navigate('/');
+      // Check user role and redirect accordingly
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      if (userData.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } else {
       setError(result.error);
     }
@@ -55,7 +61,13 @@ const Login = () => {
     const result = await login('john@example.com', 'password123');
     
     if (result.success) {
-      navigate('/');
+      // Check user role and redirect accordingly
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      if (userData.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } else {
       setError('Demo login failed. Please try again.');
     }

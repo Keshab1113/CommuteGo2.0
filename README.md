@@ -7,7 +7,7 @@
 ![Express](https://img.shields.io/badge/Express-4.x-gray?style=for-the-badge&logo=express)
 ![MySQL](https://img.shields.io/badge/MySQL-8.x-00758f?style=for-the-badge&logo=mysql)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38bdf8?style=for-the-badge&logo=tailwind-css)
-![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?style=for-the-badge&logo=vercel)
+![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?4style=for-the-badge&logo=vercel)
 
 **Smarter routes. Better journeys.**
 
@@ -57,6 +57,17 @@ Daily commuters and travelers often struggle with:
 | 💵 **Revenue Tracking** | Revenue trend analysis |
 | ⏰ **Peak Hours Analysis** | Bar chart for peak commute times |
 | 🥧 **Mode Distribution** | Pie chart for transport mode usage |
+
+### ✈️ Flight Booking Features
+
+| Feature | Description |
+|---------|-------------|
+| 🔍 **Flight Search** | Search flights by origin, destination, date, passengers |
+| 📋 **Flight Details** | View pricing, amenities, seat availability, ratings |
+| 🎫 **Easy Booking** | Multi-step booking with passenger info and add-ons |
+| 📄 **Booking Management** | View, modify, and cancel flight bookings |
+| 🚌 **Multi-Modal Transport** | Compare flights, buses, and trains |
+| 💳 **Secure Payments** | Mock payment integration with booking confirmation |
 
 ---
 
@@ -256,24 +267,34 @@ CommuteGo2.0/
 
 4. **Environment Variables**
 
-   Create `.env` files:
+   Create `.env` files by copying from `.env.example`:
 
-   **Server (.env)**
-
-   ```env
-   PORT=5000
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=your_password
-   DB_NAME=commutego
-   JWT_SECRET=your_jwt_secret
+   ```bash
+   # Server configuration
+   cp .env.example server/.env
+   
+   # Client configuration
+   echo "VITE_API_URL=http://localhost:5000/api" > client/.env
    ```
 
-   **Client (.env)**
+   **Required Server Variables:**
 
-   ```env
-   VITE_API_URL=http://localhost:5000/api
-   ```
+   | Variable | Description |
+   |----------|-------------|
+   | `DB_HOST` | MySQL database host |
+   | `DB_USER` | MySQL username |
+   | `DB_PASSWORD` | MySQL password |
+   | `DB_NAME` | Database name (commutego) |
+   | `JWT_SECRET` | Secret key for JWT tokens |
+
+   **Optional API Keys:**
+
+   | Variable | Description | Required |
+   |----------|-------------|----------|
+   | `TINYFISH_API_KEY` | API key for real transportation data | No (falls back to mock data) |
+   | `GOOGLE_MAPS_API_KEY` | API key for geocoding & directions | No |
+
+   > **Note:** Without `TINYFISH_API_KEY`, the system uses realistic mock data for testing. Get your free API key at [tinyfish.ai](https://tinyfish.ai)
 
 ---
 

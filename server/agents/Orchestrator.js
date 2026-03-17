@@ -84,7 +84,7 @@ class PlanningAgent {
   }
 
   async geocodeAddress(address) {
-    // Common city coordinates database (fallback if database cache is empty)
+    // Common city coordinates database (fallback if geocoding API fails)
     const cityCoords = {
       'delhi': { lat: 28.6139, lng: 77.2090 },
       'mumbai': { lat: 19.0760, lng: 72.8777 },
@@ -134,6 +134,40 @@ class PlanningAgent {
       }
     } catch (error) {
       console.warn("Geocode cache lookup failed:", error.message);
+    }
+
+    // Try Nominatim API (OpenStreetMap) for unknown addresses
+    try {
+      const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+      
+      const response = await fetch(nominatimUrl, {
+        headers: {
+          'User-Agent': 'CommuteGo/2.0 (contact@commutego.com)',
+          'Accept': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.length > 0) {
+          // Cache the result for future use
+          try {
+            await db.execute(
+              "INSERT INTO geocode_cache (address, lat, lng, created_at) VALUES (?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE lat = VALUES(lat), lng = VALUES(lng)",
+              [normalizedAddress, parseFloat(data[0].lat), parseFloat(data[0].lon)],
+            );
+          } catch (cacheError) {
+            console.warn("Failed to cache geocode result:", cacheError.message);
+          }
+          
+          return {
+            lat: parseFloat(data[0].lat),
+            lng: parseFloat(data[0].lon),
+          };
+        }
+      }
+    } catch (error) {
+      console.warn(`[Orchestrator] Nominatim geocoding failed for "${address}":`, error.message);
     }
 
     // Default coordinates (Delhi) if not found
@@ -1098,26 +1132,22 @@ class AgentOrchestrator {
   }
 
   async generateDashboardInsights(startDate, endDate) {
+    // Get real data from AnalyticsService
+    const AnalyticsService = require('../services/analyticsService');
+    
+    const [commutesPerDay, revenueTrend, peakHours, modeDistribution] = await Promise.all([
+      AnalyticsService.generateCommutesPerDay(startDate, endDate),
+      AnalyticsService.generateRevenueTrend(startDate, endDate),
+      AnalyticsService.generatePeakHours(startDate, endDate),
+      AnalyticsService.generateModeDistribution(startDate, endDate),
+    ]);
+    
     return {
-      overview: {
-        totalCommutes: 1250,
-        activeUsers: 342,
-        averageTime: 38,
-        averageCost: 11.25,
-      },
-      trends: [
-        { date: "Mon", commutes: 245 },
-        { date: "Tue", commutes: 278 },
-        { date: "Wed", commutes: 312 },
-        { date: "Thu", commutes: 298 },
-        { date: "Fri", commutes: 267 },
-      ],
-      popularModes: [
-        { mode: "Bus", percentage: 35 },
-        { mode: "Train", percentage: 28 },
-        { mode: "Metro", percentage: 22 },
-        { mode: "Cab", percentage: 15 },
-      ],
+      commutesPerDay,
+      revenueTrend,
+      peakHours,
+      modeDistribution,
+      generatedAt: new Date().toISOString(),
     };
   }
 

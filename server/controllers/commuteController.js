@@ -669,6 +669,286 @@ class CommuteController {
             res.status(500).json({ error: 'Server error' });
         }
     }
+
+    /**
+     * Get flight options for a specific route
+     */
+    static async getFlightOptions(req, res) {
+        try {
+            const { routeId } = req.params;
+            const userId = req.user.id;
+
+            // Verify route belongs to user
+            const route = await Route.findById(routeId);
+            if (!route || route.user_id !== userId) {
+                return res.status(403).json({ error: 'Unauthorized access' });
+            }
+
+            // Get TinyFish data
+            const tinyFishData = await TinyFishRouteData.findByRouteId(routeId);
+            if (!tinyFishData) {
+                return res.status(404).json({ error: 'TinyFish data not found' });
+            }
+
+            // Extract flights from transportation options
+            const flights = tinyFishData.transportationOptions
+                .filter(opt => opt.mode === 'flight')
+                .sort((a, b) => (a.price || 0) - (b.price || 0));
+
+            res.json({
+                routeId,
+                totalFlights: flights.length,
+                flights,
+                source: route.source,
+                destination: route.destination,
+                travelDate: route.travel_date
+            });
+        } catch (error) {
+            logger.error('Get flight options error:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    /**
+     * Create a flight booking record
+     */
+    static async createFlightBooking(req, res) {
+        try {
+            const { routeId, flightOption, passengerInfo } = req.body;
+            const userId = req.user.id;
+
+            const FlightBooking = require('../models/FlightBooking');
+
+            // Verify route belongs to user
+            const route = await Route.findById(routeId);
+            if (!route || route.user_id !== userId) {
+                return res.status(403).json({ error: 'Unauthorized access' });
+            }
+
+            // Calculate pricing
+            const baseFare = flightOption.price || 0;
+            const taxes = baseFare * 0.12; // 12% tax
+            const fees = baseFare * 0.05; // 5% fees
+            const totalPrice = baseFare + taxes + fees;
+
+            // Create booking
+            const bookingId = await FlightBooking.create({
+                userId,
+                routeId,
+                flightProvider: flightOption.provider,
+                airline: flightOption.airline,
+                flightNumber: flightOption.flightNumber,
+                departureTime: flightOption.departureTime,
+                arrivalTime: flightOption.arrivalTime,
+                departLocation: route.source,
+                arrivalLocation: route.destination,
+                price: baseFare,
+                currency: 'USD',
+                cabinClass: flightOption.cabinClass || 'economy',
+                stops: flightOption.stops || 0,
+                durationMinutes: flightOption.duration || 0,
+                baggageAllowance: flightOption.baggageAllowance,
+                bookingUrl: flightOption.bookingUrl,
+                baseFare,
+                taxes,
+                fees,
+                totalPrice,
+                expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // Expires in 24 hours
+            });
+
+            // Add passenger info if provided
+            if (passengerInfo) {
+                await FlightBooking.addPassengerInfo(bookingId, passengerInfo);
+            }
+
+            const booking = await FlightBooking.findById(bookingId);
+
+            res.status(201).json({
+                success: true,
+                bookingId,
+                booking,
+                message: 'Flight booking created successfully'
+            });
+        } catch (error) {
+            logger.error('Create flight booking error:', error);
+            res.status(500).json({ error: 'Failed to create booking' });
+        }
+    }
+
+    /**
+     * Get flight booking details
+     */
+    static async getFlightBooking(req, res) {
+        try {
+            const { bookingId } = req.params;
+            const userId = req.user.id;
+
+            const FlightBooking = require('../models/FlightBooking');
+            const booking = await FlightBooking.findById(bookingId);
+
+            if (!booking || booking.userId !== userId) {
+                return res.status(403).json({ error: 'Unauthorized access' });
+            }
+
+            res.json(booking);
+        } catch (error) {
+            logger.error('Get flight booking error:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    /**
+     * Get user's flight bookings
+     */
+    static async getUserFlightBookings(req, res) {
+        try {
+            const userId = req.user.id;
+            const { limit = 20, offset = 0 } = req.query;
+
+            const FlightBooking = require('../models/FlightBooking');
+            const bookings = await FlightBooking.getUserBookings(userId, parseInt(limit), parseInt(offset));
+            const stats = await FlightBooking.getBookingStats(userId);
+
+            res.json({
+                bookings,
+                stats,
+                total: bookings.length,
+                hasMore: bookings.length === parseInt(limit)
+            });
+        } catch (error) {
+            logger.error('Get user flight bookings error:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    /**
+     * Update flight booking status
+     */
+    static async updateFlightBookingStatus(req, res) {
+        try {
+            const { bookingId } = req.params;
+            const { status, paymentStatus } = req.body;
+            const userId = req.user.id;
+
+            const FlightBooking = require('../models/FlightBooking');
+            const booking = await FlightBooking.findById(bookingId);
+
+            if (!booking || booking.userId !== userId) {
+                return res.status(403).json({ error: 'Unauthorized access' });
+            }
+
+            const success = await FlightBooking.updateStatus(bookingId, status, paymentStatus);
+
+            if (success) {
+                const updated = await FlightBooking.findById(bookingId);
+                res.json({
+                    success: true,
+                    booking: updated,
+                    message: 'Booking status updated'
+                });
+            } else {
+                res.status(400).json({ error: 'Failed to update booking status' });
+            }
+        } catch (error) {
+            logger.error('Update flight booking status error:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    /**
+     * Confirm flight booking with provider details
+     */
+    static async confirmFlightBooking(req, res) {
+        try {
+            const { bookingId } = req.params;
+            const { bookingReference, providerBookingId, confirmationEmail } = req.body;
+            const userId = req.user.id;
+
+            const FlightBooking = require('../models/FlightBooking');
+            const booking = await FlightBooking.findById(bookingId);
+
+            if (!booking || booking.userId !== userId) {
+                return res.status(403).json({ error: 'Unauthorized access' });
+            }
+
+            const success = await FlightBooking.confirmBooking(
+                bookingId,
+                bookingReference,
+                providerBookingId,
+                confirmationEmail
+            );
+
+            if (success) {
+                const updated = await FlightBooking.findById(bookingId);
+                res.json({
+                    success: true,
+                    booking: updated,
+                    message: 'Flight booking confirmed'
+                });
+            } else {
+                res.status(400).json({ error: 'Failed to confirm booking' });
+            }
+        } catch (error) {
+            logger.error('Confirm flight booking error:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    /**
+     * Cancel flight booking
+     */
+    static async cancelFlightBooking(req, res) {
+        try {
+            const { bookingId } = req.params;
+            const { reason } = req.body;
+            const userId = req.user.id;
+
+            const FlightBooking = require('../models/FlightBooking');
+            const booking = await FlightBooking.findById(bookingId);
+
+            if (!booking || booking.userId !== userId) {
+                return res.status(403).json({ error: 'Unauthorized access' });
+            }
+
+            const success = await FlightBooking.cancelBooking(bookingId, reason);
+
+            if (success) {
+                const updated = await FlightBooking.findById(bookingId);
+                res.json({
+                    success: true,
+                    booking: updated,
+                    message: 'Flight booking cancelled'
+                });
+            } else {
+                res.status(400).json({ error: 'Failed to cancel booking' });
+            }
+        } catch (error) {
+            logger.error('Cancel flight booking error:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    /**
+     * Get upcoming flights for user
+     */
+    static async getUpcomingFlights(req, res) {
+        try {
+            const userId = req.user.id;
+            const { daysAhead = 30 } = req.query;
+
+            const FlightBooking = require('../models/FlightBooking');
+            const upcomingFlights = await FlightBooking.getUpcomingBookings(userId, parseInt(daysAhead));
+
+            res.json({
+                upcomingFlights,
+                total: upcomingFlights.length,
+                daysAhead: parseInt(daysAhead)
+            });
+        } catch (error) {
+            logger.error('Get upcoming flights error:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
 }
 
 module.exports = CommuteController;

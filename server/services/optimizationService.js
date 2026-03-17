@@ -2,44 +2,69 @@
 const { config } = require('../config/appConfig');
 
 class OptimizationService {
-  // Geocode addresses to coordinates (simplified - in production use a geocoding API)
-  static async geocodeAddress(address) {
-    // Common city coordinates (in production, use Google Maps, Mapbox, or Nominatim API)
-    const cityCoords = {
-      'delhi': { lat: 28.6139, lng: 77.2090 },
-      'mumbai': { lat: 19.0760, lng: 72.8777 },
-      'bangalore': { lat: 12.9716, lng: 77.5946 },
-      'chennai': { lat: 13.0827, lng: 80.2707 },
-      'kolkata': { lat: 22.5726, lng: 88.3639 },
-      'hyderabad': { lat: 17.3850, lng: 78.4867 },
-      'pune': { lat: 18.5204, lng: 73.8567 },
-      'jaipur': { lat: 26.9124, lng: 75.7873 },
-      'lucknow': { lat: 26.8467, lng: 80.9462 },
-      'ahmedabad': { lat: 23.0225, lng: 72.5714 },
-      'london': { lat: 51.5074, lng: -0.1278 },
-      'new york': { lat: 40.7128, lng: -74.0060 },
-      'paris': { lat: 48.8566, lng: 2.3522 },
-      'tokyo': { lat: 35.6762, lng: 139.6503 },
-      'singapore': { lat: 1.3521, lng: 103.8198 },
-      'dubai': { lat: 25.2048, lng: 55.2708 },
-      'sydney': { lat: -33.8688, lng: 151.2093 },
-      'berlin': { lat: 52.5200, lng: 13.4050 },
-      'toronto': { lat: 43.6532, lng: -79.3832 },
-      'san francisco': { lat: 37.7749, lng: -122.4194 },
-    };
+  // Fallback city coordinates (used when geocoding API fails)
+  static cityCoords = {
+    'delhi': { lat: 28.6139, lng: 77.2090 },
+    'mumbai': { lat: 19.0760, lng: 72.8777 },
+    'bangalore': { lat: 12.9716, lng: 77.5946 },
+    'chennai': { lat: 13.0827, lng: 80.2707 },
+    'kolkata': { lat: 22.5726, lng: 88.3639 },
+    'hyderabad': { lat: 17.3850, lng: 78.4867 },
+    'pune': { lat: 18.5204, lng: 73.8567 },
+    'jaipur': { lat: 26.9124, lng: 75.7873 },
+    'lucknow': { lat: 26.8467, lng: 80.9462 },
+    'ahmedabad': { lat: 23.0225, lng: 72.5714 },
+    'london': { lat: 51.5074, lng: -0.1278 },
+    'new york': { lat: 40.7128, lng: -74.0060 },
+    'paris': { lat: 48.8566, lng: 2.3522 },
+    'tokyo': { lat: 35.6762, lng: 139.6503 },
+    'singapore': { lat: 1.3521, lng: 103.8198 },
+    'dubai': { lat: 25.2048, lng: 55.2708 },
+    'sydney': { lat: -33.8688, lng: 151.2093 },
+    'berlin': { lat: 52.5200, lng: 13.4050 },
+    'toronto': { lat: 43.6532, lng: -79.3832 },
+    'san francisco': { lat: 37.7749, lng: -122.4194 },
+  };
 
+  // Geocode addresses to coordinates using Nominatim API (OpenStreetMap)
+  // Falls back to cityCoords if API is unavailable
+  static async geocodeAddress(address) {
     const normalizedAddress = address.toLowerCase().trim();
     
-    // Check exact match
-    if (cityCoords[normalizedAddress]) {
-      return cityCoords[normalizedAddress];
+    // Check exact match in fallback city coordinates
+    if (this.cityCoords[normalizedAddress]) {
+      return this.cityCoords[normalizedAddress];
     }
     
     // Check partial match (e.g., "New Delhi" contains "delhi")
-    for (const [city, coords] of Object.entries(cityCoords)) {
+    for (const [city, coords] of Object.entries(this.cityCoords)) {
       if (normalizedAddress.includes(city)) {
         return coords;
       }
+    }
+    
+    // Try Nominatim API for unknown addresses
+    try {
+      const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+      
+      const response = await fetch(nominatimUrl, {
+        headers: {
+          'User-Agent': 'CommuteGo/2.0 (contact@commutego.com)',
+          'Accept': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.length > 0) {
+          return {
+            lat: parseFloat(data[0].lat),
+            lng: parseFloat(data[0].lon),
+          };
+        }
+      }
+    } catch (error) {
+      console.warn(`[OptimizationService] Nominatim geocoding failed for "${address}":`, error.message);
     }
     
     // Default coordinates (Delhi) if not found - will calculate distance from there

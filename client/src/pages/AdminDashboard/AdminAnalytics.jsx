@@ -1,6 +1,6 @@
 // frontend/src/pages/AdminAnalytics.jsx
-import React, { useState, useEffect } from 'react';
-import { adminAPI, analyticsAPI } from '../../services/api';
+import React, { useState } from 'react';
+import { useAdminMetrics, useAdminAnalytics, useRealTimeMetrics } from '../../hooks/useAdminQueries';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
@@ -47,46 +47,30 @@ import {
 
 const AdminAnalytics = () => {
   const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState('30days');
   const [activeChart, setActiveChart] = useState('overview');
-  const [metrics, setMetrics] = useState({
-    totalUsers: 0,
-    totalRoutes: 0,
-    totalCommutes: 0,
-    totalRevenue: 0
-  });
-  const [analytics, setAnalytics] = useState(null);
-  const [realTimeMetrics, setRealTimeMetrics] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
-  useEffect(() => {
-    loadAnalyticsData();
-  }, [timeRange]);
+  // TanStack Query hooks - automatically cache and deduplicate requests
+  const { data: metricsData, isLoading: metricsLoading, isRefetching: metricsRefetching, refetch: refetchMetrics } = useAdminMetrics();
+  const { data: analyticsData, isLoading: analyticsLoading, isRefetching: analyticsRefetching, refetch: refetchAnalytics } = useAdminAnalytics(timeRange);
+  const { data: realTimeData, isLoading: realTimeLoading, isRefetching: realTimeRefetching, refetch: refetchRealTime } = useRealTimeMetrics();
 
-  const loadAnalyticsData = async () => {
-    setLoading(true);
-    try {
-      const [metricsResponse, analyticsResponse, realTimeResponse] = await Promise.all([
-        adminAPI.getMetrics(),
-        adminAPI.getAnalytics(getDateRange()),
-        analyticsAPI.getRealTimeMetrics()
-      ]);
-      
-      setMetrics(metricsResponse.data);
-      setAnalytics(analyticsResponse.data);
-      setRealTimeMetrics(realTimeResponse.data);
-    } catch (error) {
-      console.error('Error loading analytics:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load analytics data",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+  // Combined refetching state for UI
+  const refreshing = metricsRefetching || analyticsRefetching || realTimeRefetching;
+
+  // Derived state from query results
+  const metrics = metricsData || { totalUsers: 0, totalRoutes: 0, totalCommutes: 0, totalRevenue: 0 };
+  const analytics = analyticsData;
+  const realTimeMetrics = realTimeData;
+  const loading = metricsLoading || analyticsLoading || realTimeLoading;
+
+  const handleRefresh = async () => {
+    await Promise.all([refetchMetrics(), refetchAnalytics(), refetchRealTime()]);
+    toast({
+      title: "Analytics Refreshed",
+      description: "Latest data has been loaded",
+    });
   };
 
   const getDateRange = () => {
@@ -114,16 +98,6 @@ const AdminAnalytics = () => {
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0]
     };
-  };
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await loadAnalyticsData();
-    setRefreshing(false);
-    toast({
-      title: "Analytics Refreshed",
-      description: "Latest data has been loaded",
-    });
   };
 
   const handleExport = () => {
@@ -158,7 +132,7 @@ const AdminAnalytics = () => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
   return (
-    <div className="space-y-6 dark:bg-gray-900 min-h-screen">
+    <div className="space-y-6  min-h-screen">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2 dark:text-white">Advanced Analytics</h1>

@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import Footer from './Footer';
 import { useAuth } from '../../context/AuthContext';
 import { useLocation } from 'react-router-dom';
+import ThemeChangeButton from './ThemeChangeButton';
 
 const Layout = ({ children }) => {
   const { user } = useAuth();
@@ -14,7 +15,7 @@ const Layout = ({ children }) => {
   const showFooter = location.pathname !== '/landing';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 flex flex-col relative">
       <Navbar />
       <div className="flex flex-1">
         {user && <Sidebar />}
@@ -23,6 +24,7 @@ const Layout = ({ children }) => {
         </main>
       </div>
       {showFooter && <Footer />}
+      <ThemeChangeButton/>
     </div>
   );
 };

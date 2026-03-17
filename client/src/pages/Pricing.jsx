@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { publicAPI } from '../services/api';
 import { 
   Check, 
   X, 
@@ -33,6 +34,28 @@ import { Separator } from '../components/ui/separator';
 
 const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(true);
+  const [faqs, setFaqs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFAQs = async () => {
+      try {
+        const response = await publicAPI.getFAQs();
+        // Filter for Pricing category or use all FAQs
+        const pricingFaqs = response.data.filter(faq => 
+          faq.category === 'Pricing' || !faq.category
+        );
+        setFaqs(pricingFaqs.length > 0 ? pricingFaqs : response.data.slice(0, 6));
+      } catch (error) {
+        console.error('Error fetching FAQs:', error);
+        // Fallback to empty array - will show nothing if API fails
+        setFaqs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFAQs();
+  }, []);
 
   const plans = [
     {
@@ -103,32 +126,7 @@ const Pricing = () => {
     }
   ];
 
-  const faqs = [
-    {
-      question: 'Can I switch plans at any time?',
-      answer: "Yes! You can upgrade or downgrade your plan at any time. When upgrading, you'll get immediate access to new features. When downgrading, the change takes effect at the end of your billing cycle."
-    },
-    {
-      question: 'Is there a free trial for the Pro plan?',
-      answer: 'Absolutely! We offer a 14-day free trial for the Pro plan. No credit card required. You can explore all premium features risk-free.'
-    },
-    {
-      question: 'What payment methods do you accept?',
-      answer: 'We accept all major credit cards (Visa, Mastercard, American Express), PayPal, and bank transfers for annual Enterprise plans.'
-    },
-    {
-      question: 'Can I cancel my subscription?',
-      answer: "Yes, you can cancel your subscription at any time from your account settings. You'll continue to have access until the end of your billing period."
-    },
-    {
-      question: "Do you offer refunds?",
-      answer: "We offer a 30-day money-back guarantee for all paid plans. If you're not satisfied, contact us for a full refund."
-    },
-    {
-      question: 'What happens to my data if I downgrade?',
-      answer: 'Your data is always yours. When downgrading, we archive excess data but never delete it. You can upgrade again anytime to restore full access.'
-    }
-  ];
+
 
   const [openFaq, setOpenFaq] = useState(null);
 
@@ -313,7 +311,12 @@ const Pricing = () => {
           </motion.div>
 
           <div className="space-y-4">
-            {faqs.map((faq, index) => (
+            {loading ? (
+              <div className="text-center py-8 text-slate-500">Loading FAQs...</div>
+            ) : faqs.length === 0 ? (
+              <div className="text-center py-8 text-slate-500">No FAQs available at this time.</div>
+            ) : (
+            faqs.map((faq, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 10 }}
@@ -342,7 +345,7 @@ const Pricing = () => {
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
+            )))}
           </div>
         </div>
       </section>

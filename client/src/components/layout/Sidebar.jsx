@@ -39,7 +39,55 @@ const Sidebar = () => {
     // This would be replaced with actual API call
   }, []);
 
-  const navItems = [
+  // Admin navigation items
+  const adminNavItems = [
+    { 
+      icon: <Shield size={20} />, 
+      label: 'Dashboard', 
+      path: '/admin',
+      color: 'from-red-500 to-pink-500',
+      description: 'Admin overview'
+    },
+    { 
+      icon: <BarChart3 size={20} />, 
+      label: 'Analytics', 
+      path: '/admin/analytics',
+      color: 'from-yellow-500 to-orange-500',
+      description: 'System insights'
+    },
+    { 
+      icon: <User size={20} />, 
+      label: 'Users', 
+      path: '/admin/users',
+      color: 'from-blue-500 to-cyan-500',
+      description: 'Manage users'
+    },
+    { 
+      icon: <Map size={20} />, 
+      label: 'Routes', 
+      path: '/admin/routes',
+      color: 'from-green-500 to-emerald-500',
+      description: 'Manage routes'
+    },
+    { 
+      icon: <Bell size={20} />, 
+      label: 'Alerts', 
+      path: '/admin/alerts', 
+      badge: unreadAlerts,
+      color: 'from-orange-500 to-red-500',
+      description: 'System alerts'
+    },
+    { 
+      icon: <Settings size={20} />, 
+      label: 'Settings', 
+      path: '/admin/settings',
+      color: 'from-gray-500 to-slate-500',
+      description: 'Admin settings'
+    },
+  ];
+
+  // User navigation items
+  const userNavItems = [
     { 
       icon: <Home size={20} />, 
       label: 'Dashboard', 
@@ -90,23 +138,10 @@ const Sidebar = () => {
       color: 'from-teal-500 to-cyan-500',
       description: 'Get in touch'
     },
-    ...(isAdmin() ? [
-      { 
-        icon: <Shield size={20} />, 
-        label: 'Admin', 
-        path: '/admin',
-        color: 'from-red-500 to-pink-500',
-        description: 'Admin panel'
-      },
-      { 
-        icon: <BarChart3 size={20} />, 
-        label: 'Analytics', 
-        path: '/admin/analytics',
-        color: 'from-yellow-500 to-orange-500',
-        description: 'System insights'
-      }
-    ] : []),
   ];
+
+  // Use admin nav items if user is admin, otherwise use user nav items
+  const navItems = isAdmin() ? adminNavItems : userNavItems;
 
   const getActiveItem = () => {
     return navItems.find(item => location.pathname === item.path) || navItems[0];
@@ -182,17 +217,19 @@ const Sidebar = () => {
               </Badge>
             )}
 
-            {/* Quick stats */}
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-2 text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Savings</p>
-                <p className="text-sm font-semibold text-green-600 dark:text-green-400">$124</p>
+            {/* Quick stats - Only show for non-admin users */}
+            {!isAdmin() && (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-2 text-center">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Savings</p>
+                  <p className="text-sm font-semibold text-green-600 dark:text-green-400">$124</p>
+                </div>
+                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-2 text-center">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Trips</p>
+                  <p className="text-sm font-semibold dark:text-white">47</p>
+                </div>
               </div>
-              <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-2 text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Trips</p>
-                <p className="text-sm font-semibold dark:text-white">47</p>
-              </div>
-            </div>
+            )}
           </motion.div>
         )}
 
@@ -308,8 +345,8 @@ const Sidebar = () => {
           })}
         </nav>
 
-        {/* AI Insights Panel - Only when expanded */}
-        {!collapsed && (
+        {/* AI Insights Panel - Only when expanded and for non-admin users */}
+        {!collapsed && !isAdmin() && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

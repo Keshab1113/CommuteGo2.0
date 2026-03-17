@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   HelpCircle, 
@@ -28,13 +28,64 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
 import { Separator } from '../components/ui/separator';
+import { publicAPI } from '../services/api';
 
 const FAQ = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [openCategory, setOpenCategory] = useState(0);
   const [openFaq, setOpenFaq] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const categories = [
+  useEffect(() => {
+    const fetchFAQs = async () => {
+      try {
+        const response = await publicAPI.getFAQs();
+        const faqData = response.data;
+        
+        // Group FAQs by category
+        const grouped = faqData.reduce((acc, faq) => {
+          const category = faq.category || 'General';
+          if (!acc[category]) {
+            acc[category] = [];
+          }
+          acc[category].push({
+            question: faq.question,
+            answer: faq.answer
+          });
+          return acc;
+        }, {});
+
+        // Map to categories with icons and colors
+        const categoryConfig = {
+          'Getting Started': { icon: Zap, color: 'from-amber-500 to-orange-500' },
+          'Account & Billing': { icon: Users, color: 'from-blue-500 to-cyan-500' },
+          'Features & Usage': { icon: BookOpen, color: 'from-green-500 to-emerald-500' },
+          'Privacy & Security': { icon: Shield, color: 'from-red-500 to-pink-500' },
+          'Troubleshooting': { icon: Clock, color: 'from-purple-500 to-indigo-500' }
+        };
+
+        const mappedCategories = Object.keys(grouped).map(categoryTitle => ({
+          title: categoryTitle,
+          ...categoryConfig[categoryTitle] || { icon: HelpCircle, color: 'from-gray-500 to-slate-500' },
+          faqs: grouped[categoryTitle]
+        }));
+
+        setCategories(mappedCategories);
+      } catch (err) {
+        console.error('Error fetching FAQs:', err);
+        setError('Failed to load FAQs. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFAQs();
+  }, []);
+
+  // Fallback categories for when API fails or returns empty
+  const fallbackCategories = [
     {
       title: 'Getting Started',
       icon: Zap,
@@ -240,7 +291,17 @@ const FAQ = () => {
       {/* FAQ Categories */}
       <section className="py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          {filteredCategories.map((category, catIndex) => (
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-slate-500 dark:text-slate-400">Loading FAQs...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-red-500 dark:text-red-400 mb-4">{error}</p>
+              <Button onClick={() => window.location.reload()}>Try Again</Button>
+            </div>
+          ) : (filteredCategories.map((category, catIndex) => (
             <motion.div
               key={catIndex}
               initial={{ opacity: 0 }}
@@ -310,7 +371,7 @@ const FAQ = () => {
                 </AnimatePresence>
               </Card>
             </motion.div>
-          ))}
+          )))}
         </div>
       </section>
 

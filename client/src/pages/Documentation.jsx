@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { publicAPI } from '../services/api';
 import { motion } from 'framer-motion';
 import { 
   BookOpen, 
@@ -125,32 +126,26 @@ const Documentation = () => {
     }
   ];
 
-  const faqs = [
-    {
-      question: 'How does CommuteGo calculate route times?',
-      answer: 'CommuteGo uses advanced algorithms that consider real-time traffic data, historical patterns, weather conditions, and multiple transportation modes to provide accurate route times. Our AI continuously learns from user behavior to improve predictions.'
-    },
-    {
-      question: 'Is my data secure?',
-      answer: 'Absolutely. We use industry-standard encryption for all data transmission and storage. Your personal information and commute data are never shared with third parties without your explicit consent.'
-    },
-    {
-      question: 'Can I use CommuteGo for business travel?',
-      answer: 'Yes! CommuteGo offers business plans with team management, expense tracking, and administrative controls. Contact our sales team for custom enterprise solutions.'
-    },
-    {
-      question: 'What transportation modes are supported?',
-      answer: 'CommuteGo supports driving, public transit, walking, cycling, and combinations of these modes. We integrate with major transit providers to give you comprehensive route options.'
-    },
-    {
-      question: 'How accurate are the AI predictions?',
-      answer: 'Our AI model achieves 94% accuracy in predicting commute times. The system improves over time as it learns your specific patterns and preferences.'
-    },
-    {
-      question: 'Can I export my commute data?',
-      answer: 'Yes, you can export your commute history and analytics data in CSV or JSON format from the Settings page. This includes route details, time savings, and environmental impact metrics.'
-    }
-  ];
+  const [faqs, setFaqs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFAQs = async () => {
+      try {
+        const response = await publicAPI.getFAQs();
+        const docFaqs = response.data.filter(faq => 
+          faq.category === 'Documentation' || !faq.category
+        );
+        setFaqs(docFaqs.length > 0 ? docFaqs : response.data.slice(0, 6));
+      } catch (error) {
+        console.error('Error fetching FAQs:', error);
+        setFaqs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFAQs();
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -557,16 +552,22 @@ const Documentation = () => {
               </div>
 
               <div className="space-y-4">
-                {faqs.map((faq, index) => (
-                  <Card key={index} className="border-0 shadow-lg shadow-slate-200/50 dark:shadow-slate-800/50">
-                    <CardHeader>
-                      <CardTitle className="text-lg">{faq.question}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-slate-600 dark:text-slate-400">{faq.answer}</p>
-                    </CardContent>
-                  </Card>
-                ))}
+                {loading ? (
+                  <div className="text-center py-8 text-slate-500">Loading FAQs...</div>
+                ) : faqs.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500">No FAQs available at this time.</div>
+                ) : (
+                  faqs.map((faq, index) => (
+                    <Card key={index} className="border-0 shadow-lg shadow-slate-200/50 dark:shadow-slate-800/50">
+                      <CardHeader>
+                        <CardTitle className="text-lg">{faq.question}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-slate-600 dark:text-slate-400">{faq.answer}</p>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </div>
             </motion.section>
 
