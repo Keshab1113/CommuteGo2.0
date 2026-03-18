@@ -321,4 +321,133 @@ class TinyFishTransportationService {
   }
 }
 
-module.exports = { TinyFishClient, TinyFishTransportationService };
+// ---------------------------------------------------------------------------
+// Booking Service — TinyFish fills in passenger details and returns payment URL
+// ---------------------------------------------------------------------------
+
+class TinyFishBookingService {
+  constructor() {
+    this.client = new TinyFishClient({ apiKey: process.env.TINYFISH_API_KEY });
+  }
+
+  /**
+   * Book a specific flight by navigating to its booking URL, filling in all
+   * passenger details, and returning the payment page URL.
+   *
+   * @param {Object} params
+   * @param {Object} params.flight       - The selected flight (from TinyFishTransportationService)
+   * @param {Array}  params.passengers   - Array of passenger objects
+   * @param {string} params.currency     - Currency code
+   * @param {function} params.onProgress - SSE event callback
+   * @returns {Promise<Object>}          - { paymentUrl, bookingReference, summary }
+   */
+  async bookFlight({ flight, passengers, currency = 'INR', onProgress = null }) {
+    try {
+      const goal = this.buildBookingGoal({ flight, passengers, currency });
+
+      logger.info(`TinyFish booking flight: ${flight.name || flight.airline} ${flight.codes || ''} from ${flight.from} to ${flight.to}`);
+
+      const result = await this.client.run(goal, onProgress);
+
+      // Expect result to contain payment_url or paymentUrl
+      const paymentUrl =
+        result.payment_url ||
+        result.paymentUrl ||
+        result.checkout_url ||
+        result.checkoutUrl ||
+        result.redirect_url ||
+        result.url ||
+        null;
+
+      if (!paymentUrl) {
+        logger.warn('TinyFish booking did not return a payment URL', result);
+      }
+
+      return {
+        paymentUrl,
+        bookingReference: result.booking_reference || result.bookingReference || result.pnr || null,
+        summary: result.summary || result.booking_summary || null,
+        rawResult: result,
+      };
+    } catch (error) {
+      logger.error(`TinyFish booking service error: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Build the goal prompt for TinyFish to complete a flight booking.
+   * This instructs TinyFish to:
+   *  1. Navigate to the flight's booking URL
+   *  2. Fill in all passenger details
+   *  3. Proceed to payment
+   *  4. Return the payment page URL (NOT complete the payment)
+   */
+  buildBookingGoal({ flight, passengers, currency }) {
+    const lead = passengers[0];
+
+    // Format all passengers for the prompt
+    const passengerList = passengers.map((p, i) => {
+      return `Passenger ${i + 1}:
+  - First Name: ${p.firstName}
+  - Last Name: ${p.lastName}
+  - Email: ${i === 0 ? p.email : (p.email || lead.email)}
+  - Phone: ${i === 0 ? p.phone : (p.phone || lead.phone)}
+  - Date of Birth: ${p.dateOfBirth}
+  - Passport Number: ${p.passportNumber}
+  - Nationality: ${p.nationality}
+  - Passport Expiry: ${p.passportExpiry}
+  - Gender: ${p.gender}`;
+    }).join('\n\n');
+
+    const flightSummary = `
+Flight Details:
+  - Airline: ${flight.name || flight.airline || 'N/A'}
+  - Flight Code: ${flight.codes || 'N/A'}
+  - From: ${flight.from}
+  - To: ${flight.to}
+  - Departure: ${flight.time || flight.depart || 'N/A'}
+  - Arrival: ${flight.arrivalTime || flight.arrive || 'N/A'}
+  - Price: ${flight.price} ${currency}
+  - Booking URL: ${flight.url || flight.bookingUrl || flight.booking_url}
+`;
+
+    return `You are booking a flight. Follow these steps exactly:
+
+1. Navigate to this booking URL: ${flight.url || flight.bookingUrl || flight.booking_url}
+
+2. This page will show a flight booking form. Fill in all passenger details as follows:
+${flightSummary}
+
+Passengers to fill in (${passengers.length} total):
+${passengerList}
+
+3. Fill in ALL required fields in the booking form — passenger names, dates of birth, passport numbers, contact details, nationality, passport expiry.
+
+4. If there are add-on options (seat selection, meals, baggage), skip them or select the free/default option.
+
+5. Proceed through the booking steps until you reach the PAYMENT page where a credit card or payment method is required.
+
+6. STOP at the payment page — do NOT enter any payment details.
+
+7. Return a JSON object with:
+{
+  "payment_url": "the exact URL of the payment page you reached",
+  "booking_reference": "any reference or PNR number shown",
+  "summary": {
+    "airline": "${flight.name || flight.airline}",
+    "flight": "${flight.codes}",
+    "from": "${flight.from}",
+    "to": "${flight.to}",
+    "departure": "${flight.time || flight.depart}",
+    "passengers": ${passengers.length},
+    "total_price": ${flight.price},
+    "currency": "${currency}"
+  }
+}
+
+IMPORTANT: Stop at the payment page. Do not complete the payment.`;
+  }
+}
+
+module.exports = { TinyFishClient, TinyFishTransportationService, TinyFishBookingService };

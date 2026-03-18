@@ -255,9 +255,13 @@ const RouteDetails = () => {
 
   const [loading, setLoading]                     = useState(false);
   const [options, setOptions]                     = useState([]);
-  const [currency, setCurrency]                   = useState('INR');
+  const [currency, setCurrency]                   = useState(location.state?.currency || 'INR');
   const [selectedOption, setSelectedOption]       = useState(null);
   const [activeTab, setActiveTab]                 = useState('all');
+  const [booking, setBooking]                     = useState(false);
+  const [bookingProgress, setBookingProgress]     = useState('');
+  const [paymentUrl, setPaymentUrl]               = useState(null);
+  const passengers                                = location.state?.passengers || [];
 
   /* ── Load data ── */
   useEffect(() => {
@@ -306,6 +310,77 @@ const RouteDetails = () => {
 
     load();
   }, [routeId]);
+
+  /* ── Book selected flight ── */
+  const handleBook = async (option) => {
+    if (!option) return;
+    setBooking(true);
+    setBookingProgress('Connecting to AI agent...');
+    setPaymentUrl(null);
+
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/commute/flights/book`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          flight: option,
+          passengers,
+          currency,
+          routeId,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Booking failed');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const raw = line.slice(6).trim();
+          if (!raw) continue;
+          let event;
+          try { event = JSON.parse(raw); } catch (_) { continue; }
+
+          if (event.type === 'PROGRESS' || event.type === 'BOOKING_STARTED') {
+            setBookingProgress(event.purpose || event.message || 'Processing...');
+          } else if (event.type === 'COMPLETE') {
+            reader.cancel();
+            if (event.paymentUrl) {
+              setPaymentUrl(event.paymentUrl);
+              toast({ title: 'Ready to pay!', description: 'Your details have been filled. Click to complete payment.' });
+            } else {
+              toast({ title: 'Booking prepared', description: 'Redirecting to booking page...', variant: 'default' });
+              if (option.url || option.bookingUrl) window.open(option.url || option.bookingUrl, '_blank');
+            }
+            return;
+          } else if (event.type === 'ERROR') {
+            throw new Error(event.details || event.error || 'Booking failed');
+          }
+        }
+      }
+    } catch (error) {
+      toast({ title: 'Booking failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setBooking(false);
+      setBookingProgress('');
+    }
+  };
 
   /* ── Filter ── */
   const modes = ['all', ...new Set(options.map(o => o.mode).filter(Boolean))];
@@ -465,6 +540,7 @@ const RouteDetails = () => {
 
       {/* ── Selected summary sticky footer ── */}
       {selectedOption && (
+        <>
         <div style={{
           position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
           background: '#fff', borderTop: '1.5px solid #E2E8F0',
@@ -499,24 +575,52 @@ const RouteDetails = () => {
               </div>
               <div style={{ fontSize: 11, color: '#94A3B8' }}>per person</div>
             </div>
-            <a
-              href={selectedOption.url || selectedOption.bookingUrl || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => paymentUrl ? window.open(paymentUrl, '_blank') : handleBook(selectedOption)}
+              disabled={booking}
               className="book-btn"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 padding: '12px 28px', borderRadius: 10, fontWeight: 700, fontSize: 14,
-                textDecoration: 'none', color: '#fff',
-                background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
-                boxShadow: '0 4px 16px rgba(79,70,229,0.35)',
+                border: 'none', color: '#fff',
+                background: paymentUrl
+                  ? 'linear-gradient(135deg, #16A34A, #15803D)'
+                  : 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                boxShadow: paymentUrl
+                  ? '0 4px 16px rgba(22,163,74,0.35)'
+                  : '0 4px 16px rgba(79,70,229,0.35)',
                 transition: 'all 0.15s',
+                opacity: booking ? 0.75 : 1,
+                cursor: booking ? 'not-allowed' : 'pointer',
               }}
             >
-              <Ticket size={16} /> Book Now <ExternalLink size={13} />
-            </a>
+              {booking
+                ? <><Loader2 size={15} style={{animation:'spin 1s linear infinite'}}/>&nbsp;{bookingProgress || 'AI is filling your details...'}</>
+                : paymentUrl
+                ? <><ExternalLink size={15}/>&nbsp;Complete Payment</>
+                : <><Ticket size={15}/>&nbsp;Auto-Book with AI</>
+              }
+            </button>
           </div>
         </div>
+
+        {paymentUrl && (
+          <div style={{
+            position: 'fixed', bottom: 96, left: 0, right: 0, zIndex: 60,
+            background: '#F0FDF4', borderTop: '1.5px solid #86EFAC',
+            padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+          }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#166534' }}>
+              ✅ Passenger details filled! Your payment page is ready.
+            </span>
+            <a href={paymentUrl} target="_blank" rel="noopener noreferrer"
+              style={{ padding: '8px 20px', background: '#16A34A', color: '#fff', borderRadius: 8, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+              Go to Payment →
+            </a>
+          </div>
+        )}
+        </>
       )}
 
       {/* Bottom padding so sticky footer doesn't overlap last card */}

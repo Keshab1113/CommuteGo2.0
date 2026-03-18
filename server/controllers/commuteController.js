@@ -4,7 +4,7 @@ const RouteOption = require("../models/RouteOption");
 const CommuteHistory = require("../models/CommuteHistory");
 const TinyFishRouteData = require("../models/TinyFishRouteData");
 const OptimizationService = require("../services/optimizationService");
-const { TinyFishTransportationService } = require("../services/tinyfishService");
+const { TinyFishTransportationService, TinyFishBookingService } = require("../services/tinyfishService");
 const AgentOrchestrator = require("../agents/Orchestrator");
 const logger = require("../utils/logger");
 
@@ -919,6 +919,81 @@ class CommuteController {
     } catch (error) {
       logger.error("Get upcoming flights error:", error);
       res.status(500).json({ error: "Server error" });
+    }
+  }
+
+
+
+  /**
+   * SSE endpoint — TinyFish navigates to the booking URL, fills all passenger
+   * details, and streams progress until it reaches the payment page.
+   * Returns the payment URL as the final COMPLETE event.
+   */
+  static async bookFlight(req, res) {
+    const startTime = Date.now();
+    const { flight, passengers, currency, routeId } = req.body;
+    const userId = req.user.id;
+
+    if (!flight || !passengers || !passengers.length) {
+      return res.status(400).json({ error: 'Flight and passenger details are required' });
+    }
+
+    // Open SSE stream to browser
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+
+    const send = (type, data) => {
+      try { res.write(`data: ${JSON.stringify({ type, ...data })}\n\n`); } catch (_) {}
+    };
+
+    const heartbeat = setInterval(() => {
+      try { res.write(': heartbeat\n\n'); } catch (_) {}
+    }, 15000);
+
+    const cleanup = () => clearInterval(heartbeat);
+    req.on('close', cleanup);
+
+    try {
+      send('BOOKING_STARTED', {
+        message: 'AI agent is filling in your details...',
+        flight: { name: flight.name || flight.airline, codes: flight.codes, from: flight.from, to: flight.to },
+      });
+
+      const bookingService = new TinyFishBookingService();
+
+      const onProgress = (event) => {
+        if (event.type === 'PROGRESS') {
+          send('PROGRESS', { purpose: event.purpose, run_id: event.run_id });
+        } else if (event.type === 'STARTED') {
+          send('STARTED', { run_id: event.run_id });
+        }
+      };
+
+      const result = await bookingService.bookFlight({
+        flight,
+        passengers,
+        currency: currency || 'INR',
+        onProgress,
+      });
+
+      send('COMPLETE', {
+        success: true,
+        paymentUrl: result.paymentUrl,
+        bookingReference: result.bookingReference,
+        summary: result.summary,
+        processingTime: Date.now() - startTime,
+      });
+
+      cleanup();
+      res.end();
+    } catch (error) {
+      logger.error(`Book flight error: ${error.message}`);
+      send('ERROR', { error: 'Booking failed', details: error.message });
+      cleanup();
+      res.end();
     }
   }
 }

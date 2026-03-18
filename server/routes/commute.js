@@ -33,4 +33,7 @@ router.patch('/flights/booking/:bookingId/status', CommuteController.updateFligh
 router.post('/flights/booking/:bookingId/confirm', CommuteController.confirmFlightBooking);
 router.post('/flights/booking/:bookingId/cancel', CommuteController.cancelFlightBooking);
 
+// Flight booking SSE endpoint
+router.post('/flights/book', CommuteController.bookFlight);
+
 module.exports = router;
