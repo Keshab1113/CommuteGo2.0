@@ -161,7 +161,7 @@ const Login = () => {
               </div>
 
               <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center space-x-2 cursor-pointer">
+                <label className=" items-center space-x-2 cursor-pointer hidden">
                   <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-white/5 text-blue-500 focus:ring-blue-500/30" />
                   <span className="text-blue-200/70">Remember me</span>
                 </label>

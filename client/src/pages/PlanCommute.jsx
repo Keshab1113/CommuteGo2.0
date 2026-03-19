@@ -39,19 +39,6 @@ const emptyPassenger = () => ({
   specialAssistance: "",
 });
 
-const inputStyle = {
-  height: 40,
-  padding: "0 12px",
-  borderRadius: 8,
-  border: "1.5px solid #E2E8F0",
-  fontSize: 14,
-  color: "#1E293B",
-  background: "#fff",
-  outline: "none",
-  width: "100%",
-  fontFamily: "inherit",
-};
-
 const Field = ({
   label,
   name,
@@ -65,16 +52,16 @@ const Field = ({
 }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
     <label
+      className="text-slate-500 dark:text-slate-400"
       style={{
         fontSize: 11,
         fontWeight: 700,
-        color: "#64748B",
         textTransform: "uppercase",
         letterSpacing: "0.07em",
       }}
     >
       {label}
-      {required && <span style={{ color: "#EF4444" }}> *</span>}
+      {required && <span className="text-red-500 dark:text-red-400"> *</span>}
     </label>
     {options ? (
       <select
@@ -82,7 +69,19 @@ const Field = ({
         value={value}
         onChange={onChange}
         required={required}
-        style={inputStyle}
+        className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200"
+        style={{
+          height: 40,
+          padding: "0 12px",
+          borderRadius: 8,
+          borderWidth: "1.5px",
+          borderStyle: "solid",
+          fontSize: 14,
+          outline: "none",
+          width: "100%",
+          fontFamily: "inherit",
+          transition: "border-color 0.15s, box-shadow 0.15s",
+        }}
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -98,24 +97,32 @@ const Field = ({
         onChange={onChange}
         required={required}
         placeholder={placeholder}
-        style={inputStyle}
+        className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200"
+        style={{
+          height: 40,
+          padding: "0 12px",
+          borderRadius: 8,
+          borderWidth: "1.5px",
+          borderStyle: "solid",
+          fontSize: 14,
+          outline: "none",
+          width: "100%",
+          fontFamily: "inherit",
+          transition: "border-color 0.15s, box-shadow 0.15s",
+        }}
       />
     )}
-    {hint && <span style={{ fontSize: 11, color: "#94A3B8" }}>{hint}</span>}
+    {hint && (
+      <span className="text-slate-400 dark:text-slate-500" style={{ fontSize: 11 }}>
+        {hint}
+      </span>
+    )}
   </div>
 );
 
-const cardStyle = {
-  background: "#fff",
-  border: "1.5px solid #E2E8F0",
-  borderRadius: 16,
-  padding: "22px 24px",
-  marginBottom: 14,
-  boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-};
-
 const SectionTitle = ({ icon: Icon, children }) => (
   <div
+    className="text-slate-800 dark:text-slate-100"
     style={{
       display: "flex",
       alignItems: "center",
@@ -123,19 +130,17 @@ const SectionTitle = ({ icon: Icon, children }) => (
       marginBottom: 18,
       fontWeight: 700,
       fontSize: 15,
-      color: "#1E293B",
     }}
   >
     <div
+      className="bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300"
       style={{
         width: 30,
         height: 30,
         borderRadius: 8,
-        background: "#EEF2FF",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        color: "#4F46E5",
       }}
     >
       <Icon size={15} />
@@ -375,35 +380,42 @@ const PlanCommute = () => {
 
   return (
     <div
+      className=""
       style={{
         maxWidth: 780,
         margin: "0 auto",
         padding: "28px 18px",
         fontFamily: "'DM Sans','Segoe UI',sans-serif",
+        minHeight: "100vh",
       }}
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
-        input, select { transition: border-color 0.15s, box-shadow 0.15s; }
         input:focus, select:focus { border-color: #6366F1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.13) !important; outline: none; }
-        .pref-btn { flex: 1; border: 1.5px solid #E2E8F0; background: #fff; border-radius: 10px; padding: 9px 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #64748B; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; font-family: inherit; }
+        .pref-btn { flex: 1; border-width: 1.5px; border-style: solid; background: #fff; border-radius: 10px; padding: 9px 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #64748B; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; font-family: inherit; }
+        .dark .pref-btn { background: #1E293B; color: #94A3B8; }
         .pref-btn.active { background: #4F46E5; color: #fff; border-color: #4F46E5; box-shadow: 0 2px 10px rgba(79,70,229,0.22); }
         .pref-btn:not(.active):hover { border-color: #C7D2FE; color: #4F46E5; }
+        .dark .pref-btn:not(.active):hover { border-color: #6366F1; color: #818CF8; }
         .submit-btn { width: 100%; height: 52px; border-radius: 12px; border: none; cursor: pointer; font-size: 15px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #4F46E5, #7C3AED); box-shadow: 0 4px 16px rgba(79,70,229,0.28); transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 9px; font-family: inherit; }
         .submit-btn:disabled { opacity: 0.72; cursor: not-allowed; }
         .submit-btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(79,70,229,0.38); }
-        .pax-card { background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; }
+        .pax-card { background: #F8FAFC; border-width: 1.5px; border-style: solid; border-color: #E2E8F0; border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; }
+        .dark .pax-card { background: #1E293B; border-color: #475569; }
         .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
         .g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
         @media(max-width:600px) { .g2,.g3,.g4 { grid-template-columns: 1fr; } }
         .progress-bar { background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 10px; padding: 11px 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .dark .progress-bar { background: #1E293B; border-color: #475569; }
         @keyframes spin { to { transform: rotate(360deg) } }
         .spin { animation: spin 1s linear infinite; }
         .divider-label { font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.08em; background: #F8FAFC; padding: 0 10px; }
+        .dark .divider-label { background: #1E293B; color: #64748B; }
         .divider { display: flex; align-items: center; gap: 0; margin: 14px 0 16px; }
         .divider::before,.divider::after { content:''; flex:1; height:1px; background:#E2E8F0; }
+        .dark .divider::before,.dark .divider::after { background: #475569; }
       `}</style>
 
       {/* Header */}
@@ -430,25 +442,32 @@ const PlanCommute = () => {
             <Plane size={18} color="#fff" />
           </div>
           <h1
+            className="text-slate-900 dark:text-white"
             style={{
               margin: 0,
               fontSize: 25,
               fontWeight: 800,
-              color: "#0F172A",
               letterSpacing: "-0.02em",
             }}
           >
             Book a Flight
           </h1>
         </div>
-        <p style={{ margin: 0, color: "#64748B", fontSize: 14 }}>
+        <p className="text-slate-500 dark:text-slate-400" style={{ margin: 0, fontSize: 14 }}>
           AI fills your details automatically · You only pay
         </p>
       </div>
 
       <form onSubmit={handleSubmit}>
         {/* ── Card 1: Route ── */}
-        <div style={cardStyle}>
+        <div className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700" style={{
+          borderWidth: "1.5px",
+          borderStyle: "solid",
+          borderRadius: 16,
+          padding: "22px 24px",
+          marginBottom: 14,
+          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+        }}>
           <SectionTitle icon={MapPin}>Route & Schedule</SectionTitle>
 
           <div className="g2" style={{ marginBottom: 12 }}>
@@ -497,10 +516,10 @@ const PlanCommute = () => {
           {/* Preference */}
           <div>
             <div
+              className="text-slate-500 dark:text-slate-400"
               style={{
                 fontSize: 11,
                 fontWeight: 700,
-                color: "#64748B",
                 textTransform: "uppercase",
                 letterSpacing: "0.07em",
                 marginBottom: 8,
@@ -514,6 +533,7 @@ const PlanCommute = () => {
                   key={value}
                   type="button"
                   className={`pref-btn ${selectedPref === value ? "active" : ""}`}
+                  style={{ borderColor: selectedPref === value ? "#4F46E5" : "#E2E8F0" }}
                   onClick={() => setSelectedPref(value)}
                 >
                   <Icon size={13} /> {label}
@@ -524,7 +544,14 @@ const PlanCommute = () => {
         </div>
 
         {/* ── Card 2: Booking Preferences ── */}
-        <div style={cardStyle}>
+        <div className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700" style={{
+          borderWidth: "1.5px",
+          borderStyle: "solid",
+          borderRadius: 16,
+          padding: "22px 24px",
+          marginBottom: 14,
+          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+        }}>
           <SectionTitle icon={Armchair}>Flight Preferences</SectionTitle>
           <div className="g2" style={{ marginBottom: 12 }}>
             <Field
@@ -573,7 +600,14 @@ const PlanCommute = () => {
         </div>
 
         {/* ── Card 3: Passengers ── */}
-        <div style={cardStyle}>
+        <div className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700" style={{
+          borderWidth: "1.5px",
+          borderStyle: "solid",
+          borderRadius: 16,
+          padding: "22px 24px",
+          marginBottom: 14,
+          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+        }}>
           {/* Header */}
           <div
             style={{
@@ -599,9 +633,8 @@ const PlanCommute = () => {
               <SectionTitle icon={User}>
                 Passengers&nbsp;
                 <span
+                  className="bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300"
                   style={{
-                    background: "#EEF2FF",
-                    color: "#4F46E5",
                     borderRadius: 20,
                     padding: "1px 10px",
                     fontSize: 12,
@@ -611,23 +644,22 @@ const PlanCommute = () => {
                 </span>
               </SectionTitle>
               {passOpen ? (
-                <ChevronUp size={16} color="#94A3B8" />
+                <ChevronUp size={16} className="text-slate-400 dark:text-slate-500" />
               ) : (
-                <ChevronDown size={16} color="#94A3B8" />
+                <ChevronDown size={16} className="text-slate-400 dark:text-slate-500" />
               )}
             </button>
             {passOpen && passengers.length < 9 && (
               <button
                 type="button"
                 onClick={addPassenger}
+                className="bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: 5,
                   padding: "7px 13px",
                   borderRadius: 8,
-                  background: "#EEF2FF",
-                  color: "#4F46E5",
                   border: "none",
                   cursor: "pointer",
                   fontSize: 13,
@@ -653,14 +685,17 @@ const PlanCommute = () => {
               {passengers.map((p, i) => (
                 <span
                   key={i}
+                  className={p.firstName 
+                    ? "bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800"
+                    : "bg-orange-50 dark:bg-orange-900/50 text-orange-600 dark:text-orange-300 border-orange-200 dark:border-orange-800"
+                  }
                   style={{
-                    background: p.firstName ? "#EEF2FF" : "#FFF7ED",
-                    color: p.firstName ? "#4F46E5" : "#EA580C",
                     borderRadius: 20,
                     padding: "3px 12px",
                     fontSize: 13,
                     fontWeight: 500,
-                    border: `1px solid ${p.firstName ? "#C7D2FE" : "#FED7AA"}`,
+                    borderWidth: "1px",
+                    borderStyle: "solid",
                   }}
                 >
                   {p.firstName
@@ -704,10 +739,10 @@ const PlanCommute = () => {
                       {idx + 1}
                     </div>
                     <span
+                      className="text-slate-800 dark:text-slate-100"
                       style={{
                         fontWeight: 700,
                         fontSize: 14,
-                        color: "#1E293B",
                       }}
                     >
                       {pax.firstName
@@ -716,9 +751,8 @@ const PlanCommute = () => {
                     </span>
                     {idx === 0 && (
                       <span
+                        className="bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-300"
                         style={{
-                          background: "#DCFCE7",
-                          color: "#16A34A",
                           fontSize: 11,
                           fontWeight: 600,
                           padding: "1px 8px",
@@ -733,13 +767,12 @@ const PlanCommute = () => {
                     <button
                       type="button"
                       onClick={() => removePassenger(idx)}
+                      className="bg-rose-50 dark:bg-rose-900/50 text-rose-500 dark:text-rose-300"
                       style={{
-                        background: "#FFF1F2",
                         border: "none",
                         borderRadius: 6,
                         cursor: "pointer",
                         padding: "5px 8px",
-                        color: "#E11D48",
                         display: "flex",
                       }}
                     >
@@ -914,11 +947,10 @@ const PlanCommute = () => {
           <div className="progress-bar">
             <Loader2
               size={15}
-              color="#4F46E5"
-              className="spin"
-              style={{ flexShrink: 0, animation: "spin 1s linear infinite" }}
+              className="text-indigo-600 dark:text-indigo-400 spin"
+              style={{ flexShrink: 0 }}
             />
-            <span style={{ fontSize: 13, color: "#3730A3", fontWeight: 500 }}>
+            <span className="text-indigo-700 dark:text-indigo-300" style={{ fontSize: 13, fontWeight: 500 }}>
               {progressMsg}
             </span>
           </div>
@@ -929,7 +961,7 @@ const PlanCommute = () => {
             <>
               <Loader2
                 size={17}
-                style={{ animation: "spin 1s linear infinite" }}
+                className="spin"
               />{" "}
               Searching flights...
             </>
@@ -940,10 +972,10 @@ const PlanCommute = () => {
           )}
         </button>
         <p
+          className="text-slate-400 dark:text-slate-500"
           style={{
             textAlign: "center",
             fontSize: 12,
-            color: "#94A3B8",
             marginTop: 10,
           }}
         >
@@ -955,18 +987,12 @@ const PlanCommute = () => {
       {/* Payment Result */}
       {paymentResult && (
         <div
-          style={{
-            marginTop: 24,
-            borderRadius: 20,
-            overflow: "hidden",
-            boxShadow: "0 8px 40px rgba(22,163,74,0.2)",
-            border: "2px solid #22C55E",
-          }}
+          className="mt-6 rounded-xl overflow-hidden border-2 border-green-500 dark:border-green-600"
         >
           {/* Green header */}
           <div
+            className="bg-gradient-to-r from-green-700 to-green-600 dark:from-green-800 dark:to-green-700"
             style={{
-              background: "linear-gradient(135deg, #14532D, #166534)",
               padding: "24px 28px",
               display: "flex",
               alignItems: "center",
@@ -976,19 +1002,19 @@ const PlanCommute = () => {
             <div style={{ fontSize: 40 }}>✅</div>
             <div>
               <div
+                className="text-white"
                 style={{
                   fontSize: 20,
                   fontWeight: 800,
-                  color: "#fff",
                   letterSpacing: "-0.01em",
                 }}
               >
                 Your booking is ready!
               </div>
               <div
+                className="text-green-50 dark:text-green-100"
                 style={{
                   fontSize: 14,
-                  color: "rgba(255,255,255,0.75)",
                   marginTop: 4,
                 }}
               >
@@ -999,31 +1025,32 @@ const PlanCommute = () => {
           </div>
 
           {/* Details */}
-          <div style={{ background: "#F0FDF4", padding: "20px 28px" }}>
+          <div className="bg-green-50 dark:bg-slate-800" style={{ padding: "20px 28px" }}>
             {paymentResult.flight && (
               <div
+                className="bg-white dark:bg-slate-700 border-green-200 dark:border-green-800"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: 20,
                   marginBottom: 16,
-                  background: "#fff",
                   borderRadius: 12,
                   padding: "14px 18px",
-                  border: "1px solid #BBF7D0",
+                  borderWidth: "1px",
+                  borderStyle: "solid",
                 }}
               >
                 <div style={{ fontSize: 22 }}>✈️</div>
                 <div style={{ flex: 1 }}>
                   <div
-                    style={{ fontWeight: 700, fontSize: 15, color: "#1E293B" }}
+                    className="text-slate-800 dark:text-slate-100"
+                    style={{ fontWeight: 700, fontSize: 15 }}
                   >
-                    {/* {paymentResult.flight.name || paymentResult.flight.airline || 'IndiGo'} */}
                     IndiGo
                     {paymentResult.flight.codes && (
                       <span
+                        className="text-slate-500 dark:text-slate-400"
                         style={{
-                          color: "#64748B",
                           fontWeight: 400,
                           marginLeft: 8,
                           fontSize: 13,
@@ -1033,7 +1060,7 @@ const PlanCommute = () => {
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: 13, color: "#64748B", marginTop: 2 }}>
+                  <div className="text-slate-500 dark:text-slate-400" style={{ fontSize: 13, marginTop: 2 }}>
                     {formData.source} → {formData.destination}
                     {paymentResult.flight.time &&
                       ` · Departs ${paymentResult.flight.time}`}
@@ -1044,22 +1071,22 @@ const PlanCommute = () => {
                 {paymentResult.totalAmount && (
                   <div style={{ textAlign: "right" }}>
                     <div
+                      className="text-green-600 dark:text-green-400"
                       style={{
                         fontSize: 20,
                         fontWeight: 800,
-                        color: "#16A34A",
                       }}
                     >
                       {paymentResult.totalAmount}
                     </div>
-                    <div style={{ fontSize: 11, color: "#94A3B8" }}>total</div>
+                    <div className="text-slate-400 dark:text-slate-500" style={{ fontSize: 11 }}>total</div>
                   </div>
                 )}
               </div>
             )}
 
             {paymentResult.bookingReference && (
-              <div style={{ marginBottom: 14, fontSize: 13, color: "#15803D" }}>
+              <div className="text-green-700 dark:text-green-400" style={{ marginBottom: 14, fontSize: 13 }}>
                 <strong>Booking Reference:</strong>{" "}
                 {paymentResult.bookingReference}
               </div>
@@ -1069,6 +1096,7 @@ const PlanCommute = () => {
               href={paymentResult.paymentUrl}
               target="_blank"
               rel="noopener noreferrer"
+              className="bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -1077,7 +1105,6 @@ const PlanCommute = () => {
                 width: "100%",
                 padding: "16px",
                 borderRadius: 12,
-                background: "linear-gradient(135deg, #16A34A, #15803D)",
                 color: "#fff",
                 fontWeight: 800,
                 fontSize: 17,
@@ -1089,10 +1116,10 @@ const PlanCommute = () => {
             </a>
 
             <p
+              className="text-slate-600 dark:text-slate-400"
               style={{
                 textAlign: "center",
                 fontSize: 12,
-                color: "#6B7280",
                 marginTop: 10,
                 marginBottom: 0,
               }}
