@@ -51,7 +51,7 @@ const formatPrice = (price, currency) => {
 /* ─────────────────────────────────────────────
    Flight Card
 ───────────────────────────────────────────── */
-const FlightCard = ({ option, index, currency, isSelected, onSelect }) => {
+const FlightCard = ({ option, index, currency, isSelected, onSelect, onBook, booking, bookingProgress, paymentUrl }) => {
   const [expanded, setExpanded] = useState(false);
   const colors = modeColor(option.mode);
   const isFirst = index === 0;
@@ -189,22 +189,36 @@ const FlightCard = ({ option, index, currency, isSelected, onSelect }) => {
             {expanded ? 'Less info' : 'More info'}
           </button>
 
-          <a
-            href={option.url || option.bookingUrl || '#'}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (paymentUrl) {
+                window.open(paymentUrl, '_blank');
+              } else {
+                onBook(option);
+              }
+            }}
+            disabled={booking}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '8px 18px', borderRadius: 8, fontWeight: 600, fontSize: 13,
-              textDecoration: 'none', transition: 'all 0.15s',
-              background: isSelected ? 'rgba(255,255,255,0.18)' : '#4F46E5',
+              padding: '8px 18px', borderRadius: 8, fontWeight: 700, fontSize: 13,
+              border: 'none', cursor: booking ? 'not-allowed' : 'pointer',
+              opacity: booking ? 0.75 : 1, transition: 'all 0.15s',
+              background: paymentUrl
+                ? 'linear-gradient(135deg, #16A34A, #15803D)'
+                : isSelected ? 'rgba(255,255,255,0.25)' : '#4F46E5',
               color: '#fff',
-              border: isSelected ? '1px solid rgba(255,255,255,0.3)' : 'none',
+              fontFamily: 'inherit',
             }}
           >
-            Book Now <ExternalLink size={12} />
-          </a>
+            {booking
+              ? <><Loader2 size={13} style={{animation:'spin 1s linear infinite'}}/>&nbsp;{bookingProgress || 'Booking...'}</>
+              : paymentUrl
+              ? <><ExternalLink size={12}/>&nbsp;Pay Now</>
+              : <><Ticket size={12}/>&nbsp;Auto-Book</>
+            }
+          </button>
         </div>
 
         {/* Expanded details */}
@@ -262,6 +276,7 @@ const RouteDetails = () => {
   const [bookingProgress, setBookingProgress]     = useState('');
   const [paymentUrl, setPaymentUrl]               = useState(null);
   const passengers                                = location.state?.passengers || [];
+  const bookingPreferences                        = location.state?.bookingPreferences || {};
 
   /* ── Load data ── */
   useEffect(() => {
@@ -330,6 +345,7 @@ const RouteDetails = () => {
           passengers,
           currency,
           routeId,
+          bookingPreferences,
         }),
       });
 
@@ -533,90 +549,65 @@ const RouteDetails = () => {
               currency={currency}
               isSelected={selectedOption === option}
               onSelect={setSelectedOption}
+              onBook={handleBook}
+              booking={booking}
+              bookingProgress={bookingProgress}
+              paymentUrl={paymentUrl}
             />
           </div>
         ))
       )}
 
-      {/* ── Selected summary sticky footer ── */}
-      {selectedOption && (
+      {/* ── Sticky footer: shows booking progress or payment URL ── */}
+      {(booking || paymentUrl) && (
         <>
-        <div style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
-          background: '#fff', borderTop: '1.5px solid #E2E8F0',
-          boxShadow: '0 -8px 32px rgba(0,0,0,0.1)',
-          padding: '16px 24px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: 12,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{
-              width: 44, height: 44, borderRadius: 10,
-              background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4F46E5',
-            }}>
-              <ModeIcon mode={selectedOption.mode} size={20} />
-            </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 15, color: '#0F172A' }}>
-                {selectedOption.name || selectedOption.airline || selectedOption.provider}
-                {selectedOption.codes && <span style={{ color: '#94A3B8', fontWeight: 400, marginLeft: 8, fontSize: 13 }}>{selectedOption.codes}</span>}
-              </div>
-              <div style={{ fontSize: 13, color: '#64748B', marginTop: 1 }}>
-                {selectedOption.from} → {selectedOption.to}
-                {selectedOption.time && ` · ${selectedOption.time}`}
-                {selectedOption.arrivalTime && ` – ${selectedOption.arrivalTime}`}
-              </div>
+        {/* Booking progress bar */}
+        {booking && (
+          <div style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
+            background: '#1E1B4B', borderTop: '2px solid #4F46E5',
+            boxShadow: '0 -8px 32px rgba(79,70,229,0.2)',
+            padding: '14px 24px',
+            display: 'flex', alignItems: 'center', gap: 14,
+          }}>
+            <Loader2 size={20} style={{ color: '#A5B4FC', flexShrink: 0, animation: 'spin 1s linear infinite' }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>AI Agent is filling your booking details...</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{bookingProgress || 'Processing...'}</div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#4F46E5', letterSpacing: '-0.02em' }}>
-                {formatPrice(selectedOption.price, currency)}
+        )}
+
+        {/* Payment ready banner */}
+        {paymentUrl && !booking && (
+          <div style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
+            background: 'linear-gradient(135deg, #14532D, #166534)',
+            borderTop: '2px solid #22C55E',
+            boxShadow: '0 -8px 32px rgba(22,163,74,0.3)',
+            padding: '16px 24px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ fontSize: 24 }}>✅</div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Your booking details are filled!</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>Passenger info, seat & preferences are ready. Just complete the payment.</div>
               </div>
-              <div style={{ fontSize: 11, color: '#94A3B8' }}>per person</div>
             </div>
-            <button
-              type="button"
-              onClick={() => paymentUrl ? window.open(paymentUrl, '_blank') : handleBook(selectedOption)}
-              disabled={booking}
-              className="book-btn"
+            <a
+              href={paymentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
-                padding: '12px 28px', borderRadius: 10, fontWeight: 700, fontSize: 14,
-                border: 'none', color: '#fff',
-                background: paymentUrl
-                  ? 'linear-gradient(135deg, #16A34A, #15803D)'
-                  : 'linear-gradient(135deg, #4F46E5, #7C3AED)',
-                boxShadow: paymentUrl
-                  ? '0 4px 16px rgba(22,163,74,0.35)'
-                  : '0 4px 16px rgba(79,70,229,0.35)',
-                transition: 'all 0.15s',
-                opacity: booking ? 0.75 : 1,
-                cursor: booking ? 'not-allowed' : 'pointer',
+                padding: '12px 28px', borderRadius: 10, fontWeight: 700, fontSize: 15,
+                background: '#22C55E', color: '#fff', textDecoration: 'none',
+                boxShadow: '0 4px 16px rgba(34,197,94,0.4)',
+                whiteSpace: 'nowrap',
               }}
             >
-              {booking
-                ? <><Loader2 size={15} style={{animation:'spin 1s linear infinite'}}/>&nbsp;{bookingProgress || 'AI is filling your details...'}</>
-                : paymentUrl
-                ? <><ExternalLink size={15}/>&nbsp;Complete Payment</>
-                : <><Ticket size={15}/>&nbsp;Auto-Book with AI</>
-              }
-            </button>
-          </div>
-        </div>
-
-        {paymentUrl && (
-          <div style={{
-            position: 'fixed', bottom: 96, left: 0, right: 0, zIndex: 60,
-            background: '#F0FDF4', borderTop: '1.5px solid #86EFAC',
-            padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-          }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#166534' }}>
-              ✅ Passenger details filled! Your payment page is ready.
-            </span>
-            <a href={paymentUrl} target="_blank" rel="noopener noreferrer"
-              style={{ padding: '8px 20px', background: '#16A34A', color: '#fff', borderRadius: 8, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
-              Go to Payment →
+              <ExternalLink size={16} /> Complete Payment on IndiGo
             </a>
           </div>
         )}

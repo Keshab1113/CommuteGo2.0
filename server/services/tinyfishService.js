@@ -41,7 +41,12 @@ class TinyFishClient {
    */
   async run(goal, onProgress = null) {
     return new Promise((resolve, reject) => {
-      const body = JSON.stringify({ url: 'https://www.google.com', goal });
+      const body = JSON.stringify({
+        url: 'https://www.goindigo.in/flights?linkNav=Flight%7CBook%7CBook',
+        goal,
+        browser_profile: 'stealth',
+        proxy_config: { enabled: true, country_code: 'US' },
+      });
 
       const urlObj = new URL(`${this.baseUrl}/v1/automation/run-sse`);
 
@@ -51,7 +56,7 @@ class TinyFishClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(body),
+          'Content-Length': Buffer.byteLength(body, 'utf8'),
           'X-API-Key': this.apiKey,
         },
         agent: httpsAgent,
@@ -188,11 +193,14 @@ class TinyFishTransportationService {
     transportMode = 'flight',
     preferences = {},
     travelTime,
+    passengers = [],
+    bookingPreferences = {},
     onProgress = null,
   }) {
     try {
       const goal = this.buildPrompt({
         source, destination, travelDate, currency, transportMode, preferences, travelTime,
+        passengers, bookingPreferences,
       });
 
       logger.info(`Calling TinyFish API for ${transportMode} from ${source} to ${destination}`);
@@ -200,10 +208,23 @@ class TinyFishTransportationService {
       const response = await this.client.run(goal, onProgress);
       const result = this.parseResponse(response, transportMode, source, destination);
 
+      // Extract payment_url from TinyFish response.
+      // IMPORTANT: do NOT decode. IndiGo requires the refUrl param to be double-encoded
+      // (%253A / %252F). Decoding once breaks it (%3A / %2F = invalid URL).
+      const rawPaymentUrl = response?.payment_url || response?.paymentUrl || null;
+      let paymentUrl = rawPaymentUrl;
+      // Append #tidSet — required by IndiGo's payment page
+      if (paymentUrl && !paymentUrl.includes('#tidSet')) {
+        paymentUrl = paymentUrl + '#tidSet';
+      }
+
       return {
         notes: result.notes || '',
         flights: result.flights || [],
         description: result.description || '',
+        paymentUrl,
+        bookingReference: response?.booking_reference || response?.bookingReference || null,
+        totalAmount: response?.total_amount || null,
         rawResponse: response,
         searchMetadata: {
           source, destination, travelDate, currency,
@@ -220,52 +241,132 @@ class TinyFishTransportationService {
   /**
    * Build a natural-language goal prompt for TinyFish.
    * Specifies the exact JSON schema so the result is always predictable.
+   * UPDATED: Based on real IndiGo screenshots — correct fare labels, DOB format, page flow.
    */
-  buildPrompt({ source, destination, travelDate, currency, transportMode, preferences, travelTime }) {
-    const dateObj = new Date(travelDate);
-    const formattedDate = dateObj.toLocaleDateString('en-US', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-    });
-
+  buildPrompt({ source, destination, travelDate, currency, transportMode, preferences, travelTime, passengers = [], bookingPreferences = {} }) {
+    const dateObj    = new Date(travelDate);
+    const dd         = String(dateObj.getDate()).padStart(2, '0');
+    const mm         = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const yyyy       = dateObj.getFullYear();
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const formattedDate  = `${dd} ${monthNames[dateObj.getMonth()]} ${yyyy}`;
     const modePreference = preferences?.modePreference || 'cheapest';
-    let prompt = '';
+    const pickFlight     = modePreference === 'fastest' ? 'fastest' : 'cheapest';
 
-    if (transportMode === 'flight' || transportMode === 'all') {
-      prompt += `Find the cheapest flights from ${source} to ${destination} on ${formattedDate}. `
-        + `Use any flight search site (Skyscanner, Kayak, Ixigo, Google Flights, etc.). Sort by price ascending. `;
-    }
-    if (transportMode === 'train' || transportMode === 'all') {
-      prompt += `Find the cheapest trains from ${source} to ${destination} on ${formattedDate}. Sort by price ascending. `;
-    }
-    if (transportMode === 'bus' || transportMode === 'all') {
-      prompt += `Find the cheapest buses from ${source} to ${destination} on ${formattedDate}. Sort by price ascending. `;
-    }
-    if (transportMode === 'taxi' || transportMode === 'all') {
-      prompt += `Find the cheapest taxi/cab options from ${source} to ${destination} on ${formattedDate}. Sort by price ascending. `;
-    }
-    if (transportMode === 'metro' || transportMode === 'all') {
-      prompt += `Find metro options from ${source} to ${destination}. Sort by price ascending. `;
-    }
-    if (transportMode === 'other' || transportMode === 'all') {
-      prompt += `Find all transport options from ${source} to ${destination} on ${formattedDate}. Sort by price ascending. `;
-    }
+    // Pre-compute passenger fields
+    const pax    = passengers[0] || {};
+    const dobObj = pax.dateOfBirth ? new Date(pax.dateOfBirth) : null;
+    const expObj = pax.passportExpiry ? new Date(pax.passportExpiry) : null;
+    // IndiGo DOB field is a single text input in DD-MM-YYYY format
+    const dobFormatted = dobObj
+      ? `${String(dobObj.getDate()).padStart(2,'0')}-${String(dobObj.getMonth()+1).padStart(2,'0')}-${dobObj.getFullYear()}`
+      : '';
 
-    prompt +=
-      `Currency: ${currency}. Primary sort: ${modePreference}. ` +
-      `Return ONLY a JSON object with this exact structure: ` +
-      `{ "flights": [ { "no": 1, "from": "CCU", "to": "LHR", "depart": "05:20", "arrive": "17:45", ` +
-      `"airline": "IndiGo", "codes": "6E 474", "price": 25835, "booking_url": "https://..." } ], ` +
-      `"notes": "any coupons or availability notes", "search_info": { "platforms": ["Skyscanner"] } }`;
+    return `Book a flight on goindigo.in and return the payment page URL. Do NOT pay.
 
-    return prompt;
+TRIP: ${source} → ${destination} | ${formattedDate} | ${preferences?.cabinClass || 'Economy'} | ${passengers.length || 1} Adult | pick ${pickFlight}
+PAX: ${pax.gender||'Male'} | ${pax.firstName||''} ${pax.lastName||''} | DOB: ${dobFormatted} (DD-MM-YYYY) | ${pax.phone||''} | ${pax.email||''}
+
+━━━ STEP 1 — Navigate & dismiss popups ━━━
+Go to: https://www.goindigo.in/flights?linkNav=Flight%7CBook%7CBook
+Close any popup immediately (X or "Continue as Guest"). Do NOT log in.
+
+━━━ STEP 2 — Search form ━━━
+Click "One Way". Type "${source}" in FROM → pick first suggestion. Type "${destination}" in TO → pick first suggestion. Click DATE field → pick ${dd} ${monthNames[dateObj.getMonth()]} ${yyyy}. Click "Search Flights".
+⚠ If Search button stays disabled: re-select FROM city, re-select TO city, re-select date, then click Search again.
+
+━━━ STEP 3 — Select flight + fare (EXACT IndiGo UI) ━━━
+Page URL will be: goindigo.in/book/flight-select.html
+
+Wait up to 8s for real flight cards to load (cards show flight code "6E XXXX", departure time, price badge). Grey shimmers with no text = still loading, keep waiting. If no real cards after 8s, click the "${dd}" date tile in the date strip at top of results.
+
+FLIGHT CARD LAYOUT (what you will actually see):
+- Each card shows: flight code (e.g. "6E 2588"), departure time, arrival time, duration, price badge "Economy ₹X,XXX ↑"
+- The "↑" chevron / price badge on the right side — click it to EXPAND the fare panel
+- The fare panel opens below the card row showing THREE columns:
+    Column 1: "Saver fare"       ← CHEAPEST — click this column / its price area
+    Column 2: "Flexi plus fare"
+    Column 3: "IndiGo UpFront"
+- After clicking "Saver fare" column, it gets highlighted/selected
+- Click the blue "Next" button at the BOTTOM RIGHT of the page (shows "Next" with total fare)
+- Do NOT click "Know more" — that opens an info modal
+- Do NOT look for a "Book" button inside the fare panel — use the "Next" button at bottom right
+
+${pickFlight === 'fastest' ? 'Sort: click the sort icon (⇅) at top right of results and pick "Duration".' : 'Sort: click the sort icon (⇅) at top right of results and pick "Price" if available.'}
+
+⚠ TIMEOUT: If stuck on fare selection for 60s, try the next flight card.
+
+━━━ STEP 4 — Passenger form (goindigo.in/book/passenger-edit.html) ━━━
+EXACT FORM LAYOUT (from real page):
+- Page heading: "Enter passenger details"
+- Card header: "Adult 1 / Passenger 1" with a ∧ chevron (already EXPANDED — do NOT try to click to expand)
+- Field 1: Two radio buttons → "Male" and "Female" — click the "${pax.gender||'Male'}" label
+- Field 2: Text input labelled "First And Middle Name" → type "${pax.firstName||''}"
+- Field 3: Text input labelled "Last Name" → type "${pax.lastName||''}"
+- Field 4: Text input labelled "Date Of Birth (Optional)" — format is DD-MM-YYYY (e.g. 25-04-1998)
+           → type "${dobFormatted}"
+           ⚠ This is a SINGLE text field, NOT three dropdowns
+- "Special Assistance" — collapsed section, leave it alone
+- "Add IndiGo BluChip Membership Number" — collapsed section, leave it alone
+- Question: "Are there any passengers EU citizens aged 12-15 years..." → select "No"
+
+CONTACT DETAILS section (below passenger card):
+- Phone: "+91" country code already shown → type "${pax.phone||''}" in the number field
+- Email: type "${pax.email||''}"
+- "Enter GST details" — collapsed, leave it alone
+- "6E Fare Hold" section — ignore, do NOT add
+
+Checkboxes at bottom:
+- "I have read and agree to IndiGo's Conditions of Carriage..." → check it (tick it) if not already checked
+- Marketing email checkbox → leave unchecked
+- WhatsApp checkbox → leave unchecked
+
+Click the blue "Next" button at bottom right of the page.
+⚠ Next button is GREYED OUT until required fields are filled — if still grey after filling, scroll up to find any missed field.
+
+━━━ STEP 5 — Add-ons page (URL ends with #addon) ━━━
+Page shows "Recommended", "Premium", "Meals", "Excess Baggage" tabs.
+Three bundle cards: "GoFlex" (₹450), "GoSmart" (₹600), "GoLite" (₹650) — all paid.
+→ Do NOT click any "Add" button. Click the blue "Next" button at bottom right immediately.
+
+━━━ STEP 6 — Seat selection page (URL ends with #seat) ━━━
+Page shows seat map. "Free" seats = 0 available.
+→ Do NOT select any paid seat. Click the blue "Next" button at bottom right immediately.
+
+━━━ STEP 7 — STOP ON PAYMENT PAGE ━━━
+You are on the payment page when URL contains "payment.html" or "isBookingFlow=1".
+The page shows: "Payment options", UPI, Cards, Net banking, Pay with Wallet.
+STOP IMMEDIATELY. Do NOT click anything. Read the FULL URL from address bar. Return it.
+
+RULES: Stay on goindigo.in. Accept price alerts. Solve CAPTCHA. Never refresh. Never log in.
+
+Return ONLY this JSON:
+{
+  "payment_url": "<full URL — must contain payment.html and isBookingFlow=1>",
+  "booking_reference": "<PNR/order ID or null>",
+  "total_amount": "<price shown>",
+  "currency": "${currency}",
+  "flight_selected": { "from": "${source}", "to": "${destination}", "depart": "HH:MM", "arrive": "HH:MM", "codes": "6E XXXX", "price": 0 },
+  "summary": { "passengers_filled": ${passengers.length||1}, "cabin": "${bookingPreferences.cabinClass||preferences?.cabinClass||'economy'}", "steps_completed": "brief", "errors_encountered": null }
+}`;
   }
+
 
   parseResponse(response, transportMode, source, destination) {
     try {
       let parsedData = typeof response === 'string' ? JSON.parse(response) : response;
 
       let flights = [];
-      if (Array.isArray(parsedData))              flights = parsedData;
+      
+      // Handle direct array
+      if (Array.isArray(parsedData)) {
+        flights = parsedData;
+      }
+      // Handle single flight_selected object (from TinyFish booking agent)
+      else if (parsedData?.flight_selected && !Array.isArray(parsedData.flight_selected)) {
+        flights = [parsedData.flight_selected];
+      }
+      // Handle array fields
       else if (Array.isArray(parsedData.flights)) flights = parsedData.flights;
       else if (Array.isArray(parsedData.options)) flights = parsedData.options;
       else if (Array.isArray(parsedData.results)) flights = parsedData.results;
@@ -363,8 +464,13 @@ class TinyFishBookingService {
         logger.warn('TinyFish booking did not return a payment URL', result);
       }
 
+      // Append #tidSet — required by IndiGo's payment page
+      const finalPaymentUrl = (paymentUrl && !paymentUrl.includes('#tidSet'))
+        ? paymentUrl + '#tidSet'
+        : paymentUrl;
+
       return {
-        paymentUrl,
+        paymentUrl: finalPaymentUrl,
         bookingReference: result.booking_reference || result.bookingReference || result.pnr || null,
         summary: result.summary || result.booking_summary || null,
         rawResult: result,
@@ -377,76 +483,121 @@ class TinyFishBookingService {
 
   /**
    * Build the goal prompt for TinyFish to complete a flight booking.
-   * This instructs TinyFish to:
-   *  1. Navigate to the flight's booking URL
-   *  2. Fill in all passenger details
-   *  3. Proceed to payment
-   *  4. Return the payment page URL (NOT complete the payment)
+   * UPDATED: Based on real IndiGo screenshots — correct fare labels, DOB format, page flow.
    */
-  buildBookingGoal({ flight, passengers, currency }) {
-    const lead = passengers[0];
+  buildBookingGoal({ flight, passengers, currency, bookingPreferences = {} }) {
+    const lead  = passengers[0];
+    const prefs = bookingPreferences;
 
-    // Format all passengers for the prompt
-    const passengerList = passengers.map((p, i) => {
-      return `Passenger ${i + 1}:
-  - First Name: ${p.firstName}
-  - Last Name: ${p.lastName}
-  - Email: ${i === 0 ? p.email : (p.email || lead.email)}
-  - Phone: ${i === 0 ? p.phone : (p.phone || lead.phone)}
-  - Date of Birth: ${p.dateOfBirth}
-  - Passport Number: ${p.passportNumber}
-  - Nationality: ${p.nationality}
-  - Passport Expiry: ${p.passportExpiry}
-  - Gender: ${p.gender}`;
-    }).join('\n\n');
+    const fmt = (dateStr) => {
+      if (!dateStr) return { dd:'', mm:'', yyyy:'', monthName:'', ddmmyyyy:'', dobField:'' };
+      const d    = new Date(dateStr);
+      const dd   = String(d.getDate()).padStart(2, '0');
+      const mm   = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = String(d.getFullYear());
+      const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      return {
+        dd, mm, yyyy,
+        monthName: months[d.getMonth()],
+        ddmmyyyy: `${dd}/${mm}/${yyyy}`,
+        dobField: `${dd}-${mm}-${yyyy}`,  // IndiGo's actual DOB text field format
+      };
+    };
 
-    const flightSummary = `
-Flight Details:
-  - Airline: ${flight.name || flight.airline || 'N/A'}
-  - Flight Code: ${flight.codes || 'N/A'}
-  - From: ${flight.from}
-  - To: ${flight.to}
-  - Departure: ${flight.time || flight.depart || 'N/A'}
-  - Arrival: ${flight.arrivalTime || flight.arrive || 'N/A'}
-  - Price: ${flight.price} ${currency}
-  - Booking URL: ${flight.url || flight.bookingUrl || flight.booking_url}
-`;
+    const flightFrom = flight.from || '';
+    const flightTo   = flight.to   || '';
+    const flightDate = flight.travelDate || '';
+    const pickFlight = (prefs.modePreference || 'cheapest') === 'fastest' ? 'fastest' : 'cheapest';
 
-    return `You are booking a flight. Follow these steps exactly:
+    const paxSummary = passengers.map((p, i) => {
+      const dob = fmt(p.dateOfBirth);
+      const phone = i === 0 ? p.phone : (p.phone || lead.phone);
+      const email = i === 0 ? p.email : (p.email || lead.email);
+      return `  PAX${i+1}: ${p.gender||'Male'} | ${p.firstName} ${p.lastName} | DOB: ${dob.dobField} | ${phone} | ${email}`;
+    }).join('\n');
 
-1. Navigate to this booking URL: ${flight.url || flight.bookingUrl || flight.booking_url}
+    const paxFormLines = passengers.map((p, i) => {
+      const dob   = fmt(p.dateOfBirth);
+      const phone = i === 0 ? p.phone : (p.phone || lead.phone);
+      const email = i === 0 ? p.email : (p.email || lead.email);
+      return `  PAX${i+1}: gender "${p.gender||'Male'}" → "First And Middle Name" = "${p.firstName}" → "Last Name" = "${p.lastName}" → "Date Of Birth (Optional)" = "${dob.dobField}" (type exactly, DD-MM-YYYY) → Phone = "${phone}" → Email = "${email}"`;
+    }).join('\n');
 
-2. This page will show a flight booking form. Fill in all passenger details as follows:
-${flightSummary}
+    return `Book a flight on goindigo.in and return the payment page URL. Do NOT pay.
 
-Passengers to fill in (${passengers.length} total):
-${passengerList}
+TRIP: ${flightFrom} → ${flightTo} | ${flightDate} | ${prefs.cabinClass||'Economy'} | ${passengers.length} Adult | pick ${pickFlight}
+PASSENGERS:
+${paxSummary}
 
-3. Fill in ALL required fields in the booking form — passenger names, dates of birth, passport numbers, contact details, nationality, passport expiry.
+━━━ STEP 1 — Navigate & dismiss popups ━━━
+Go to: https://www.goindigo.in/flights?linkNav=Flight%7CBook%7CBook
+Close any popup (X or "Continue as Guest"). Do NOT log in.
 
-4. If there are add-on options (seat selection, meals, baggage), skip them or select the free/default option.
+━━━ STEP 2 — Search ━━━
+Click "One Way". Type "${flightFrom}" in FROM → first suggestion. Type "${flightTo}" in TO → first suggestion. Set date "${flightDate}". Click "Search Flights".
+⚠ If Search button is disabled: re-select FROM, re-select TO, re-select date, click Search again.
 
-5. Proceed through the booking steps until you reach the PAYMENT page where a credit card or payment method is required.
+━━━ STEP 3 — Select flight + fare (EXACT IndiGo UI) ━━━
+Page URL: goindigo.in/book/flight-select.html
+Wait up to 8s for real flight cards. Shimmers = grey/no text, keep waiting.
 
-6. STOP at the payment page — do NOT enter any payment details.
+FARE SELECTION (what you will actually see):
+- Each card has a price badge "Economy ₹X,XXX ↑" on the right — click it to expand fare panel
+- Fare panel shows THREE columns:
+    LEFT:   "Saver fare"       ← pick this (cheapest)
+    MIDDLE: "Flexi plus fare"
+    RIGHT:  "IndiGo UpFront"
+- Click the "Saver fare" column to select it (it gets a border/highlight)
+- Then click the blue "Next" button at BOTTOM RIGHT of the page (shows total fare ₹X,XXX)
+- Do NOT click "Know more" — it opens a useless info modal
+- There is NO separate "Book" button — always use "Next" at bottom right
 
-7. Return a JSON object with:
+⚠ If stuck on one card for 60s, try the next card.
+
+━━━ STEP 4 — Passenger form (goindigo.in/book/passenger-edit.html) ━━━
+The passenger card "Adult 1 / Passenger 1" is ALREADY EXPANDED — fields are visible immediately.
+Do NOT try to expand or click the card header.
+
+FILL IN THIS ORDER:
+${paxFormLines}
+
+IMPORTANT FIELD DETAILS:
+- "First And Middle Name" = first name only (no middle name needed if not available)
+- "Date Of Birth (Optional)" = SINGLE text input, type in DD-MM-YYYY format (e.g. 25-04-1998)
+  ⚠ This is NOT three dropdowns — it is ONE text field
+- "Are there any passengers EU citizens..." question → click "No"
+- Contact details: +91 country code is pre-filled → type phone number only
+- Checkboxes: tick "I have read and agree to IndiGo's Conditions of Carriage" if not ticked
+- Leave all other checkboxes unchecked
+- "6E Fare Hold", "GST Details" sections → ignore, do not expand
+
+Click the blue "Next" button at bottom right.
+⚠ "Next" is greyed out until fields are filled — if grey after filling, scroll up to find missed field.
+
+━━━ STEP 5 — Add-ons page (URL ends with #addon) ━━━
+Shows "GoFlex" (₹450), "GoSmart" (₹600), "GoLite" (₹650) bundles — all paid.
+→ Do NOT add anything. Click the blue "Next" button at bottom right immediately.
+
+━━━ STEP 6 — Seat page (URL ends with #seat) ━━━
+Shows seat map. No free seats available.
+→ Do NOT select any paid seat. Click the blue "Next" button at bottom right immediately.
+
+━━━ STEP 7 — STOP ON PAYMENT PAGE ━━━
+URL will contain: payment.html and isBookingFlow=1
+Page shows: "Payment options" with UPI, Cards, Net banking, Pay with Wallet.
+STOP. Do NOT click anything. Read the FULL URL from address bar. Return it.
+
+RULES: Stay on goindigo.in. Accept price alerts. Solve CAPTCHA. Never refresh. Never log in.
+
+Return ONLY this JSON:
 {
-  "payment_url": "the exact URL of the payment page you reached",
-  "booking_reference": "any reference or PNR number shown",
-  "summary": {
-    "airline": "${flight.name || flight.airline}",
-    "flight": "${flight.codes}",
-    "from": "${flight.from}",
-    "to": "${flight.to}",
-    "departure": "${flight.time || flight.depart}",
-    "passengers": ${passengers.length},
-    "total_price": ${flight.price},
-    "currency": "${currency}"
-  }
-}
+  "payment_url": "<full URL — must contain payment.html and isBookingFlow=1>",
+  "booking_reference": "<PNR or null>",
+  "total_amount": "<price shown>",
+  "currency": "${currency}",
+  "summary": { "from": "${flightFrom}", "to": "${flightTo}", "passengers_filled": ${passengers.length}, "cabin": "${prefs.cabinClass||'economy'}", "steps_completed": "brief", "errors_encountered": null }
+}`;
 
-IMPORTANT: Stop at the payment page. Do not complete the payment.`;
   }
 }
 

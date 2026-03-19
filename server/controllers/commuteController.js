@@ -64,6 +64,8 @@ class CommuteController {
       preferences,
       transportMode,
       travelTime,
+      passengers,
+      bookingPreferences,
     } = req.body;
     const userId = req.user.id;
 
@@ -116,10 +118,12 @@ class CommuteController {
         source,
         destination,
         travelDate,
-        currency: currency || "USD",
+        currency: currency || "INR",
         transportMode: transportMode || "flight",
         preferences: preferences || {},
         travelTime,
+        passengers: passengers || [],
+        bookingPreferences: bookingPreferences || {},
         onProgress,
       });
 
@@ -143,10 +147,13 @@ class CommuteController {
         logger.warn(`Failed to cache TinyFish data: ${cacheErr.message}`);
       }
 
-      // Send the final result as the last SSE event
+      // Send the final result — payment_url is the primary outcome
       send("COMPLETE", {
         success: true,
         routeId,
+        paymentUrl: result.paymentUrl || null,
+        bookingReference: result.bookingReference || null,
+        totalAmount: result.totalAmount || null,
         tinyFishData: {
           notes: result.notes,
           flights: result.flights,
@@ -299,236 +306,52 @@ class CommuteController {
   }
 
   /**
-   * Get TinyFish data for a route (transportation and flight options)
-   * If no cached data exists, fetches fresh data from TinyFish API
+   * Get TinyFish data for a route.
+   * Returns cached DB data if available, otherwise returns 404.
+   * Data is cached by agentPlanCommute when the route is first planned.
    */
   static async getTinyFishOptions(req, res) {
     try {
       const { routeId } = req.params;
       const userId = req.user.id;
 
-      logger.debug(
-        `[getTinyFishOptions] Fetching options for routeId: ${routeId}, userId: ${userId}`,
-      );
+      logger.debug(`[getTinyFishOptions] routeId: ${routeId}, userId: ${userId}`);
 
       // Verify route belongs to user
       const route = await Route.findById(routeId);
       if (!route || route.user_id !== userId) {
-        logger.warn(
-          `[getTinyFishOptions] Unauthorized access attempt to route ${routeId}`,
-        );
         return res.status(403).json({ error: "Unauthorized access to route" });
       }
 
-      // Get TinyFish data from database
-      logger.debug(
-        `[getTinyFishOptions] Querying database for routeId: ${routeId}`,
-      );
-      let tinyFishData = await TinyFishRouteData.findByRouteId(routeId);
-      const dataExists = tinyFishData !== null;
+      // Return cached data from DB — populated by agentPlanCommute
+      const tinyFishData = await TinyFishRouteData.findByRouteId(routeId);
 
-      // Ensure tinyFishData has valid transportationOptions array
-      if (tinyFishData && !Array.isArray(tinyFishData.transportationOptions)) {
-        logger.warn(
-          `[getTinyFishOptions] Invalid transportationOptions in database, resetting for routeId: ${routeId}`,
-        );
-        tinyFishData.transportationOptions = [];
-        tinyFishData.flightOptions = [];
+      if (!tinyFishData || !Array.isArray(tinyFishData.transportationOptions) || tinyFishData.transportationOptions.length === 0) {
+        logger.warn(`[getTinyFishOptions] No cached data found for routeId: ${routeId}`);
+        return res.status(404).json({
+          error: "No flight data found for this route",
+          message: "Please plan the route again from the search page",
+        });
       }
 
-      // If no cached data exists, fetch fresh data from TinyFish API
-      if (
-        !tinyFishData ||
-        !Array.isArray(tinyFishData.transportationOptions) ||
-        tinyFishData.transportationOptions.length === 0
-      ) {
-        logger.info(
-          `[getTinyFishOptions] No cached data found, fetching fresh data from TinyFish API for routeId: ${routeId}`,
-        );
+      logger.info(`[getTinyFishOptions] ✓ Returning cached data for routeId: ${routeId} — ${tinyFishData.transportationOptions.length} options`);
 
-        try {
-          const tinyFishService = new TinyFishTransportationService();
-          const tinyFishResponse =
-            await tinyFishService.getTransportationOptions(
-              route.source,
-              route.destination,
-              route.travel_date,
-            );
-
-          // TinyFish service returns an object with transportationOptions inside
-          let transportationOptions =
-            tinyFishResponse.transportationOptions || [];
-
-          // Fall back to mock if TinyFish returns empty data
-          if (transportationOptions.length === 0) {
-            logger.warn(
-              `[getTinyFishOptions] TinyFish returned empty data, falling back to mock service`,
-            );
-            const mockService = new MockTransportationService();
-            const mockResponse = await mockService.getTransportationOptions(
-              route.source,
-              route.destination,
-              route.travel_date,
-            );
-            transportationOptions = mockResponse.transportationOptions || [];
-          }
-
-          // Use pre-computed dataExists to avoid race condition
-          if (dataExists) {
-            await TinyFishRouteData.update(routeId, {
-              transportationOptions,
-              flightOptions: Array.isArray(transportationOptions)
-                ? transportationOptions.filter((o) => o.mode === "flight")
-                : [],
-            });
-            logger.info(
-              `[getTinyFishOptions] ✓ Updated existing TinyFish data for routeId: ${routeId}`,
-            );
-          } else {
-            await TinyFishRouteData.create({
-              routeId,
-              source: route.source,
-              destination: route.destination,
-              travelDate: route.travel_date,
-              transportationOptions,
-            });
-            logger.info(
-              `[getTinyFishOptions] ✓ Created new TinyFish data for routeId: ${routeId}`,
-            );
-          }
-
-          tinyFishData = {
-            transportationOptions,
-            flightOptions: Array.isArray(transportationOptions)
-              ? transportationOptions.filter((o) => o.mode === "flight")
-              : [],
-            createdAt: new Date(),
-          };
-
-          logger.info(
-            `[getTinyFishOptions] ✓ Successfully fetched fresh TinyFish data`,
-            {
-              routeId,
-              totalTransportationOptions: transportationOptions.length,
-            },
-          );
-        } catch (tinyFishError) {
-          logger.error(
-            `[getTinyFishOptions] Failed to fetch from TinyFish API:`,
-            tinyFishError.message,
-          );
-
-          // Fall back to mock service if TinyFish fails
-          logger.info(
-            `[getTinyFishOptions] Falling back to mock transportation service`,
-          );
-          const mockService = new MockTransportationService();
-          const mockResponse = await mockService.getTransportationOptions(
-            route.source,
-            route.destination,
-            route.travel_date,
-          );
-
-          // Mock service returns an object with transportationOptions inside
-          const mockTransportationOptions = Array.isArray(
-            mockResponse.transportationOptions,
-          )
-            ? mockResponse.transportationOptions
-            : [];
-
-          // Use pre-computed dataExists to avoid race condition
-          if (dataExists) {
-            await TinyFishRouteData.update(routeId, {
-              transportationOptions: mockTransportationOptions,
-              flightOptions: mockTransportationOptions.filter(
-                (o) => o.mode === "flight",
-              ),
-            });
-            logger.info(
-              `[getTinyFishOptions] ✓ Updated existing TinyFish data with mock data for routeId: ${routeId}`,
-            );
-          } else {
-            await TinyFishRouteData.create({
-              routeId,
-              source: route.source,
-              destination: route.destination,
-              travelDate: route.travel_date,
-              transportationOptions: mockTransportationOptions,
-            });
-            logger.info(
-              `[getTinyFishOptions] ✓ Created new TinyFish data with mock data for routeId: ${routeId}`,
-            );
-          }
-
-          tinyFishData = {
-            transportationOptions: mockTransportationOptions,
-            flightOptions: mockTransportationOptions.filter(
-              (o) => o.mode === "flight",
-            ),
-            createdAt: new Date(),
-            isMockData: true,
-          };
-        }
-      } else {
-        // Ensure transportationOptions is always an array
-        const transportationOptions = Array.isArray(
-          tinyFishData.transportationOptions,
-        )
-          ? tinyFishData.transportationOptions
-          : [];
-
-        logger.info(
-          `[getTinyFishOptions] ✓ Successfully retrieved cached TinyFish data`,
-          {
-            routeId,
-            totalTransportationOptions: transportationOptions.length,
-            flights: transportationOptions.filter((o) => o.mode === "flight")
-              .length,
-            buses: transportationOptions.filter((o) => o.mode === "bus").length,
-            trains: transportationOptions.filter((o) => o.mode === "train")
-              .length,
-            rideshare: transportationOptions.filter(
-              (o) => o.mode === "rideshare",
-            ).length,
-            dataAge: new Date() - new Date(tinyFishData.createdAt),
-          },
-        );
-
-        // Update tinyFishData with ensured array
-        tinyFishData.transportationOptions = transportationOptions;
-        tinyFishData.flightOptions = transportationOptions.filter(
-          (o) => o.mode === "flight",
-        );
-      }
-
-      // Final defensive check before sending response
-      const finalTransportationOptions = Array.isArray(
-        tinyFishData.transportationOptions,
-      )
-        ? tinyFishData.transportationOptions
-        : [];
-      const finalFlightOptions = Array.isArray(tinyFishData.flightOptions)
-        ? tinyFishData.flightOptions
-        : finalTransportationOptions.filter((o) => o.mode === "flight");
+      const transportationOptions = tinyFishData.transportationOptions || [];
+      const flightOptions = transportationOptions.filter((o) => o.mode === "flight");
 
       res.json({
         routeId,
-        transportationOptions: finalTransportationOptions,
-        flightOptions: finalFlightOptions,
+        transportationOptions,
+        flightOptions,
         dataFreshness: new Date(tinyFishData.createdAt),
-        isMockData: tinyFishData.isMockData || false,
       });
     } catch (error) {
-      logger.error("[getTinyFishOptions] ERROR", {
-        error: error.message,
-        stack: error.stack,
-        routeId: req.params.routeId,
-      });
-      res.status(500).json({ error: "Server error" });
+      logger.error(`[getTinyFishOptions] ERROR: ${error.message}`, { routeId: req.params.routeId });
+      res.status(500).json({ error: "Failed to get transportation options", details: error.message });
     }
   }
 
-  /**
+    /**
    * Get specific pricing for a transportation option
    */
   static async getTinyFishPricing(req, res) {
@@ -923,7 +746,6 @@ class CommuteController {
   }
 
 
-
   /**
    * SSE endpoint — TinyFish navigates to the booking URL, fills all passenger
    * details, and streams progress until it reaches the payment page.
@@ -931,7 +753,7 @@ class CommuteController {
    */
   static async bookFlight(req, res) {
     const startTime = Date.now();
-    const { flight, passengers, currency, routeId } = req.body;
+    const { flight, passengers, currency, routeId, bookingPreferences } = req.body;
     const userId = req.user.id;
 
     if (!flight || !passengers || !passengers.length) {
@@ -976,6 +798,7 @@ class CommuteController {
         flight,
         passengers,
         currency: currency || 'INR',
+        bookingPreferences: bookingPreferences || {},
         onProgress,
       });
 
